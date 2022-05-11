@@ -19,8 +19,8 @@ public interface CLIArgParser {
      * relevant and present.
      * @throws ParseException Thrown if any of the {@link Argument}s failed to parse.
      */
-    <T> Collection<Argument<T>> parse(
-            @NonNull final Collection<Argument<T>> possibleArguments,
+    Collection<Argument<?>> parse(
+            @NonNull final Collection<Argument<?>> possibleArguments,
             @NonNull final String[] args
     ) throws ParseException;
 
