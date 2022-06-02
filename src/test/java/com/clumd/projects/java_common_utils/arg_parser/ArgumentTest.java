@@ -1,4 +1,4 @@
-package arg_parser;
+package com.clumd.projects.java_common_utils.arg_parser;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

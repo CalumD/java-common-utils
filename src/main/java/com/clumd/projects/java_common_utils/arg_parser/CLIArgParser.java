@@ -1,4 +1,4 @@
-package arg_parser;
+package com.clumd.projects.java_common_utils.arg_parser;
 
 import lombok.NonNull;
 
@@ -15,7 +15,7 @@ public interface CLIArgParser {
      *
      * @param possibleArguments The collection of all possible Command Line Arguments this process MAY receive.
      * @param args              The CLI Args provided to the JVM for this process
-     * @return The collection of Arguments which WAS present on the CLI, along with parsed values to the options, if
+     * @return The collection of Arguments which IS present on the CLI, along with parsed values to the options, if
      * relevant and present.
      * @throws ParseException Thrown if any of the {@link Argument}s failed to parse.
      */
