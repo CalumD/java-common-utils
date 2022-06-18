@@ -18,7 +18,7 @@ class ArgumentTest {
     @Test
     void test_unique_id_set() {
         Argument<String> args = Argument.<String>builder().build();
-        assertEquals(0, args.getUniqueId(), 0);
+        assertEquals(Integer.MIN_VALUE, args.getUniqueId(), 0);
         args = Argument.<String>builder().uniqueId(123).build();
         assertEquals(123, args.getUniqueId(), 0);
     }

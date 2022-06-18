@@ -18,7 +18,8 @@ public class Argument<T> {
     /**
      * Used to index the options
      */
-    private final int uniqueId;
+    @Builder.Default
+    private final int uniqueId = Integer.MIN_VALUE;
 
     /**
      * Used to contain all the single character alias' to indicate this option
