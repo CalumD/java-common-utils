@@ -19,7 +19,7 @@ public interface CLIArgParser {
      * relevant and present.
      * @throws ParseException Thrown if any of the {@link Argument}s failed to parse.
      */
-    Collection<Argument<?>> parse(
+    Collection<Argument<Object>> parseFromCLI(
             @NonNull final Collection<Argument<?>> possibleArguments,
             @NonNull final String[] args
     ) throws ParseException;
@@ -40,4 +40,13 @@ public interface CLIArgParser {
             @NonNull final String author,
             @NonNull final String bugs
     );
+
+    /**
+     * Used to get the boilerplate message that can be used to print to the CLI with the relevant argument options and
+     * their usage descriptions.
+     *
+     * @param forArguments The collection of arguments the boilerplate should display in the message
+     * @return The fully formed String description of this Application
+     */
+    String getBoilerplate(@NonNull final Collection<Argument<?>> forArguments) throws ParseException;
 }
