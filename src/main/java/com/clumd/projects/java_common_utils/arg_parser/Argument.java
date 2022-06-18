@@ -63,12 +63,32 @@ public class Argument<T> {
      * needs.
      */
     private final Function<String, T> conversionFunction;
+    /**
+     * Used to track if a default value has been set for this argument to be used if no CLI value is found.
+     */
+    boolean defaultValueIsSet = false;
 
     /**
      * If this argument needs a value, then this should be the fully validated and parsed output of that value.
      */
     private T argumentResult;
+    /**
+     * This should be used as the default value, if nothing is provided for the conversion function
+     */
+    private T defaultValue;
 
+    /**
+     * This method should be called by the implementing {@link CLIArgParser} if a value is provided for this Argument.
+     *
+     * @param value The CLI Argument's value to be parsed into the desired Java type, or a null if no argument provided
+     */
+    public final void attemptValueConversion(final String value) {
+        if (value != null) {
+            argumentResult = conversionFunction.apply(value);
+        } else {
+            argumentResult = defaultValue;
+        }
+    }
 
     /**
      * If a value is possible for this CLI Argument, then this method will be called to verify that the argument
@@ -88,14 +108,20 @@ public class Argument<T> {
         return true;
     }
 
-    /**
-     * This method should be called by the implementing {@link CLIArgParser} if a value is provided for this Argument.
-     *
-     * @param value The CLI Argument's value to be parsed into the desired Java type, or a null if no argument provided
-     */
-    public final void attemptValueConversion(final String value) {
-        if (value != null) {
-            argumentResult = conversionFunction.apply(value);
+    public static class ArgumentBuilder<T> {
+        boolean defaultValueIsSet = false;
+        private T defaultValue;
+
+        /**
+         * Used to set the default value, and also mark that the default value has been set. This can be used to notify
+         * a local Arg Parser that a local value exists, in case it wants to display this in help text.
+         *
+         * @param toValue The value to use as a default value for this argument.
+         */
+        public Argument.ArgumentBuilder<T> defaultValue(T toValue) {
+            defaultValue = toValue;
+            defaultValueIsSet = true;
+            return this;
         }
     }
 }

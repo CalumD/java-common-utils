@@ -140,4 +140,16 @@ class ArgumentTest {
         argForTest.setArgumentResult("world");
         assertTrue(argForTest.validateValue());
     }
+
+    @Test
+    void test_default_value_returned_if_no_value_to_convert() {
+        Argument<Integer> intArg = Argument
+                .<Integer>builder()
+                .defaultValue(987)
+                .build();
+
+        intArg.attemptValueConversion(null);
+
+        assertEquals(987, intArg.getArgumentResult(), 0);
+    }
 }
