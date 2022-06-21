@@ -227,7 +227,7 @@ public class JavaArgParser implements CLIArgParser {
         argDef.attemptValueConversion(value);
 
         if (!argDef.validateValue()) {
-            throw new ParseException("Argument value failed validation. Check argument documentation: {" + argDef.getDescription() + "}", 0);
+            throw new ParseException("Argument value failed validation. Check argument {" + argDef.getUniqueId() + "} documentation: {" + argDef.getDescription() + "}", 0);
         }
 
         returnArgumentMap.put(argDef.getUniqueId(), (Argument<Object>) argDef);

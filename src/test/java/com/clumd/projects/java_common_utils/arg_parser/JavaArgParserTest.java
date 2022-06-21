@@ -733,7 +733,7 @@ class JavaArgParserTest {
             );
             fail("The previous method call should have thrown an exception.");
         } catch (ParseException e) {
-            assertEquals("Argument value failed validation. Check argument documentation: {Used as some arg somewhere. Arg value should be > 10 and < 20}", e.getMessage());
+            assertEquals("Argument value failed validation. Check argument {1} documentation: {Used as some arg somewhere. Arg value should be > 10 and < 20}", e.getMessage());
         }
     }
 
