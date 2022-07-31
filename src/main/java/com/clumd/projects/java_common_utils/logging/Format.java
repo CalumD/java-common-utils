@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.Collection;
 
-public enum LevelFormat implements Serializable {
+public enum Format implements LogLevelFormat, Serializable {
 
     // MODIFIERS
     RESET("\033[0m"),
@@ -57,11 +57,11 @@ public enum LevelFormat implements Serializable {
     @Getter
     private final String formatString;
 
-    LevelFormat(final String formatString) {
+    Format(final String formatString) {
         this.formatString = formatString;
     }
 
-    public static String createFormat(Collection<LevelFormat> formatModifiers) {
+    public static String createFormat(Collection<Format> formatModifiers) {
         formatModifiers = formatModifiers
                 .stream()
                 .filter(f -> f != RESET)
@@ -70,7 +70,7 @@ public enum LevelFormat implements Serializable {
         StringBuilder modifiers = new StringBuilder("\033[0;");
         String formatString;
 
-        for (LevelFormat f : formatModifiers) {
+        for (Format f : formatModifiers) {
             modifiers.append(';');
             formatString = f.getFormatString();
             formatString = formatString.substring(

@@ -2,19 +2,19 @@ package com.clumd.projects.java_common_utils.logging;
 
 import org.junit.jupiter.api.Test;
 
-import static com.clumd.projects.java_common_utils.logging.LogLevel.*;
+import static com.clumd.projects.java_common_utils.logging.Level.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class LogLevelTest {
+class LevelTest {
 
-    private static class ImportantClone extends LogLevel {
+    private static class ImportantClone extends Level {
 
         public ImportantClone() {
             super("level", IMPORTANT.getPriority());
         }
     }
 
-    private static class ImportantNotClone extends LogLevel {
+    private static class ImportantNotClone extends Level {
 
         public ImportantNotClone() {
             super("level2", IMPORTANT.getPriority() + 1);
@@ -28,8 +28,8 @@ class LogLevelTest {
 
     @Test
     void test_name_always_uppercase() {
-        LogLevel level = new LogLevel("Critical", 10, LevelFormat.BLUE);
-        assertEquals("CRITICAL", level.getLevel());
+        Level level = new Level("Critical", 10, Format.BLUE);
+        assertEquals("CRITICAL", level.getLevelName());
         assertEquals("CRITICAL", level.toString());
     }
 
