@@ -43,15 +43,25 @@ class LogLevelTest {
         assertDoesNotThrow(() -> {
             System.out.println("ALL " + ALL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("OFF " + OFF.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+
+            System.out.println("SHUTDOWN " + SHUTDOWN.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("EMERGENCY " + EMERGENCY.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("FATAL " + FATAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("CRITICAL " + CRITICAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("SEVERE " + SEVERE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("ERROR " + ERROR.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("FAILURE " + FAILURE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("WARNING " + WARNING.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("IMPORTANT " + IMPORTANT.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("NOTIFY " + NOTIFICATION.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("INFO " + INFO.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("SUCCESS " + SUCCESS.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("CONFIG " + CONFIG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("DATA " + DATA.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("VERBOSE " + VERBOSE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("MINOR " + MINOR.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("DEBUG " + DEBUG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("TESTING " + TESTING.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("TRACE " + TRACE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
         });
     }

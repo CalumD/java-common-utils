@@ -12,6 +12,7 @@ public enum LevelFormat implements Serializable {
     BOLD("\033[1m"),
     UNDERLINE("\033[4m"),
     ITALIC("\033[3m"),
+    OUTLINE("\033[51m"),
 
     // BASE COLOURS
     BLACK("\033[30m"),

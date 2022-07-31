@@ -15,16 +15,26 @@ public class LogLevel implements Serializable {
     public static final LogLevel ALL = LogLevel.of("ALL", Integer.MIN_VALUE);
     public static final LogLevel OFF = LogLevel.of("OFF", Integer.MAX_VALUE);
 
-    public static final LogLevel FATAL = LogLevel.of("FATAL", 5000, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
-    public static final LogLevel CRITICAL = LogLevel.of("CRITICAL", 4000, LevelFormat.YELLOW);
-    public static final LogLevel SEVERE = LogLevel.of("SEVERE", 3000, createFormat(List.of(BOLD, BRIGHT_RED)));
-    public static final LogLevel WARNING = LogLevel.of("WARNING", 2000, LevelFormat.RED);
-    public static final LogLevel IMPORTANT = LogLevel.of("IMPORTANT", 1000, createFormat(List.of(BOLD, BRIGHT_GREEN)));
-    public static final LogLevel INFO = LogLevel.of("INFO", 0, LevelFormat.GREEN);
-    public static final LogLevel CONFIG = LogLevel.of("CONFIG", -1000, LevelFormat.PURPLE);
-    public static final LogLevel VERBOSE = LogLevel.of("VERBOSE", -2000, LevelFormat.BLUE);
-    public static final LogLevel DEBUG = LogLevel.of("DEBUG", -3000, LevelFormat.CYAN);
-    public static final LogLevel TRACE = LogLevel.of("TRACE", -4000, LevelFormat.WHITE);
+    public static final LogLevel SHUTDOWN = LogLevel.of("SHUTDOWN", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final LogLevel EMERGENCY = LogLevel.of("EMERGENCY", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final LogLevel FATAL = LogLevel.of("FATAL", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final LogLevel CRITICAL = LogLevel.of("CRITICAL", 40, YELLOW);
+    public static final LogLevel SEVERE = LogLevel.of("SEVERE", 40, YELLOW);
+    public static final LogLevel ERROR = LogLevel.of("ERROR", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
+    public static final LogLevel FAILURE = LogLevel.of("FAILURE", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
+    public static final LogLevel WARNING = LogLevel.of("WARNING", 20, RED);
+    public static final LogLevel IMPORTANT = LogLevel.of("IMPORTANT", 10, createFormat(List.of(BOLD, BRIGHT_GREEN)));
+    public static final LogLevel NOTIFICATION = LogLevel.of("NOTIFICATION", 10, createFormat(List.of(BOLD, BRIGHT_GREEN)));
+    public static final LogLevel INFO = LogLevel.of("INFO", 0, GREEN);
+    public static final LogLevel SUCCESS = LogLevel.of("SUCCESS", 0, GREEN);
+    public static final LogLevel CONFIG = LogLevel.of("CONFIG", -10, PURPLE);
+    public static final LogLevel DATA = LogLevel.of("DATA", -10, PURPLE);
+    public static final LogLevel VERBOSE = LogLevel.of("VERBOSE", -20, BLUE);
+    public static final LogLevel MINOR = LogLevel.of("MINOR", -20, BLUE);
+    public static final LogLevel DEBUG = LogLevel.of("DEBUG", -30, createFormat(List.of(BOLD, CYAN, OUTLINE)));
+    public static final LogLevel TESTING = LogLevel.of("TESTING", -30, createFormat(List.of(BOLD, CYAN, OUTLINE)));
+    public static final LogLevel TRACE = LogLevel.of("TRACE", -40, WHITE);
+
 
     private final String level;
     @Getter
