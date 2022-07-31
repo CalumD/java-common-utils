@@ -2,10 +2,7 @@ package com.clumd.projects.java_common_utils.logging;
 
 import org.junit.jupiter.api.Test;
 
-import static com.clumd.projects.java_common_utils.logging.LogLevel.COLOUR_RESET;
-import static com.clumd.projects.java_common_utils.logging.LogLevel.IMPORTANT;
-import static com.clumd.projects.java_common_utils.logging.LogLevel.INFO;
-import static com.clumd.projects.java_common_utils.logging.LogLevel.SEVERE;
+import static com.clumd.projects.java_common_utils.logging.LogLevel.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LogLevelTest {
@@ -26,7 +23,7 @@ class LogLevelTest {
 
     @Test
     void test_two_levels_of_same_priority_hash_the_same() {
-        assertEquals(LogLevel.IMPORTANT.hashCode(), new ImportantClone().hashCode(), 0);
+        assertEquals(IMPORTANT.hashCode(), new ImportantClone().hashCode(), 0);
     }
 
     @Test
@@ -44,48 +41,48 @@ class LogLevelTest {
     @Test
     void test_colours() {
         assertDoesNotThrow(() -> {
-            System.out.println("ALL " + LogLevel.ALL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("OFF " + LogLevel.OFF.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("FATAL " + LogLevel.FATAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("CRITICAL " + LogLevel.CRITICAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("SEVERE " + LogLevel.SEVERE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("WARNING " + LogLevel.WARNING.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("IMPORTANT " + LogLevel.IMPORTANT.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("INFO " + LogLevel.INFO.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("CONFIG " + LogLevel.CONFIG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("VERBOSE " + LogLevel.VERBOSE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("DEBUG " + LogLevel.DEBUG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
-            System.out.println("TRACE " + LogLevel.TRACE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("ALL " + ALL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("OFF " + OFF.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("FATAL " + FATAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("CRITICAL " + CRITICAL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("SEVERE " + SEVERE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("WARNING " + WARNING.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("IMPORTANT " + IMPORTANT.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("INFO " + INFO.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("CONFIG " + CONFIG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("VERBOSE " + VERBOSE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("DEBUG " + DEBUG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("TRACE " + TRACE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
         });
     }
 
     @Test
     @SuppressWarnings("all")
     void test_null_not_equals() {
-        assertFalse(LogLevel.IMPORTANT.equals(null));
+        assertFalse(IMPORTANT.equals(null));
     }
 
     @Test
     @SuppressWarnings("all")
     void test_different_class_not_equals() {
-        assertFalse(LogLevel.IMPORTANT.equals("IMPORTANT"));
+        assertFalse(IMPORTANT.equals("IMPORTANT"));
     }
 
     @Test
     @SuppressWarnings("all")
     void test_different_level_not_equals() {
-        assertFalse(LogLevel.IMPORTANT.equals(SEVERE));
+        assertFalse(IMPORTANT.equals(SEVERE));
     }
 
     @Test
     @SuppressWarnings("all")
     void test_different_level_does_equals() {
-        assertTrue(LogLevel.IMPORTANT.equals(new ImportantClone()));
+        assertTrue(IMPORTANT.equals(new ImportantClone()));
     }
 
     @Test
     @SuppressWarnings("all")
     void test_same_level_does_equals() {
-        assertTrue(LogLevel.IMPORTANT.equals(IMPORTANT));
+        assertTrue(IMPORTANT.equals(IMPORTANT));
     }
 }
