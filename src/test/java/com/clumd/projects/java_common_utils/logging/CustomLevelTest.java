@@ -10,7 +10,7 @@ class CustomLevelTest {
     private static class ImportantClone extends CustomLevel {
 
         public ImportantClone() {
-            super("level", IMPORTANT.getPriority());
+            super("Important", IMPORTANT.getPriority());
         }
     }
 

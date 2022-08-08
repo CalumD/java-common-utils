@@ -6,10 +6,16 @@ import lombok.NonNull;
 import static com.clumd.projects.java_common_utils.logging.Format.*;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class CustomLevel extends Level implements LogLevel, Serializable {
+
+    private static final Map<Level, LogLevel> ALL_LEVELS = new HashMap<>();
 
     public static final String COLOUR_RESET = "\033[0m";
 
@@ -48,6 +54,7 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this.levelName = this.toString();
         this.priority = priority;
         this.levelFormat = null;
+        ALL_LEVELS.put(this, this);
     }
 
     public CustomLevel(@NonNull String level, int priority, @NonNull final String levelFormat) {
@@ -55,6 +62,7 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this.levelName = this.toString();
         this.priority = priority;
         this.levelFormat = levelFormat;
+        ALL_LEVELS.put(this, this);
     }
 
     public CustomLevel(@NonNull String level, int priority, @NonNull final LogLevelFormat format) {
@@ -73,19 +81,33 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         return new CustomLevel(level, priority, format);
     }
 
+    public static Optional<LogLevel> getExtensionFromBase(@NonNull final Level wantedLevel) {
+        return Optional.ofNullable(ALL_LEVELS.getOrDefault(wantedLevel, null));
+    }
+
     @Override
     public boolean equals(final Object other) {
         if (other == null) {
             return false;
         }
         if (other instanceof CustomLevel otherLevel) {
-            return otherLevel.priority == this.priority;
+            return otherLevel.priority == this.priority && Objects.equals(otherLevel.levelName, this.levelName);
+        }
+        return false;
+    }
+
+    public boolean weakEquals(final Object other) {
+        if (equals(other)) {
+            return true;
+        }
+        if (other instanceof CustomLevel otherLevel) {
+            return otherLevel.priority == this.priority || Objects.equals(otherLevel.levelName, this.levelName);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(this.priority);
+        return Objects.hash(Integer.hashCode(this.priority), this.levelName.hashCode());
     }
 }
