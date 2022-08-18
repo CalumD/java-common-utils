@@ -1,6 +1,8 @@
 package com.clumd.projects.java_common_utils.logging;
 
-public interface LogLevel {
+import java.io.Serializable;
+
+public interface LogLevel extends Serializable {
 
     String getLevelName();
     int getPriority();

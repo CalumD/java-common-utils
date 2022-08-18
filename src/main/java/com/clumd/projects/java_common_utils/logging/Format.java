@@ -2,10 +2,9 @@ package com.clumd.projects.java_common_utils.logging;
 
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.util.Collection;
 
-public enum Format implements LogLevelFormat, Serializable {
+public enum Format implements LogLevelFormat {
 
     // MODIFIERS
     RESET("\033[0m"),

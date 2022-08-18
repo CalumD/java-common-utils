@@ -1,5 +1,7 @@
 package com.clumd.projects.java_common_utils.logging;
 
-public interface LogLevelFormat {
+import java.io.Serializable;
+
+public interface LogLevelFormat extends Serializable {
     String getFormatString();
 }
