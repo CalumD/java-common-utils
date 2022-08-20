@@ -3,6 +3,8 @@ package com.clumd.projects.java_common_utils.logging;
 import lombok.NonNull;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 
 public class LogRoot {
 
@@ -20,6 +23,7 @@ public class LogRoot {
 
     private static String discardablePackageId;
     private static String loggingRootId;
+    private static String staticSystemName;
 
     private LogRoot() {
         // Don't allow this class to be instantiated. It should be used for static method calls only.
@@ -27,14 +31,25 @@ public class LogRoot {
 
     public static void init(
             @NonNull final String discardablePackageIdEndingInDot,
-            @NonNull final String loggingRootId,
+            @NonNull final String loggingRootID,
+            final String systemID,
             final Collection<CustomLogHandler> wantedLogHandlers
-    ) {
+    ) throws Exception {
         // Replace the default LogManager so that when the shutdown hook halts all running threads, the logger
         // is able to run until the very end, when the end of our custom Shutdown hook should kill it.
         System.setProperty("java.util.logging.manager", WaitForShutdownHookLogManager.class.getName());
         LogRoot.discardablePackageId = discardablePackageIdEndingInDot;
-        LogRoot.loggingRootId = loggingRootId;
+        LogRoot.loggingRootId = loggingRootID;
+        // Obtain the local system's name to identify its logfile in a distributed system.
+        try {
+            staticSystemName = InetAddress
+                    .getLocalHost()
+                    .toString()
+                    .replace("/", "-")
+                    .replace("\\\\", "-");
+        } catch (UnknownHostException e) {
+            throw new Exception("Failed to obtain the local system's name.", e);
+        }
 
         // Remove all parent chaining
         Logger root = Logger.getLogger("");
@@ -46,10 +61,12 @@ public class LogRoot {
             root.removeHandler(h);
         }
         root.setUseParentHandlers(false);
+        root.setLevel(CustomLevel.ALL);
 
         // init each wanted handler
         for (CustomLogHandler handler : wantedLogHandlers) {
-            handler.acceptLogRootRefs(SPECIFIC_RUN_ID, OVERRIDDEN_THREAD_NAME_MAPPINGS);
+            handler.acceptLogRootRefs(SPECIFIC_RUN_ID, systemID == null ? staticSystemName : systemID, OVERRIDDEN_THREAD_NAME_MAPPINGS);
+            root.addHandler((StreamHandler) handler);
         }
     }
 
@@ -63,6 +80,21 @@ public class LogRoot {
         return new FileHandler("", true);
     }
 
+    public static Logger createLogger(@NonNull final Class<?> forClass) {
+        return createLogger(null, forClass.getName());
+    }
+
+    public static Logger createLogger(final String prefix, final String loggerIdentifier) {
+        //create the logger object
+        return (Logger) Logger.getLogger(loggingRootId
+                        + '.' + (prefix == null ? "" : prefix)
+                        + (
+                        loggerIdentifier.startsWith(discardablePackageId)
+                                ? loggerIdentifier.substring(discardablePackageId.length())
+                                : loggerIdentifier
+                )
+        );
+    }
 
     public static void setBranchLoggingLevel(@NonNull final LogLevel selectedLevel, final String viaLogPrefix, @NonNull final String viaLogIdentifier) {
         // TODO
