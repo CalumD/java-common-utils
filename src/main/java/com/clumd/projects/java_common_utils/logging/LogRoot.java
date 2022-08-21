@@ -1,5 +1,7 @@
 package com.clumd.projects.java_common_utils.logging;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.io.File;
@@ -27,6 +29,7 @@ public class LogRoot {
 
     private static String discardablePackageId;
     private static String loggingRootId;
+    @Getter(value = AccessLevel.PACKAGE)
     private static String staticSystemName;
 
     private LogRoot() {
