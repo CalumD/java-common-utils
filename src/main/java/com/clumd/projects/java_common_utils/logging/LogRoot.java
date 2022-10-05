@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
@@ -19,7 +20,7 @@ import java.util.logging.StreamHandler;
 public class LogRoot {
 
     private static final UUID SPECIFIC_RUN_ID = UUID.randomUUID(); // The ID for a specific run, of a specific machine.
-    private static final Map<Integer, String> OVERRIDDEN_THREAD_NAME_MAPPINGS = new HashMap<>();
+    private static final Map<Long, String> OVERRIDDEN_THREAD_NAME_MAPPINGS = new HashMap<>();
 
     private static String discardablePackageId;
     private static String loggingRootId;
@@ -33,8 +34,8 @@ public class LogRoot {
             @NonNull final String discardablePackageIdEndingInDot,
             @NonNull final String loggingRootID,
             final String systemID,
-            final Collection<CustomLogHandler> wantedLogHandlers
-    ) throws Exception {
+            final Collection<CustomLogController> wantedLogHandlers
+    ) {
         // Replace the default LogManager so that when the shutdown hook halts all running threads, the logger
         // is able to run until the very end, when the end of our custom Shutdown hook should kill it.
         System.setProperty("java.util.logging.manager", WaitForShutdownHookLogManager.class.getName());
@@ -48,7 +49,7 @@ public class LogRoot {
                     .replace("/", "-")
                     .replace("\\\\", "-");
         } catch (UnknownHostException e) {
-            throw new Exception("Failed to obtain the local system's name.", e);
+            throw new IllegalStateException("Failed to obtain the local system's name.", e);
         }
 
         // Remove all parent chaining
@@ -64,19 +65,22 @@ public class LogRoot {
         root.setLevel(CustomLevel.ALL);
 
         // init each wanted handler
-        for (CustomLogHandler handler : wantedLogHandlers) {
+        for (CustomLogController handler : wantedLogHandlers) {
             handler.acceptLogRootRefs(SPECIFIC_RUN_ID, systemID == null ? staticSystemName : systemID, OVERRIDDEN_THREAD_NAME_MAPPINGS);
-            root.addHandler((StreamHandler) handler);
+            if (handler instanceof StreamHandler streamHandler) {
+                root.addHandler(streamHandler);
+            } else {
+                throw new IllegalArgumentException("Every custom log controller MUST extend java.util.logging.StreamHandler.");
+            }
         }
     }
 
-    public ConsoleHandler basicConsoleHandler() {
-        // TODO
+    public static ConsoleHandler basicConsoleHandler() {
         return new ConsoleHandler();
     }
 
-    public FileHandler basicFileHandler() throws IOException {
-        // TODO
+    public static FileHandler basicFileHandler() throws IOException {
+        // TODO: STILL TO SET THE DEFAULT PARAMS
         return new FileHandler("", true);
     }
 
@@ -86,7 +90,7 @@ public class LogRoot {
 
     public static Logger createLogger(final String prefix, final String loggerIdentifier) {
         //create the logger object
-        return (Logger) Logger.getLogger(loggingRootId
+        return Logger.getLogger(loggingRootId
                         + '.' + (prefix == null ? "" : prefix)
                         + (
                         loggerIdentifier.startsWith(discardablePackageId)
@@ -102,7 +106,7 @@ public class LogRoot {
 
 
     public static void setGlobalLoggingLevel(@NonNull final LogLevel selectedLevel) {
-        // TODO
+        Logger.getLogger("").setLevel((Level) selectedLevel);
     }
 
     /**
