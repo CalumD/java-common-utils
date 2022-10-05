@@ -2,6 +2,7 @@ package com.clumd.projects.java_common_utils.logging;
 
 import lombok.NonNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,6 +22,8 @@ public class LogRoot {
 
     private static final UUID SPECIFIC_RUN_ID = UUID.randomUUID(); // The ID for a specific run, of a specific machine.
     private static final Map<Long, String> OVERRIDDEN_THREAD_NAME_MAPPINGS = new HashMap<>();
+    private static final int SINGLE_FILE_LOG_SIZE = 10000000; //~10MB in bytes.
+    private static final int LOG_FILE_ROTATIONS = 3; // max files to keep track of before re-writing old logs.
 
     private static String discardablePackageId;
     private static String loggingRootId;
@@ -43,11 +46,13 @@ public class LogRoot {
         LogRoot.loggingRootId = loggingRootID;
         // Obtain the local system's name to identify its logfile in a distributed system.
         try {
-            staticSystemName = InetAddress
+            staticSystemName = systemID == null
+                    ? InetAddress
                     .getLocalHost()
                     .toString()
                     .replace("/", "-")
-                    .replace("\\\\", "-");
+                    .replace("\\\\", "-")
+                    : systemID;
         } catch (UnknownHostException e) {
             throw new IllegalStateException("Failed to obtain the local system's name.", e);
         }
@@ -66,7 +71,7 @@ public class LogRoot {
 
         // init each wanted handler
         for (CustomLogController handler : wantedLogHandlers) {
-            handler.acceptLogRootRefs(SPECIFIC_RUN_ID, systemID == null ? staticSystemName : systemID, OVERRIDDEN_THREAD_NAME_MAPPINGS);
+            handler.acceptLogRootRefs(SPECIFIC_RUN_ID, staticSystemName, OVERRIDDEN_THREAD_NAME_MAPPINGS);
             if (handler instanceof StreamHandler streamHandler) {
                 root.addHandler(streamHandler);
             } else {
@@ -79,9 +84,26 @@ public class LogRoot {
         return new ConsoleHandler();
     }
 
+    public static FileHandler basicFileHandler(@NonNull String atDir) throws IOException {
+        return new FileHandler(
+                atDir + "/" + loggingRootId + "_" + staticSystemName + "_%g.log",
+                SINGLE_FILE_LOG_SIZE,
+                LOG_FILE_ROTATIONS,
+                true
+        );
+    }
+
     public static FileHandler basicFileHandler() throws IOException {
-        // TODO: STILL TO SET THE DEFAULT PARAMS
-        return new FileHandler("", true);
+        return basicFileHandler(
+                new File(
+                        LogRoot
+                                .class
+                                .getProtectionDomain()
+                                .getCodeSource()
+                                .getLocation()
+                                .getFile()
+                ).getAbsolutePath()
+        );
     }
 
     public static Logger createLogger(@NonNull final Class<?> forClass) {
