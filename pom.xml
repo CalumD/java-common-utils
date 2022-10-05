@@ -73,6 +73,11 @@
             <version>5.3.16</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.clumd.projects</groupId>
+            <artifactId>java-json</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 
     <!--  Stages for Maven goals to call against  -->
