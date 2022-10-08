@@ -222,7 +222,7 @@ public class JavaArgParser implements CLIArgParser {
         }
     }
 
-    private void genericParseIntoArgument(final Argument<?> argDef, final String value, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException {
+    private void genericParseIntoArgument(final Argument<?> argDef, final String value, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException, IllegalArgumentException {
 
         argDef.attemptValueConversion(value);
 

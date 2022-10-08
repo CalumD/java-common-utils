@@ -102,7 +102,13 @@ public class Argument<T> {
 
         // If the validation function is not provided, we should default to accepted.
         if (validationFunction != null) {
-            return validationFunction.apply(argumentResult);
+            try {
+                return validationFunction.apply(argumentResult);
+            } catch (Throwable e) {
+                throw new IllegalArgumentException("Argument with ID {" + getUniqueId() + "} failed to validate. " +
+                        "Check supplied value, or that the default value is valid for the given Validation function, " +
+                        "if providing an argument is optional.", e);
+            }
         }
 
         return true;

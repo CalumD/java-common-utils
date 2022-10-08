@@ -3,6 +3,8 @@ package com.clumd.projects.java_common_utils.arg_parser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ArgumentTest {
@@ -139,6 +141,34 @@ class ArgumentTest {
     void test_validate_value_defaults_true() {
         argForTest.setArgumentResult("world");
         assertTrue(argForTest.validateValue());
+    }
+
+    @Test
+    void test_there_is_a_friendly_error_if_default_value_doesnt_pass_validation_function() {
+        // The argument below is broken because the validation function says the number must be between 10 and 30,
+        // but the value is optional, and the default value is not provided (so will be interpreted as null)
+        // Therefore when we ask for argument -a, with no argument, it will try to validate "null", which should break.
+        Argument<Integer> a = Argument.<Integer>builder()
+                .uniqueId(1)
+                .description(
+                        "A number between 10 and 30"
+                )
+                .shortOptions(Set.of('a'))
+                .longOptions(Set.of("alpha"))
+                .hasValue(true)
+                .valueIsOptional(true)
+                .conversionFunction(Integer::parseInt)
+                .validationFunction(i -> i > 10 && i < 30)
+                .build();
+
+        try {
+            a.validateValue();
+            fail("The previous method call should have thrown an exception.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Argument with ID {1} failed to validate. " +
+                    "Check supplied value, or that the default value is valid for the given Validation function, " +
+                    "if providing an argument is optional.", e.getMessage());
+        }
     }
 
     @Test
