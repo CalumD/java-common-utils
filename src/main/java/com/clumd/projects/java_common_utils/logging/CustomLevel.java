@@ -3,15 +3,14 @@ package com.clumd.projects.java_common_utils.logging;
 import lombok.Getter;
 import lombok.NonNull;
 
-import static com.clumd.projects.java_common_utils.logging.Format.*;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.logging.Level;
+
+import static com.clumd.projects.java_common_utils.logging.Format.*;
 
 public class CustomLevel extends Level implements LogLevel, Serializable {
 
@@ -79,10 +78,6 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
 
     static CustomLevel of(@NonNull final String level, final int priority, @NonNull final LogLevelFormat format) {
         return new CustomLevel(level, priority, format);
-    }
-
-    public static Optional<LogLevel> getExtensionFromBase(@NonNull final Level wantedLevel) {
-        return Optional.ofNullable(ALL_LEVELS.getOrDefault(wantedLevel, null));
     }
 
     @Override

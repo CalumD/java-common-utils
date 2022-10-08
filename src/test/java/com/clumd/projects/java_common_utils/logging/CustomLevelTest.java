@@ -95,4 +95,10 @@ class CustomLevelTest {
     void test_same_level_does_equals() {
         assertTrue(IMPORTANT.equals(IMPORTANT));
     }
+
+    @Test
+    void test_static_of() {
+        assertNotNull(CustomLevel.of("newlevel", 10));
+        assertNotNull(CustomLevel.of("newlevel2", 100));
+    }
 }
