@@ -1,21 +1,27 @@
 package com.clumd.projects.java_common_utils.logging;
 
+import com.clumd.projects.java_common_utils.files.FileUtils;
+import com.clumd.projects.javajson.api.Json;
+import com.clumd.projects.javajson.api.JsonParser;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileControllerTest {
 
-    private static final String LOGGING_TEST_PATH = "src/test/resources/logging/testLog";
+    private static final String LOGGING_TEST_PATH = "src/test/resources/logging/testLog.log";
 
     private FileController controller;
     private UUID runID;
@@ -29,6 +35,11 @@ class FileControllerTest {
         systemId = "system id";
         overriddenThreadNames = new HashMap<>();
         controller.acceptLogRootRefs(runID, systemId, overriddenThreadNames);
+    }
+
+    @AfterEach
+    void tearDown() {
+        controller.close();
     }
 
     @Test
@@ -127,5 +138,24 @@ class FileControllerTest {
         assertTrue(formattedString.contains("\",\"Nested Reason:  (RuntimeException) 2nd reason\",\""));
         assertTrue(formattedString.contains("\",\"Nested Reason:  (IOException) 3rd IO\",\""));
         assertTrue(formattedString.contains("\",\"Nested Reason:  (NullPointerException) 4th NPE!\",\""));
+    }
+
+    @Test
+    void test_log_actually_written_to_file() throws IOException {
+        String message = "blah";
+        controller.publish(new LogRecord(Level.INFO, message));
+
+        List<String> fileContents = FileUtils.getFileAsStrings(LOGGING_TEST_PATH);
+
+        assertEquals(1, fileContents.size(), 0);
+        Json logWritten = JsonParser.parse(fileContents.get(0));
+
+        assertEquals(1, logWritten.getLongAt("threadID"), 0);
+        assertEquals(runID.toString(), logWritten.getStringAt("traceID"));
+        assertEquals(Level.INFO.getName(), logWritten.getStringAt("level"));
+        assertEquals("Anon/Unknown Logger", logWritten.getStringAt("logger"));
+        assertEquals(systemId, logWritten.getStringAt("publisher"));
+        assertEquals(message, logWritten.getStringAt("message"));
+        assertEquals("Anon/Unknown Thread", logWritten.getStringAt("threadName"));
     }
 }
