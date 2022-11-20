@@ -172,13 +172,14 @@ public class FileUtils {
     /**
      * Used to write a single string to a file.
      *
-     * @param data The String to be written to the file.
-     * @param path The path of the file that we would like to write into
+     * @param data   The String to be written to the file.
+     * @param path   The path of the file that we would like to write into
      * @param append If we should add to the end of the file, or overwrite from the beginning.
      * @throws IOException Thrown if there was a problem writing to the file.
      */
     public static void writeStringToFile(final String data, final String path, final boolean append) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(path, append))){
+        makeContainingDirs(path);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path, append))) {
             writer.write(data);
         }
     }
@@ -186,13 +187,14 @@ public class FileUtils {
     /**
      * Used to write multiple strings to a file.
      *
-     * @param data The collection of Strings to be written to the file.
-     * @param path The path of the file that we would like to write into
+     * @param data   The collection of Strings to be written to the file.
+     * @param path   The path of the file that we would like to write into
      * @param append If we should add to the end of the file, or overwrite from the beginning.
      * @throws IOException Thrown if there was a problem writing to the file.
      */
     public static void writeStringsToFile(final Collection<String> data, final String path, final boolean append) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(path, append))){
+        makeContainingDirs(path);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path, append))) {
             for (String s : data) {
                 writer.write(s);
             }
@@ -202,14 +204,91 @@ public class FileUtils {
     /**
      * Used to write raw bytes to a file.
      *
-     * @param data The data to be written to the file.
-     * @param path The path of the file that we would like to write into
+     * @param data   The data to be written to the file.
+     * @param path   The path of the file that we would like to write into
      * @param append If we should add to the end of the file, or overwrite from the beginning.
      * @throws IOException Thrown if there was a problem writing to the file.
      */
     public static void writeBytesToFile(final byte[] data, final String path, final boolean append) throws IOException {
-        try(FileOutputStream writer = new FileOutputStream(path, append)){
+        makeContainingDirs(path);
+        try (FileOutputStream writer = new FileOutputStream(path, append)) {
             writer.write(data);
+        }
+    }
+
+    /**
+     * Create all the containing directories for the given path, if not exists.
+     * <p>
+     * This is a simple pass-through method.
+     *
+     * @param path The path to create the parent directories to
+     * @throws IOException Thrown if there was a problem creating the parent directories.
+     */
+    public static void makeContainingDirs(String path) throws IOException {
+        Files.createDirectories(new File(path).getParentFile().toPath());
+    }
+
+    /**
+     * Used to delete a file on the filesystem if it exists, if not - no action is taken.
+     *
+     * @param path The path of the file to be deleted.
+     * @throws IOException Thrown if there was a problem deleting the file.
+     */
+    public static void deleteFileIfExists(String path) throws IOException {
+        File file = new File(path);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        if (file.isDirectory()) {
+            throw new FileNotFoundException(path + " (Is a directory, not a file)");
+        }
+
+        deleteIfExists(path);
+    }
+
+    /**
+     * Used to delete a directory on the filesystem if it exists, if not - no action is taken.
+     *
+     * @param path The path of the directory to be deleted.
+     * @throws IOException Thrown if there was a problem deleting the directory.
+     */
+    public static void deleteDirectoryIfExists(String path) throws IOException {
+        File file = new File(path);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        file = new File(validateIsDirectory(path));
+
+        deleteIfExists(file.getCanonicalPath());
+    }
+
+    /**
+     * Used to delete an item on the filesystem if it exists, if not - no action is taken.
+     *
+     * @param path The path of the item to be deleted.
+     * @throws IOException Thrown if there was a problem deleting the file/directory.
+     */
+    public static void deleteIfExists(String path) throws IOException {
+        File file = new File(path);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                if (!Files.isSymbolicLink(f.toPath())) {
+                    deleteIfExists(f.getCanonicalPath());
+                }
+            }
+        }
+        if (!file.delete()) {
+            throw new IOException("Failed to delete: {" + path + "}");
         }
     }
 }

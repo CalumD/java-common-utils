@@ -35,7 +35,7 @@ class FileUtilsTest {
     void get_resource_as_string() throws IOException {
         final String asString = FileUtils.getLocalResourceAsString("com/clumd/projects/java_common_utils/files/FileUtils.class");
 
-        assertEquals(6240, asString.length(), 0);
+        assertEquals(7544, asString.length(), 0);
         assertTrue(asString.contains("com/clumd/projects/java_common_utils/files/FileUtils"));
     }
 
@@ -43,7 +43,7 @@ class FileUtilsTest {
     void get_resource_as_strings() throws IOException {
         final List<String> asStrings = FileUtils.getLocalResourceAsStrings("com/clumd/projects/java_common_utils/files/FileUtils.class");
 
-        assertEquals(61, asStrings.size(), 0);
+        assertEquals(76, asStrings.size(), 0);
         assertTrue(asStrings.get(4).contains("com/clumd/projects/java_common_utils/files/FileUtils"));
     }
 
@@ -220,6 +220,19 @@ class FileUtilsTest {
     }
 
     @Test
+    void test_writing_strings_to_nested_file_overwrite() throws IOException {
+        String path = "src/test/resources/files/more/things/are/here/now/" + "test_file_" + UUID.randomUUID() + ".txt";
+        Collection<String> existingData = List.of("I should" + System.lineSeparator(), "disappear" + System.lineSeparator());
+        Collection<String> data = List.of("hello" + System.lineSeparator(), "world" + System.lineSeparator());
+
+        FileUtils.writeStringsToFile(existingData, path, false);
+        FileUtils.writeStringsToFile(data, path, false);
+        assertEquals(data, FileUtils.getFileAsStrings(path));
+
+        FileUtils.deleteDirectoryIfExists("src/test/resources/files/more");
+    }
+
+    @Test
     void test_writing_strings_to_file_append() throws IOException {
         String path = "src/test/resources/files/" + "test_file_" + UUID.randomUUID() + ".txt";
         Collection<String> data = List.of("hello" + System.lineSeparator(), "world" + System.lineSeparator());
@@ -273,5 +286,25 @@ class FileUtilsTest {
         }
 
         assertTrue(new File(path).delete());
+    }
+
+    @Test
+    void test_delete_file_doesnt_allow_delete_dir() throws IOException {
+        try {
+            FileUtils.deleteFileIfExists("src/test/resources/files");
+            fail("The previous method call should have thrown an exception.");
+        } catch (FileNotFoundException e) {
+            assertTrue(e.getMessage().contains(" (Is a directory, not a file)"));
+        }
+    }
+
+    @Test
+    void test_delete_dir_doesnt_allow_delete_file() {
+        try {
+            FileUtils.deleteDirectoryIfExists("src/test/resources/files/testConfigFile.json");
+            fail("The previous method call should have thrown an exception.");
+        } catch (IOException e) {
+            assertEquals("The path provided is not a directory.", e.getMessage());
+        }
     }
 }
