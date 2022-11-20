@@ -97,6 +97,44 @@ class CustomLevelTest {
     }
 
     @Test
+    void test_weak_equals_allows_priority_not_level() {
+        CustomLevel newLevel = new CustomLevel("NOT_INFO", 0);
+
+        assertEquals("INFO", INFO.getLevelName());
+        assertEquals(0, INFO.getPriority(), 0);
+
+        assertEquals("NOT_INFO", newLevel.getLevelName());
+        assertEquals(0, newLevel.getPriority(), 0);
+
+        assertNotEquals(INFO, newLevel);
+        assertTrue(INFO.weakEquals(newLevel));
+    }
+
+    @Test
+    void test_weak_equals_allows_level_not_priority() {
+        CustomLevel newLevel = new CustomLevel("INFO", 123);
+
+        assertEquals("INFO", INFO.getLevelName());
+        assertEquals(0, INFO.getPriority(), 0);
+
+        assertEquals("INFO", newLevel.getLevelName());
+        assertEquals(123, newLevel.getPriority(), 0);
+
+        assertNotEquals(INFO, newLevel);
+        assertTrue(INFO.weakEquals(newLevel));
+    }
+
+    @Test
+    void test_weak_equals_checks_regular_equals_first() {
+        assertTrue(INFO.weakEquals(new CustomLevel("INFO", 0)));
+    }
+
+    @Test
+    void test_weak_equals_fails_if_totally_different() {
+        assertFalse(INFO.weakEquals(1));
+    }
+
+    @Test
     void test_static_of() {
         assertNotNull(CustomLevel.of("newlevel", 10));
         assertNotNull(CustomLevel.of("newlevel2", 100));
