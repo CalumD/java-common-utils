@@ -31,6 +31,8 @@ public class LogRoot {
     private static String loggingRootId;
     @Getter(value = AccessLevel.PACKAGE)
     private static String staticSystemName;
+    static final String TAB = "    ";
+    static final String ANON_THREAD = "Anon/Unknown Thread";
 
     private LogRoot() {
         // Don't allow this class to be instantiated. It should be used for static method calls only.

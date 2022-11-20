@@ -11,12 +11,15 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+import static com.clumd.projects.java_common_utils.logging.LogRoot.ANON_THREAD;
+import static com.clumd.projects.java_common_utils.logging.LogRoot.TAB;
+
 public class ConsoleController extends ConsoleHandler implements CustomLogController {
 
     private UUID traceID;
     private String systemID;
     private Map<Long, String> overriddenThreadNames;
-    static final SimpleDateFormat CONSOLE_DATE_TIME_FORMATTER = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
+    public static final SimpleDateFormat CONSOLE_DATE_TIME_FORMATTER = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
 
     public ConsoleController() {
         super();
@@ -31,7 +34,7 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
         this.overriddenThreadNames = overriddenThreadNames;
     }
 
-    private class ConsoleFormat extends Formatter {
+    private final class ConsoleFormat extends Formatter {
 
         @Override
         public String format(LogRecord logRecord) {
@@ -79,13 +82,13 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
         }
 
         private void formatMetadata(StringBuilder ret, LogRecord logRecord) {
-            ret.append(traceID).append("    ")
-                    .append(systemID).append("    ")
-                    .append(CONSOLE_DATE_TIME_FORMATTER.format(logRecord.getMillis())).append("    ")
-                    .append(logRecord.getLoggerName()).append("    ")
+            ret.append(traceID).append(TAB)
+                    .append(systemID).append(TAB)
+                    .append(CONSOLE_DATE_TIME_FORMATTER.format(logRecord.getMillis())).append(TAB)
+                    .append(logRecord.getLoggerName()).append(TAB)
                     .append('(').append(logRecord.getLongThreadID()).append("):")
-                    .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), "Anon/Unknown Thread"))
-                    .append("    \n");
+                    .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD))
+                    .append(TAB).append("\n");
         }
 
         private String formatThrowablesAndData(StringBuilder ret, LogRecord logRecord) {
