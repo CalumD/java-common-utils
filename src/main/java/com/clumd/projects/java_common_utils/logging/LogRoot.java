@@ -1,5 +1,6 @@
 package com.clumd.projects.java_common_utils.logging;
 
+import com.clumd.projects.java_common_utils.files.FileUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -68,12 +69,20 @@ public final class LogRoot {
         for (Handler h : root.getHandlers()) {
             root.removeHandler(h);
         }
-        root.setUseParentHandlers(false);
+        // TODO: Investigate how the following line affects the ability of new children handlers hierarchy of level setting to work.
+//        root.setUseParentHandlers(false);
         root.setLevel(CustomLevel.ALL);
 
         // Return an instance for self reference to the 'withHandlers' method for nice constructor fluency.
         // This method also ensures any default CustomLogControllers used have initialised static variables to reference
         return new LogRoot();
+    }
+
+    public static LogRoot init(
+            @NonNull final String discardablePackageIdEndingInDot,
+            @NonNull final String loggingRootID
+    ) {
+        return init(discardablePackageIdEndingInDot, loggingRootID, null);
     }
 
     public void withHandlers(Collection<CustomLogController> wantedLogHandlers) {
@@ -96,6 +105,7 @@ public final class LogRoot {
     }
 
     public static CustomLogController basicFileHandler(@NonNull String atDir) throws IOException {
+        FileUtils.makeAllDirs(atDir);
         return new FileController(
                 atDir + "/" + loggingRootId + "_" + staticSystemName + "_%g.log",
                 SINGLE_FILE_LOG_SIZE,

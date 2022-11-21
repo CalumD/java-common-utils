@@ -225,7 +225,19 @@ public class FileUtils {
      * @throws IOException Thrown if there was a problem creating the parent directories.
      */
     public static void makeContainingDirs(String path) throws IOException {
-        Files.createDirectories(new File(path).getParentFile().toPath());
+        makeAllDirs(new File(path).getParentFile().getCanonicalPath());
+    }
+
+    /**
+     * Create all the containing directories INCLUDING the leaf for the given path, if not exists.
+     * <p>
+     * This is a simple pass-through method.
+     *
+     * @param path The path to create the parent directories to
+     * @throws IOException Thrown if there was a problem creating the parent directories.
+     */
+    public static void makeAllDirs(String path) throws IOException {
+        Files.createDirectories(new File(path).toPath());
     }
 
     /**
