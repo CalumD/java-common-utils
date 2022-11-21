@@ -12,37 +12,34 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
-public class LogRoot {
+public final class LogRoot {
 
-    private static final UUID SPECIFIC_RUN_ID = UUID.randomUUID(); // The ID for a specific run, of a specific machine.
     private static final Map<Long, String> OVERRIDDEN_THREAD_NAME_MAPPINGS = new HashMap<>();
+    private static final UUID SPECIFIC_RUN_ID = UUID.randomUUID(); // The ID for a specific run, of a specific machine.
     private static final int SINGLE_FILE_LOG_SIZE = 10000000; //~10MB in bytes.
     private static final int LOG_FILE_ROTATIONS = 3; // max files to keep track of before re-writing old logs.
+    static final String TAB = "    ";
+    static final String ANON_THREAD = "Anon/Unknown Thread";
 
     private static String discardablePackageId;
     private static String loggingRootId;
     @Getter(value = AccessLevel.PACKAGE)
     private static String staticSystemName;
-    static final String TAB = "    ";
-    static final String ANON_THREAD = "Anon/Unknown Thread";
 
     private LogRoot() {
         // Don't allow this class to be instantiated. It should be used for static method calls only.
     }
 
-    public static void init(
+    public static LogRoot init(
             @NonNull final String discardablePackageIdEndingInDot,
             @NonNull final String loggingRootID,
-            final String systemID,
-            final Collection<CustomLogController> wantedLogHandlers
+            final String systemID
     ) {
         // Replace the default LogManager so that when the shutdown hook halts all running threads, the logger
         // is able to run until the very end, when the end of our custom Shutdown hook should kill it.
@@ -74,6 +71,15 @@ public class LogRoot {
         root.setUseParentHandlers(false);
         root.setLevel(CustomLevel.ALL);
 
+        // Return an instance for self reference to the 'withHandlers' method for nice constructor fluency.
+        // This method also ensures any default CustomLogControllers used have initialised static variables to reference
+        return new LogRoot();
+    }
+
+    public void withHandlers(Collection<CustomLogController> wantedLogHandlers) {
+
+        Logger root = Logger.getLogger("");
+
         // init each wanted handler
         for (CustomLogController handler : wantedLogHandlers) {
             handler.acceptLogRootRefs(SPECIFIC_RUN_ID, staticSystemName, OVERRIDDEN_THREAD_NAME_MAPPINGS);
@@ -85,12 +91,12 @@ public class LogRoot {
         }
     }
 
-    public static ConsoleHandler basicConsoleHandler() {
-        return new ConsoleHandler();
+    public static CustomLogController basicConsoleHandler() {
+        return new ConsoleController();
     }
 
-    public static FileHandler basicFileHandler(@NonNull String atDir) throws IOException {
-        return new FileHandler(
+    public static CustomLogController basicFileHandler(@NonNull String atDir) throws IOException {
+        return new FileController(
                 atDir + "/" + loggingRootId + "_" + staticSystemName + "_%g.log",
                 SINGLE_FILE_LOG_SIZE,
                 LOG_FILE_ROTATIONS,
@@ -98,7 +104,7 @@ public class LogRoot {
         );
     }
 
-    public static FileHandler basicFileHandler() throws IOException {
+    public static CustomLogController basicFileHandler() throws IOException {
         return basicFileHandler(
                 new File(
                         LogRoot
