@@ -131,6 +131,10 @@ public final class LogRoot {
         return createLogger(null, forClass.getName());
     }
 
+    public static Logger createLogger(@NonNull String loggerIdentifier) {
+        return createLogger(null, loggerIdentifier);
+    }
+
     public static Logger createLogger(final String prefix, final String loggerIdentifier) {
         if (loggingRootId == null) {
             throw new ExceptionInInitializerError("Logging Root ID is not set, have you called the \"LogRoot.init\" method yet?");
