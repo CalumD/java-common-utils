@@ -43,6 +43,7 @@ class CustomLevelTest {
         assertDoesNotThrow(() -> {
             System.out.println("ALL " + ALL.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("OFF " + OFF.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("NONE " + NONE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
 
             System.out.println("SHUTDOWN " + SHUTDOWN.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("EMERGENCY " + EMERGENCY.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);

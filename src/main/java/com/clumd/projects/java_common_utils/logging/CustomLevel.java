@@ -20,6 +20,7 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
 
     public static final CustomLevel ALL = CustomLevel.of("ALL", Integer.MIN_VALUE, RESET);
     public static final CustomLevel OFF = CustomLevel.of("OFF", Integer.MAX_VALUE, RESET);
+    public static final CustomLevel NONE = CustomLevel.of("NONE", Integer.MAX_VALUE, RESET);
 
     public static final CustomLevel SHUTDOWN = CustomLevel.of("SHUTDOWN", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
     public static final CustomLevel EMERGENCY = CustomLevel.of("EMERGENCY", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
