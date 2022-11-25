@@ -63,10 +63,11 @@ public class Argument<T> {
      * needs.
      */
     private final Function<String, T> conversionFunction;
+
     /**
      * Used to track if a default value has been set for this argument to be used if no CLI value is found.
      */
-    boolean defaultValueIsSet = false;
+    boolean defaultValueSet = false;
 
     /**
      * If this argument needs a value, then this should be the fully validated and parsed output of that value.
@@ -115,7 +116,7 @@ public class Argument<T> {
     }
 
     public static class ArgumentBuilder<T> {
-        boolean defaultValueIsSet = false;
+        boolean defaultValueSet = false;
         private T defaultValue;
 
         /**
@@ -126,7 +127,7 @@ public class Argument<T> {
          */
         public Argument.ArgumentBuilder<T> defaultValue(T toValue) {
             defaultValue = toValue;
-            defaultValueIsSet = true;
+            defaultValueSet = true;
             return this;
         }
     }

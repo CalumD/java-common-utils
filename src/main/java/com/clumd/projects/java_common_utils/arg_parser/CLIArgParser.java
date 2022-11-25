@@ -13,11 +13,28 @@ public interface CLIArgParser {
     /**
      * Used to execute the parsing process of Command line arguments into validated program input.
      *
-     * @param possibleArguments The collection of all possible Command Line Arguments this process MAY receive.
-     * @param args              The CLI Args provided to the JVM for this process
+     * @param possibleArguments                The collection of all possible Command Line Arguments this process MAY
+     *                                         receive.
+     * @param args                             The CLI Args provided to the JVM for this process
+     * @param ignoreUnknownCLIArgs             Used to determine whether we should ignore parts of the provided CLI args
+     *                                         which we were not expecting, or throw a preventative exception.
+     * @param returnArgsWithDefaultButNotOnCLI Used to determine whether the returned collection of Args, should INCLUDE
+     *                                         args which are marked as having default values, but which were not
+     *                                         provided on the CLI
      * @return The collection of Arguments which IS present on the CLI, along with parsed values to the options, if
      * relevant and present.
      * @throws ParseException Thrown if any of the {@link Argument}s failed to parse.
+     */
+    Collection<Argument<Object>> parseFromCLI(
+            @NonNull final Collection<Argument<?>> possibleArguments,
+            @NonNull final String[] args,
+            final boolean ignoreUnknownCLIArgs,
+            final boolean returnArgsWithDefaultButNotOnCLI
+    ) throws ParseException;
+
+    /**
+     * As {@link CLIArgParser#parseFromCLI(Collection, String[], boolean, boolean)} ()}, but defaulting to false for
+     * {@code ignoreUnknownCLIArgs} and {@code returnArgsWithDefaultButNotOnCLI}
      */
     Collection<Argument<Object>> parseFromCLI(
             @NonNull final Collection<Argument<?>> possibleArguments,

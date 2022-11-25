@@ -224,6 +224,26 @@ class JavaArgParserTest {
     }
 
     @Test
+    void test_unknown_short_arg_is_okay() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId(1)
+                                    .shortOptions(Set.of('a'))
+                                    .build()
+                    ),
+                    new String[]{"-b"},
+                    true,
+                    false
+            );
+        } catch (ParseException e) {
+            fail("The previous method call should not have thrown an exception.", e);
+        }
+    }
+
+    @Test
     void test_unknown_short_arg_2() {
         try {
             cliArgParser.parseFromCLI(
@@ -243,6 +263,26 @@ class JavaArgParserTest {
     }
 
     @Test
+    void test_unknown_short_arg_2_is_okay() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId(1)
+                                    .shortOptions(Set.of('a'))
+                                    .build()
+                    ),
+                    new String[]{"-b=123"},
+                    true,
+                    false
+            );
+        } catch (ParseException e) {
+            fail("The previous method call should not have thrown an exception.", e);
+        }
+    }
+
+    @Test
     void test_unknown_long_arg() {
         try {
             cliArgParser.parseFromCLI(
@@ -258,6 +298,26 @@ class JavaArgParserTest {
             fail("The previous method call should have thrown an exception.");
         } catch (ParseException e) {
             assertEquals("Invalid/unknown long CLI argument: b", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_unknown_long_arg_is_okay() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId(1)
+                                    .longOptions(Set.of("a"))
+                                    .build()
+                    ),
+                    new String[]{"--b"},
+                    true,
+                    false
+            );
+        } catch (ParseException e) {
+            fail("The previous method call should not have thrown an exception.", e);
         }
     }
 
@@ -633,27 +693,27 @@ class JavaArgParserTest {
 
     @Test
     void test_multiple_short_args_with_values_in_one_key_throws() {
-       try {
-           cliArgParser.parseFromCLI(
-                   List.of(
-                           Argument
-                                   .builder()
-                                   .uniqueId(1)
-                                   .shortOptions(Set.of('a'))
-                                   .build()
-                           , Argument
-                                   .builder()
-                                   .uniqueId(2)
-                                   .shortOptions(Set.of('b'))
-                                   .build()
-                   ),
-                   new String[]{"-ab=123"}
-           );
-           fail("The previous method call should have thrown an exception.");
-       } catch (ParseException e) {
-           assertEquals("Multiple short arguments provided in conjunction with an argument value. " +
-                   "If short argument requires a value, provide the arg separately.", e.getMessage());
-       }
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId(1)
+                                    .shortOptions(Set.of('a'))
+                                    .build()
+                            , Argument
+                                    .builder()
+                                    .uniqueId(2)
+                                    .shortOptions(Set.of('b'))
+                                    .build()
+                    ),
+                    new String[]{"-ab=123"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (ParseException e) {
+            assertEquals("Multiple short arguments provided in conjunction with an argument value. " +
+                    "If short argument requires a value, provide the arg separately.", e.getMessage());
+        }
     }
 
     @Test
@@ -758,4 +818,90 @@ class JavaArgParserTest {
         assertEquals(1, actualArgs.get(0).getUniqueId());
         assertEquals(3.1415, actualArgs.get(0).getArgumentResult());
     }
+
+
+    @Test
+    void test_give_back_args_with_default_values_when_not_provided() throws ParseException {
+        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+                List.of(
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(1)
+                                .shortOptions(Set.of('a'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(2)
+                                .shortOptions(Set.of('b'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .defaultValue(565)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(3)
+                                .shortOptions(Set.of('c'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .build()
+                ),
+                new String[]{"-a", "34"},
+                false,
+                true
+        ));
+
+
+        assertEquals(2, actualArgs.size(), 0);
+        assertEquals(34, actualArgs.get(0).getArgumentResult());
+        assertEquals(565, actualArgs.get(1).getArgumentResult());
+    }
+
+    @Test
+    void test_give_back_args_with_default_values_wont_override_when_provided() throws ParseException {
+        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+                List.of(
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(1)
+                                .shortOptions(Set.of('a'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(2)
+                                .shortOptions(Set.of('b'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .defaultValue(200)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId(3)
+                                .shortOptions(Set.of('c'))
+                                .hasValue(true)
+                                .valueIsOptional(false)
+                                .conversionFunction(Integer::parseInt)
+                                .defaultValue(300)
+                                .build()
+                ),
+                new String[]{"-a", "100", "-b", "941"},
+                false,
+                true
+        ));
+
+
+        assertEquals(3, actualArgs.size(), 0);
+        assertEquals(100, actualArgs.get(0).getArgumentResult());
+        assertEquals(941, actualArgs.get(1).getArgumentResult());
+        assertEquals(300, actualArgs.get(2).getArgumentResult());
+    }
+
 }

@@ -22,14 +22,35 @@ public class JavaArgParser implements CLIArgParser {
     private String appAuthor;
     private String appBugs;
 
+    private Collection<Argument<?>> possibleArguments;
+    private Map<Integer, Argument<Object>> returnArgumentMap;
+    private boolean ignoreUnknownCLIArgs;
 
     @Override
     public Collection<Argument<Object>> parseFromCLI(
             @NonNull Collection<Argument<?>> possibleArguments,
             @NonNull String[] args
     ) throws ParseException {
+        return parseFromCLI(possibleArguments, args, false, false);
+    }
+
+    @Override
+    public synchronized Collection<Argument<Object>> parseFromCLI(
+            @NonNull Collection<Argument<?>> possibleArguments,
+            @NonNull String[] args,
+            boolean ignoreUnknownCLIArgs,
+            boolean returnArgsWithDefaultButNotOnCLI
+    ) throws ParseException {
+        // We use a map here as the collection type, to ensure that if there are duplicate options provided on the CLI,
+        // that only one (the closest to the end) will become impactful.
+        returnArgumentMap = new HashMap<>();
+
+        // Set references
+        this.possibleArguments = possibleArguments;
+        this.ignoreUnknownCLIArgs = ignoreUnknownCLIArgs;
+
         // First, check that all the arguments provided by the user are acceptable to this logic
-        sanitise(possibleArguments);
+        sanitise();
 
         // Now, populate a map of all the options
         Map<Character, Argument<?>> shortArgMap = new HashMap<>(possibleArguments.size());
@@ -39,10 +60,6 @@ public class JavaArgParser implements CLIArgParser {
             arg.getShortOptions().forEach(shortArg -> shortArgMap.put(shortArg, arg));
             arg.getLongOptions().forEach(longArg -> longArgMap.put(longArg, arg));
         });
-
-        // We use a map here as the collection type, to ensure that if there are duplicate options provided on the CLI,
-        // that only one (the closest to the end) will become impactful.
-        Map<Integer, Argument<Object>> returnArgumentMap = new HashMap<>();
 
         // Carry out the actual argument parsing:
         Iterator<String> argumentIterator = Arrays.stream(args).iterator();
@@ -66,8 +83,7 @@ public class JavaArgParser implements CLIArgParser {
                         currentWholeCLI,
                         longArgKey,
                         longArgMap.getOrDefault(longArgKey, null),
-                        argumentIterator,
-                        returnArgumentMap
+                        argumentIterator
                 );
 
             } else if (currentWholeCLI.startsWith("-")) {
@@ -78,23 +94,30 @@ public class JavaArgParser implements CLIArgParser {
                 }
 
                 if (currentWholeCLI.contains("=")) {
-                    parseSingleShortArgWithValue(currentWholeCLI, shortArgMap, returnArgumentMap);
+                    parseSingleShortArgWithValue(currentWholeCLI, shortArgMap);
                 } else {
-                    parseMultipleShortArgsFromCLIEntry(currentWholeCLI, argumentIterator, shortArgMap, returnArgumentMap);
+                    parseMultipleShortArgsFromCLIEntry(currentWholeCLI, argumentIterator, shortArgMap);
                 }
 
             } else {
-                if (!currentWholeCLI.strip().isBlank()) {
+                if (!currentWholeCLI.strip().isBlank() && !ignoreUnknownCLIArgs) {
                     throw new ParseException("Invalid/unknown CLI argument / value provided: {" + currentWholeCLI + "}", 0);
                 }
             }
+        }
 
+        if (returnArgsWithDefaultButNotOnCLI) {
+            for (Argument<?> arg : possibleArguments) {
+                if (returnArgumentMap.get(arg.getUniqueId()) == null && arg.isDefaultValueSet()) {
+                    genericParseIntoArgument(arg, null);
+                }
+            }
         }
 
         return returnArgumentMap.values();
     }
 
-    private void sanitise(@NonNull final Collection<Argument<?>> possibleArguments) throws ParseException {
+    private void sanitise() throws ParseException {
         if (possibleArguments.isEmpty()) {
             throw new ParseException("No arguments provided to parse for.", 0);
         }
@@ -134,8 +157,11 @@ public class JavaArgParser implements CLIArgParser {
         }
     }
 
-    private void parseLongArgument(String currentWholeCLI, String longArgKey, Argument<?> currentArg, Iterator<String> argumentIterator, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException {
+    private void parseLongArgument(String currentWholeCLI, String longArgKey, Argument<?> currentArg, Iterator<String> argumentIterator) throws ParseException {
         if (currentArg == null) {
+            if (ignoreUnknownCLIArgs) {
+                return;
+            }
             throw new ParseException("Invalid/unknown long CLI argument: " + longArgKey, 0);
         }
 
@@ -144,10 +170,12 @@ public class JavaArgParser implements CLIArgParser {
 
             // Decide if we should pass in the next CLI entity as a value to this long arg
             if (currentWholeCLI.contains("=")) {
-                genericParseIntoArgument(currentArg, currentWholeCLI.substring(currentWholeCLI.indexOf("=") + 1), returnArgumentMap);
+                genericParseIntoArgument(
+                        currentArg,
+                        currentWholeCLI.substring(currentWholeCLI.indexOf("=") + 1));
             } else {
                 if (argumentIterator.hasNext()) {
-                    genericParseIntoArgument(currentArg, argumentIterator.next(), returnArgumentMap);
+                    genericParseIntoArgument(currentArg, argumentIterator.next());
                 } else {
                     throw new ParseException("Missing mandatory value for long option: " + longArgKey, 0);
                 }
@@ -159,22 +187,17 @@ public class JavaArgParser implements CLIArgParser {
                     currentArg,
                     currentWholeCLI.contains("=")
                             ? currentWholeCLI.substring(currentWholeCLI.indexOf("=") + 1)
-                            : null,
-                    returnArgumentMap
+                            : null
             );
 
         } else if (currentWholeCLI.contains("=")) {
             throw new ParseException("Value found for long option where no value is expected: " + currentWholeCLI, 0);
         } else {
-            genericParseIntoArgument(
-                    currentArg,
-                    null,
-                    returnArgumentMap
-            );
+            genericParseIntoArgument(currentArg, null);
         }
     }
 
-    private void parseSingleShortArgWithValue(String currentWholeCLI, Map<Character, Argument<?>> shortArgMap, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException {
+    private void parseSingleShortArgWithValue(String currentWholeCLI, Map<Character, Argument<?>> shortArgMap) throws ParseException {
         Argument<?> currentArg;
         String shortArgKey = currentWholeCLI.split("=")[0];
         if (shortArgKey.length() != 1) {
@@ -185,6 +208,9 @@ public class JavaArgParser implements CLIArgParser {
         }
 
         if (currentArg == null) {
+            if (ignoreUnknownCLIArgs) {
+                return;
+            }
             throw new ParseException("Invalid/unknown short CLI argument: " + shortArgKey, 0);
         }
         if (!currentArg.hasValue()) {
@@ -193,17 +219,19 @@ public class JavaArgParser implements CLIArgParser {
 
         genericParseIntoArgument(
                 currentArg,
-                currentWholeCLI.substring(currentWholeCLI.indexOf("=") + 1),
-                returnArgumentMap
+                currentWholeCLI.substring(currentWholeCLI.indexOf("=") + 1)
         );
     }
 
-    private void parseMultipleShortArgsFromCLIEntry(String currentWholeCLI, Iterator<String> argumentIterator, Map<Character, Argument<?>> shortArgMap, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException {
+    private void parseMultipleShortArgsFromCLIEntry(String currentWholeCLI, Iterator<String> argumentIterator, Map<Character, Argument<?>> shortArgMap) throws ParseException {
         Argument<?> currentArg;
         for (Character shortArgKey : currentWholeCLI.toCharArray()) {
 
             currentArg = shortArgMap.getOrDefault(shortArgKey, null);
             if (currentArg == null) {
+                if (ignoreUnknownCLIArgs) {
+                    return;
+                }
                 throw new ParseException("Invalid/unknown short CLI argument: " + shortArgKey, 0);
             }
 
@@ -211,18 +239,18 @@ public class JavaArgParser implements CLIArgParser {
 
                 // Decide if we should pass in the next CLI entity as a value to this short arg
                 if (argumentIterator.hasNext()) {
-                    genericParseIntoArgument(currentArg, argumentIterator.next(), returnArgumentMap);
+                    genericParseIntoArgument(currentArg, argumentIterator.next());
                 } else {
                     throw new ParseException("Missing mandatory value for short option: " + shortArgKey, 0);
                 }
 
             } else {
-                genericParseIntoArgument(currentArg, null, returnArgumentMap);
+                genericParseIntoArgument(currentArg, null);
             }
         }
     }
 
-    private void genericParseIntoArgument(final Argument<?> argDef, final String value, Map<Integer, Argument<Object>> returnArgumentMap) throws ParseException, IllegalArgumentException {
+    private void genericParseIntoArgument(final Argument<?> argDef, final String value) throws ParseException, IllegalArgumentException {
 
         argDef.attemptValueConversion(value);
 
@@ -268,7 +296,7 @@ public class JavaArgParser implements CLIArgParser {
                 } else {
                     opts.append("=<value>");
                 }
-                if (arg.defaultValueIsSet) {
+                if (arg.isDefaultValueSet()) {
                     opts.append(INDENT).append("(default: ").append(arg.getDefaultValue()).append(")");
                 }
             }
