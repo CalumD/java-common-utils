@@ -1,6 +1,7 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
+import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.api.Json;
 import com.clumd.projects.javajson.api.JsonBuilder;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;
@@ -36,7 +37,7 @@ public class FileController extends FileHandler implements CustomLogController {
      * @throws IOException Thrown if we cannot find the location or there is an error getting it.
      * @throws SecurityException Thrown if we do not have the correct permissions to be writing to this location.
      */
-    FileController(
+    public FileController(
             String pathToLogFile,
             int singleFileLogSize,
             int logFileRotations,
@@ -95,6 +96,11 @@ public class FileController extends FileHandler implements CustomLogController {
                     .addString("threadName", Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD))
                     .addString("level", logRecord.getLevel().getName())
                     .addString("message", strFormatter(logRecord.getMessage()));
+
+            // Check if we have tags to write
+            if (logRecord instanceof ExtendedLogRecord elr && elr.getTags() != null) {
+                elr.getTags().forEach(t -> logEntry.addString("tags[]", t));
+            }
 
             // Check for a thrown error
             if (logRecord.getThrown() != null) {

@@ -1,8 +1,9 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
 import com.clumd.projects.java_common_utils.logging.api.LogLevel;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
+import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.java_common_utils.logging.common.Format;
 import com.clumd.projects.javajson.api.Json;
 import lombok.NonNull;
@@ -24,11 +25,13 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
     private String systemID;
     private Map<Long, String> overriddenThreadNames;
     public static final SimpleDateFormat CONSOLE_DATE_TIME_FORMATTER = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
+    private final boolean useSpacerLine;
 
-    public ConsoleController() {
+    public ConsoleController(boolean useSpacerLines) {
         super();
         this.setFormatter(new ConsoleFormat());
         this.setLevel(CustomLevel.ALL);
+        this.useSpacerLine = useSpacerLines;
     }
 
     @Override
@@ -91,8 +94,11 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
                     .append(CONSOLE_DATE_TIME_FORMATTER.format(logRecord.getMillis())).append(TAB)
                     .append(logRecord.getLoggerName()).append(TAB)
                     .append('(').append(logRecord.getLongThreadID()).append("):")
-                    .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD))
-                    .append(TAB).append("\n");
+                    .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD)).append(TAB)
+                    .append("\n");
+            if (logRecord instanceof ExtendedLogRecord elr && elr.getTags() != null) {
+                ret.append(elr.getTags()).append("\n");
+            }
         }
 
         private String formatThrowablesAndData(StringBuilder ret, LogRecord logRecord) {
@@ -113,7 +119,6 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
                     }
                     throwable = throwable.getCause();
                 } while (throwable != null && throwable != throwable.getCause());
-                ret.append("\n");
             }
 
             //check for additional metadata about the log entry.
@@ -123,11 +128,14 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
                     if (item instanceof Json jsonItem) {
                         ret.append((jsonItem).asPrettyString(2)).append(logRecord.getParameters().length > 1 ? '\n' : "");
                     } else {
-                        ret.append("{\n").append(item.toString()).append("\n}\n");
+                        ret.append("{ ").append(item.toString()).append(" }\n");
                     }
                 }
             }
-            return ret.append("\n").toString();
+            if (useSpacerLine) {
+                ret.append("\n");
+            }
+            return ret.toString();
         }
     }
 }

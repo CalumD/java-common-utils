@@ -1,6 +1,7 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
+import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -23,7 +25,7 @@ class ConsoleControllerTest {
 
     @BeforeEach
     void setup() {
-        controller = new ConsoleController();
+        controller = new ConsoleController(true);
         runID = UUID.randomUUID();
         systemId = "system id";
         overriddenThreadNames = new HashMap<>();
@@ -125,11 +127,8 @@ class ConsoleControllerTest {
         assertTrue(formattedString.contains("\nNested Reason:  (IOException) 3rd IO\n"));
         assertTrue(formattedString.contains("\nNested Reason:  (NullPointerException) 4th NPE!\n"));
         assertTrue(formattedString.endsWith("""
-
                 Metadata:  <3> item(s)
-                {
-                1337
-                }
+                { 1337 }
                 {
                   "top": "1",
                   "t": {
@@ -144,10 +143,22 @@ class ConsoleControllerTest {
                     3\s
                   ]\s
                 }
-                {
-                String
-                }
+                { String }
 
                 """));
+    }
+
+    @Test
+    void test_message_format_with_tags() {
+        String message = "msg";
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(CustomLevel.WARNING, message, Set.of("tag1", "tag2"));
+
+        String formattedString = controller
+                .getFormatter()
+                .format(logRecord);
+
+        assertTrue(formattedString.contains(CustomLevel.WARNING.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertTrue(formattedString.contains("\n[tag1, tag2]\n") || formattedString.contains("\n[tag2, tag1]\n"));
+        assertTrue(formattedString.endsWith("\nMessage<" + CustomLevel.WARNING + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
     }
 }
