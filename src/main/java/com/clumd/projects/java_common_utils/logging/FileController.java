@@ -1,5 +1,6 @@
 package com.clumd.projects.java_common_utils.logging;
 
+import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
 import com.clumd.projects.javajson.api.Json;
 import com.clumd.projects.javajson.api.JsonBuilder;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;

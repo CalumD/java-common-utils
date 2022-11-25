@@ -1,5 +1,7 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.common;
 
+import com.clumd.projects.java_common_utils.logging.api.LogLevel;
+import com.clumd.projects.java_common_utils.logging.api.LogLevelFormat;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -10,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
-import static com.clumd.projects.java_common_utils.logging.Format.*;
+import static com.clumd.projects.java_common_utils.logging.common.Format.*;
 
 public class CustomLevel extends Level implements LogLevel, Serializable {
 
@@ -69,15 +71,15 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this(level, priority, format.getFormatString());
     }
 
-    static CustomLevel of(@NonNull final String level, final int priority) {
+    public static CustomLevel of(@NonNull final String level, final int priority) {
         return new CustomLevel(level, priority);
     }
 
-    static CustomLevel of(@NonNull final String level, final int priority, @NonNull final String levelFormat) {
+    public static CustomLevel of(@NonNull final String level, final int priority, @NonNull final String levelFormat) {
         return new CustomLevel(level, priority, levelFormat);
     }
 
-    static CustomLevel of(@NonNull final String level, final int priority, @NonNull final LogLevelFormat format) {
+    public static CustomLevel of(@NonNull final String level, final int priority, @NonNull final LogLevelFormat format) {
         return new CustomLevel(level, priority, format);
     }
 

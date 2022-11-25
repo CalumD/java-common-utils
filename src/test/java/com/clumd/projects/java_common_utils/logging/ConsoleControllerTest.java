@@ -1,5 +1,6 @@
 package com.clumd.projects.java_common_utils.logging;
 
+import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

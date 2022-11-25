@@ -1,5 +1,6 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.common;
 
+import com.clumd.projects.java_common_utils.logging.api.LogLevelFormat;
 import lombok.Getter;
 
 import java.util.Collection;

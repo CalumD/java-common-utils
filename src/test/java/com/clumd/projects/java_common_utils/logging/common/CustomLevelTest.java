@@ -1,8 +1,8 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.common;
 
 import org.junit.jupiter.api.Test;
 
-import static com.clumd.projects.java_common_utils.logging.CustomLevel.*;
+import static com.clumd.projects.java_common_utils.logging.common.CustomLevel.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CustomLevelTest {

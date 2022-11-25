@@ -1,4 +1,4 @@
-package com.clumd.projects.java_common_utils.logging;
+package com.clumd.projects.java_common_utils.logging.api;
 
 import java.util.Map;
 import java.util.UUID;
