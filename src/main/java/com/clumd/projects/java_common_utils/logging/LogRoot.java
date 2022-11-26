@@ -47,9 +47,6 @@ public final class LogRoot {
             @NonNull final String loggingRootID,
             final String systemID
     ) {
-        // Replace the default LogManager so that when the shutdown hook halts all running threads, the logger
-        // is able to run until the very end, when the end of our custom Shutdown hook should kill it.
-        System.setProperty("java.util.logging.manager", WaitForShutdownHookLogManager.class.getName());
         LogRoot.discardablePackageId = discardablePackageIdEndingInDot;
         LogRoot.loggingRootId = loggingRootID;
         // Obtain the local system's name to identify its logfile in a distributed system.
@@ -147,7 +144,7 @@ public final class LogRoot {
 
         //create the logger object
         String loggerName = loggingRootId
-                + '.' + (prefix == null ? "" : prefix)
+                + '.' + (prefix == null ? "" : prefix + ":")
                 + (
                 loggerIdentifier.startsWith(discardablePackageId)
                         ? loggerIdentifier.substring(discardablePackageId.length())
@@ -169,29 +166,5 @@ public final class LogRoot {
 
     public static void setGlobalLoggingLevel(@NonNull final LogLevel selectedLevel) {
         Logger.getLogger("").setLevel((Level) selectedLevel);
-    }
-
-    /**
-     * Simple static subclass to maintain a permanent reference to the root instance of the Log manager, and override
-     * the default behaviour of reset() to allow us to only call reset once we are ready.
-     */
-    public static class WaitForShutdownHookLogManager extends LogManager {
-
-        static WaitForShutdownHookLogManager instance;
-
-        public WaitForShutdownHookLogManager() {
-            instance = this;
-        }
-
-        public static void finalReset() {
-            instance.reset0();
-        }
-
-        @Override
-        public void reset() { /* wait for custom reset to be called. */ }
-
-        private void reset0() {
-            super.reset();
-        }
     }
 }
