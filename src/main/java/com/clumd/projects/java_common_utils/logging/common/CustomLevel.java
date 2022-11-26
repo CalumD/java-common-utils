@@ -27,8 +27,8 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     public static final CustomLevel SHUTDOWN = CustomLevel.of("SHUTDOWN", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
     public static final CustomLevel EMERGENCY = CustomLevel.of("EMERGENCY", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
     public static final CustomLevel FATAL = CustomLevel.of("FATAL", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
-    public static final CustomLevel CRITICAL = CustomLevel.of("CRITICAL", 40, YELLOW);
-    public static final CustomLevel SEVERE = CustomLevel.of("SEVERE", 40, YELLOW);
+    public static final CustomLevel CRITICAL = CustomLevel.of("CRITICAL", 40, BRIGHT_YELLOW);
+    public static final CustomLevel SEVERE = CustomLevel.of("SEVERE", 40, BRIGHT_YELLOW);
     public static final CustomLevel ERROR = CustomLevel.of("ERROR", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
     public static final CustomLevel FAILURE = CustomLevel.of("FAILURE", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
     public static final CustomLevel WARNING = CustomLevel.of("WARNING", 20, RED);
