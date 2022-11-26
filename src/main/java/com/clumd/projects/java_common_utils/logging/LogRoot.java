@@ -4,6 +4,8 @@ import com.clumd.projects.java_common_utils.files.FileUtils;
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
 import com.clumd.projects.java_common_utils.logging.api.LogLevel;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
+import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
+import com.clumd.projects.java_common_utils.logging.controllers.FileController;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -28,8 +30,8 @@ public final class LogRoot {
     private static final UUID SPECIFIC_RUN_ID = UUID.randomUUID(); // The ID for a specific run, of a specific machine.
     private static final int SINGLE_FILE_LOG_SIZE = 10000000; //~10MB in bytes.
     private static final int LOG_FILE_ROTATIONS = 3; // max files to keep track of before re-writing old logs.
-    static final String TAB = "    ";
-    static final String ANON_THREAD = "Anon/Unknown Thread";
+    public static final String TAB = "    ";
+    public static final String ANON_THREAD = "Anon/Unknown Thread";
 
     private static String discardablePackageId;
     private static String loggingRootId;
@@ -103,8 +105,8 @@ public final class LogRoot {
         }
     }
 
-    public static CustomLogController basicConsoleHandler() {
-        return new ConsoleController();
+    public static CustomLogController basicConsoleHandler(boolean useSpacerLines) {
+        return new ConsoleController(useSpacerLines);
     }
 
     public static CustomLogController basicFileHandler(@NonNull String atDir) throws IOException {
@@ -130,28 +132,34 @@ public final class LogRoot {
         );
     }
 
-    public static Logger createLogger(@NonNull final Class<?> forClass) {
+    public static ExtendedLogger createLogger(@NonNull final Class<?> forClass) {
         return createLogger(null, forClass.getName());
     }
 
-    public static Logger createLogger(@NonNull String loggerIdentifier) {
+    public static ExtendedLogger createLogger(@NonNull String loggerIdentifier) {
         return createLogger(null, loggerIdentifier);
     }
 
-    public static Logger createLogger(final String prefix, final String loggerIdentifier) {
+    public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier) {
         if (loggingRootId == null) {
             throw new ExceptionInInitializerError("Logging Root ID is not set, have you called the \"LogRoot.init\" method yet?");
         }
 
         //create the logger object
-        return Logger.getLogger(loggingRootId
-                        + '.' + (prefix == null ? "" : prefix)
-                        + (
-                        loggerIdentifier.startsWith(discardablePackageId)
-                                ? loggerIdentifier.substring(discardablePackageId.length())
-                                : loggerIdentifier
-                )
+        String loggerName = loggingRootId
+                + '.' + (prefix == null ? "" : prefix)
+                + (
+                loggerIdentifier.startsWith(discardablePackageId)
+                        ? loggerIdentifier.substring(discardablePackageId.length())
+                        : loggerIdentifier
         );
+
+        Logger extLog = LogManager.getLogManager().getLogger(loggerName);
+        if (extLog == null) {
+            extLog = new ExtendedLogger(loggerName);
+            LogManager.getLogManager().addLogger(extLog);
+        }
+        return (ExtendedLogger) extLog;
     }
 
     public static void setBranchLoggingLevel(@NonNull final LogLevel selectedLevel, final String viaLogPrefix, @NonNull final String viaLogIdentifier) {
