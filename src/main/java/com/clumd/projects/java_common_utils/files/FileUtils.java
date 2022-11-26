@@ -299,8 +299,10 @@ public class FileUtils {
                 }
             }
         }
-        if (!file.delete()) {
-            throw new IOException("Failed to delete: {" + path + "}");
+        try {
+            Files.delete(file.toPath());
+        } catch (Exception e) {
+            throw new IOException("Failed to delete: {" + path + "}", e);
         }
     }
 }
