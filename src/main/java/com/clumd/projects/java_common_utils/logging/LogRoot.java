@@ -2,7 +2,6 @@ package com.clumd.projects.java_common_utils.logging;
 
 import com.clumd.projects.java_common_utils.files.FileUtils;
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
-import com.clumd.projects.java_common_utils.logging.api.LogLevel;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
@@ -15,11 +14,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
@@ -137,20 +137,22 @@ public final class LogRoot {
         return createLogger(null, loggerIdentifier);
     }
 
-    public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier) {
+    private static String buildLogName(final String prefix, final String loggerIdentifier) {
         if (loggingRootId == null) {
             throw new ExceptionInInitializerError("Logging Root ID is not set, have you called the \"LogRoot.init\" method yet?");
         }
 
-        //create the logger object
-        String loggerName = loggingRootId
+        return loggingRootId
                 + '.' + (prefix == null ? "" : prefix + ":")
                 + (
                 loggerIdentifier.startsWith(discardablePackageId)
                         ? loggerIdentifier.substring(discardablePackageId.length())
                         : loggerIdentifier
         );
+    }
 
+    public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier) {
+        String loggerName = buildLogName(prefix, loggerIdentifier);
         Logger extLog = LogManager.getLogManager().getLogger(loggerName);
         if (extLog == null) {
             extLog = new ExtendedLogger(loggerName);
@@ -159,12 +161,70 @@ public final class LogRoot {
         return (ExtendedLogger) extLog;
     }
 
-    public static void setBranchLoggingLevel(@NonNull final LogLevel selectedLevel, final String viaLogPrefix, @NonNull final String viaLogIdentifier) {
-        // TODO
+    public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final Logger viaLogger) {
+        setGivenLoggersToLevel(
+                getAllLoggerNames(viaLogger.getName()),
+                selectedLevel
+        );
     }
 
+    public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final String viaLogIdentifier) {
+        String loggerName = buildLogName(null, viaLogIdentifier);
+        setGivenLoggersToLevel(
+                getAllLoggerNames(loggerName),
+                selectedLevel
+        );
+    }
 
-    public static void setGlobalLoggingLevel(@NonNull final LogLevel selectedLevel) {
-        Logger.getLogger("").setLevel((Level) selectedLevel);
+    public static void setGlobalBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final String viaLogIdentifier) {
+        setGivenLoggersToLevel(
+                getAllLoggerNames(viaLogIdentifier),
+                selectedLevel
+        );
+    }
+
+    public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, final String viaLogPrefix, @NonNull final String viaLogIdentifier) {
+        String loggerName = buildLogName(viaLogPrefix, viaLogIdentifier);
+        setGivenLoggersToLevel(
+                getAllLoggerNames(loggerName),
+                selectedLevel
+        );
+    }
+
+    public static void setGlobalLoggingLevel(@NonNull final CustomLevel selectedLevel) {
+        setGivenLoggersToLevel(
+                getAllLoggerNames(null),
+                selectedLevel
+        );
+    }
+
+    public static void setApplicationGlobalLevel(@NonNull final CustomLevel selectedLevel) {
+        setGivenLoggersToLevel(
+                getAllLoggerNames(loggingRootId),
+                selectedLevel
+        );
+    }
+
+    private static List<String> getAllLoggerNames(String filteredBy) {
+        List<String> names =  Collections.list(
+                LogManager
+                        .getLogManager()
+                        .getLoggerNames()
+        );
+        if (filteredBy != null) {
+            return names
+                    .stream()
+                    .filter(n -> n.startsWith(filteredBy))
+                    .toList();
+        }
+        return names;
+    }
+
+    private static void setGivenLoggersToLevel(final Collection<String> givenLoggers, final CustomLevel selectedLevel) {
+        givenLoggers
+                .forEach(logName -> Logger
+                        .getLogger(logName)
+                        .setLevel(selectedLevel)
+                );
     }
 }
