@@ -71,8 +71,6 @@ public final class LogRoot {
         for (Handler h : root.getHandlers()) {
             root.removeHandler(h);
         }
-        // TODO: Investigate how the following line affects the ability of new children handlers hierarchy of level setting to work.
-//        root.setUseParentHandlers(false);
         root.setLevel(CustomLevel.ALL);
 
         // Return an instance for self reference to the 'withHandlers' method for nice constructor fluency.

@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,12 +84,11 @@ class LogRootTest {
     }
 
 
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      *  The following tests will use the following logger hierarchy.
-     * <p>
+     * <p/>
      *                 TOP
      *                  |
      *            - - - - - - -
@@ -206,7 +205,6 @@ class LogRootTest {
         l.get("1c").log(CustomLevel.DATA, "second lower");
 
 
-
         List<LogRecord> capturedLogs = logCaptor.getAllValues();
         assertEquals(9, capturedLogs.size(), 0);
 
@@ -264,7 +262,6 @@ class LogRootTest {
         l.get("3c").log(CustomLevel.DATA, "second lower");
 
 
-
         List<LogRecord> capturedLogs = logCaptor.getAllValues();
         assertEquals(11, capturedLogs.size(), 0);
 
@@ -301,16 +298,142 @@ class LogRootTest {
 
     @Test
     void test_set_branch_viaLogIdentifier_applies_the_same_as_viaLogger() {
-        fail("TODO");
+        Map<String, Logger> l = setupLoggers();
+
+        Logger directLog = l.get("1b");
+        directLog.log(CustomLevel.SEVERE, "direct higher");
+        directLog.log(CustomLevel.DATA, "direct lower");
+
+        LogRoot.setBranchLoggingLevel(CustomLevel.INFO, "top.1b");
+
+        directLog.log(CustomLevel.SEVERE, "after higher");
+        directLog.log(CustomLevel.DATA, "after lower");
+
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(3, capturedLogs.size(), 0);
+
+        assertEquals(LOGGING_ROOT + ".top.1b", capturedLogs.get(0).getLoggerName());
+        assertEquals("direct higher", capturedLogs.get(0).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1b", capturedLogs.get(1).getLoggerName());
+        assertEquals("direct lower", capturedLogs.get(1).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1b", capturedLogs.get(2).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(2).getMessage());
     }
 
     @Test
     void test_set_branch_viaLogIdentifier_and_prefix_applies_the_same_as_viaLogger() {
-        fail("TODO");
+        ExtendedLogger withPrefix = LogRoot.createLogger("custPref", "theID");
+        withPrefix.setLevel(Level.ALL);
+
+        withPrefix.log(CustomLevel.SEVERE, "before higher");
+        withPrefix.log(CustomLevel.DATA, "before lower");
+
+        LogRoot.setBranchLoggingLevel(CustomLevel.INFO, "custPref", "theID");
+
+        withPrefix.log(CustomLevel.SEVERE, "after higher");
+        withPrefix.log(CustomLevel.DATA, "after lower");
+
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(3, capturedLogs.size(), 0);
+
+        assertEquals(LOGGING_ROOT + ".custPref:theID", capturedLogs.get(0).getLoggerName());
+        assertEquals("before higher", capturedLogs.get(0).getMessage());
+        assertEquals(LOGGING_ROOT + ".custPref:theID", capturedLogs.get(1).getLoggerName());
+        assertEquals("before lower", capturedLogs.get(1).getMessage());
+        assertEquals(LOGGING_ROOT + ".custPref:theID", capturedLogs.get(2).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(2).getMessage());
     }
 
     @Test
     void test_set_application_log_level_does_not_affect_global_namespace() {
-        fail("TODO");
+        Logger otherNamespace = Logger.getLogger("some.other.namespace");
+        otherNamespace.setLevel(Level.ALL);
+
+        Logger localAppNameSpace = LogRoot.createLogger(LogRootTest.class);
+        localAppNameSpace.setLevel(CustomLevel.ALL);
+
+        LogRoot.setApplicationGlobalLevel(CustomLevel.INFO);
+
+        otherNamespace.log(Level.SEVERE, "other higher");
+        otherNamespace.log(Level.FINE, "other lower");
+        localAppNameSpace.log(CustomLevel.SEVERE, "local higher");
+        localAppNameSpace.log(CustomLevel.DATA, "local lower");
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(3, capturedLogs.size(), 0);
+
+        assertEquals("some.other.namespace", capturedLogs.get(0).getLoggerName());
+        assertEquals("other higher", capturedLogs.get(0).getMessage());
+        assertEquals("some.other.namespace", capturedLogs.get(1).getLoggerName());
+        assertEquals("other lower", capturedLogs.get(1).getMessage());
+        assertEquals(LOGGING_ROOT + ".LogRootTest", capturedLogs.get(2).getLoggerName());
+        assertEquals("local higher", capturedLogs.get(2).getMessage());
+    }
+
+    @Test
+    void test_setting_global_branch_logging_level() {
+        Map<String, Logger> l = setupLoggers();
+        LogRoot.setGlobalLoggingLevel(CustomLevel.ALL);
+
+        Logger globalRoot = Logger.getLogger("global");
+        Logger global1c = Logger.getLogger("global.1c");
+        Logger localRoot = l.get("top");
+        Logger local1c = l.get("1c");
+
+        globalRoot.log(CustomLevel.SEVERE, "before higher");
+        globalRoot.log(CustomLevel.DATA, "before lower");
+        global1c.log(CustomLevel.SEVERE, "before higher");
+        global1c.log(CustomLevel.DATA, "before lower");
+        localRoot.log(CustomLevel.SEVERE, "before higher");
+        localRoot.log(CustomLevel.DATA, "before lower");
+        local1c.log(CustomLevel.SEVERE, "before higher");
+        local1c.log(CustomLevel.DATA, "before lower");
+
+        LogRoot.setGlobalBranchLoggingLevel(CustomLevel.INFO, "global");
+
+        globalRoot.log(CustomLevel.SEVERE, "after higher");
+        globalRoot.log(CustomLevel.DATA, "after lower");
+        global1c.log(CustomLevel.SEVERE, "after higher");
+        global1c.log(CustomLevel.DATA, "after lower");
+        localRoot.log(CustomLevel.SEVERE, "after higher");
+        localRoot.log(CustomLevel.DATA, "after lower");
+        local1c.log(CustomLevel.SEVERE, "after higher");
+        local1c.log(CustomLevel.DATA, "after lower");
+
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(14, capturedLogs.size(), 0);
+
+        assertEquals("global", capturedLogs.get(0).getLoggerName());
+        assertEquals("before higher", capturedLogs.get(0).getMessage());
+        assertEquals("global", capturedLogs.get(1).getLoggerName());
+        assertEquals("before lower", capturedLogs.get(1).getMessage());
+        assertEquals("global.1c", capturedLogs.get(2).getLoggerName());
+        assertEquals("before higher", capturedLogs.get(2).getMessage());
+        assertEquals("global.1c", capturedLogs.get(3).getLoggerName());
+        assertEquals("before lower", capturedLogs.get(3).getMessage());
+        assertEquals(LOGGING_ROOT + ".top", capturedLogs.get(4).getLoggerName());
+        assertEquals("before higher", capturedLogs.get(4).getMessage());
+        assertEquals(LOGGING_ROOT + ".top", capturedLogs.get(5).getLoggerName());
+        assertEquals("before lower", capturedLogs.get(5).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1c", capturedLogs.get(6).getLoggerName());
+        assertEquals("before higher", capturedLogs.get(6).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1c", capturedLogs.get(7).getLoggerName());
+        assertEquals("before lower", capturedLogs.get(7).getMessage());
+
+        assertEquals("global", capturedLogs.get(8).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(8).getMessage());
+        assertEquals("global.1c", capturedLogs.get(9).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(9).getMessage());
+        assertEquals(LOGGING_ROOT + ".top", capturedLogs.get(10).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(10).getMessage());
+        assertEquals(LOGGING_ROOT + ".top", capturedLogs.get(11).getLoggerName());
+        assertEquals("after lower", capturedLogs.get(11).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1c", capturedLogs.get(12).getLoggerName());
+        assertEquals("after higher", capturedLogs.get(12).getMessage());
+        assertEquals(LOGGING_ROOT + ".top.1c", capturedLogs.get(13).getLoggerName());
+        assertEquals("after lower", capturedLogs.get(13).getMessage());
     }
 }
