@@ -1,6 +1,7 @@
 package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
+import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.api.Json;
 import com.clumd.projects.javajson.api.JsonBuilder;
@@ -129,8 +130,12 @@ public class FileController extends FileHandler implements CustomLogController {
             // Check for additional metadata about the log entry.
             if (logRecord.getParameters() != null && logRecord.getParameters().length > 0) {
                 for (Object metadata : logRecord.getParameters()) {
-                    if (metadata instanceof Json jsonMetadata) {
+                    if (metadata instanceof LoggableData loggableMetadata) {
+                        logEntry.addString(METADATA_ARRAY, strFormatter(loggableMetadata.getFormattedLogData()));
+                    } else if (metadata instanceof Json jsonMetadata) {
                         logEntry.addBuilderBlock(METADATA_ARRAY, jsonMetadata);
+                    } else if (metadata == null) {
+                        logEntry.addString(METADATA_ARRAY, "NULL");
                     } else {
                         logEntry.addString(METADATA_ARRAY, strFormatter(metadata.toString()));
                     }

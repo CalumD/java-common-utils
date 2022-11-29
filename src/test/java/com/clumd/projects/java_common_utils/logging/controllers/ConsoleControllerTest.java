@@ -1,5 +1,6 @@
 package com.clumd.projects.java_common_utils.logging.controllers;
 
+import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.core.BasicJsonBuilder;
@@ -22,6 +23,13 @@ class ConsoleControllerTest {
     private UUID runID;
     private String systemId;
     private Map<Long, String> overriddenThreadNames;
+
+    private static class CustomLogFormattedObject implements LoggableData {
+        @Override
+        public String getFormattedLogData() {
+            return "text 12 with \n symbols {\" \": true} ";
+        }
+    }
 
     @BeforeEach
     void setup() {
@@ -108,7 +116,9 @@ class ConsoleControllerTest {
                         .addLong("array[]", 3)
                         .addString("t.second.third.fourth.fifth", "value")
                         .build(),
-                "String"
+                null,
+                "String",
+                new CustomLogFormattedObject()
         };
 
         String message = "Here is some warning due to the attached";
@@ -127,7 +137,7 @@ class ConsoleControllerTest {
         assertTrue(formattedString.contains("\nNested Reason:  (IOException) 3rd IO\n"));
         assertTrue(formattedString.contains("\nNested Reason:  (NullPointerException) 4th NPE!\n"));
         assertTrue(formattedString.endsWith("""
-                Metadata:  <3> item(s)
+                Metadata:  <5> item(s)
                 { 1337 }
                 {
                   "top": "1",
@@ -143,8 +153,13 @@ class ConsoleControllerTest {
                     3\s
                   ]\s
                 }
+                { NULL }
                 { String }
-
+                {
+                text 12 with\s
+                 symbols {" ": true}\s
+                }
+                
                 """));
     }
 

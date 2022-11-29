@@ -1,6 +1,7 @@
 package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.files.FileUtils;
+import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.api.Json;
@@ -33,6 +34,20 @@ class FileControllerTest {
     private UUID runID;
     private String systemId;
     private Map<Long, String> overriddenThreadNames;
+
+    private static class CustomLogFormattedObject implements LoggableData {
+        @Override
+        public String getFormattedLogData() {
+            return "text 12 with \n symbols {\" \": true} ";
+        }
+    }
+
+    private static class NullCustomLogFormattedObject implements LoggableData {
+        @Override
+        public String getFormattedLogData() {
+            return null;
+        }
+    }
 
     @BeforeEach
     void setup() throws IOException {
@@ -124,7 +139,10 @@ class FileControllerTest {
                         .addLong("array[]", 3)
                         .addString("t.second.third.fourth.fifth", "value")
                         .build(),
-                "String"
+                null,
+                "String",
+                new CustomLogFormattedObject(),
+                new NullCustomLogFormattedObject()
         };
 
         String message = "Here is some warning due to the attached";
@@ -138,7 +156,7 @@ class FileControllerTest {
 
         assertTrue(formattedString.startsWith("{\"threadID\":1,\"traceID\":\"" + runID + "\",\"dateTime\":\""));
         assertTrue(formattedString.contains("\"level\":\"" + CustomLevel.WARNING.getLevelName() + "\""));
-        assertTrue(formattedString.contains("\"meta\":[\"1337\",{\"top\":\"1\",\"t\":{\"s\":2,\"second\":{\"third\":{\"fourth\":{\"fifth\":\"value\"}}}},\"array\":[1,2,3]},\"String\"]"));
+        assertTrue(formattedString.contains("\"meta\":[\"1337\",{\"top\":\"1\",\"t\":{\"s\":2,\"second\":{\"third\":{\"fourth\":{\"fifth\":\"value\"}}}},\"array\":[1,2,3]},\"NULL\",\"String\",\"text 12 with    symbols {\\\\\\\" \\\\\\\": true} \",\"NULL\"]"));
         assertTrue(formattedString.contains("\"logger\":\"Anon/Unknown Logger\",\"publisher\":\"" + systemId + "\",\"message\":\"" + message + "\""));
         assertTrue(formattedString.contains("\"error\":[\"Error:  (Throwable) 1st reason\","));
         assertTrue(formattedString.contains("\",\"Nested Reason:  (RuntimeException) 2nd reason\",\""));

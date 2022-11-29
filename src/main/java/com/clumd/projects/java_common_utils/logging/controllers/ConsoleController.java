@@ -2,6 +2,7 @@ package com.clumd.projects.java_common_utils.logging.controllers;
 
 import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
 import com.clumd.projects.java_common_utils.logging.api.LogLevel;
+import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.java_common_utils.logging.common.Format;
@@ -125,8 +126,12 @@ public class ConsoleController extends ConsoleHandler implements CustomLogContro
             if (logRecord.getParameters() != null && logRecord.getParameters().length > 0) {
                 ret.append("Metadata:  <").append(logRecord.getParameters().length).append("> item(s)\n");
                 for (Object item : logRecord.getParameters()) {
-                    if (item instanceof Json jsonItem) {
+                    if (item instanceof LoggableData loggableData) {
+                        ret.append("{\n").append(loggableData.getFormattedLogData()).append("\n}\n");
+                    } else if (item instanceof Json jsonItem) {
                         ret.append((jsonItem).asPrettyString(2)).append(logRecord.getParameters().length > 1 ? '\n' : "");
+                    } else if (item == null) {
+                        ret.append("{ ").append("NULL").append(" }\n");
                     } else {
                         ret.append("{ ").append(item.toString()).append(" }\n");
                     }
