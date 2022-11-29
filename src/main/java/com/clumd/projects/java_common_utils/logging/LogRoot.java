@@ -5,8 +5,6 @@ import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 
 import java.io.File;
@@ -35,7 +33,6 @@ public final class LogRoot {
 
     private static String discardablePackageId;
     private static String loggingRootId;
-    @Getter(value = AccessLevel.PACKAGE)
     private static String staticSystemName;
 
     private LogRoot() {
@@ -117,12 +114,7 @@ public final class LogRoot {
     public static CustomLogController basicFileHandler() throws IOException {
         return basicFileHandler(
                 new File(
-                        LogRoot
-                                .class
-                                .getProtectionDomain()
-                                .getCodeSource()
-                                .getLocation()
-                                .getFile()
+                        System.getProperty("user.dir")
                 ).getAbsolutePath()
         );
     }

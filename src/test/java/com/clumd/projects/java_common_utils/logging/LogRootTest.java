@@ -3,6 +3,7 @@ package com.clumd.projects.java_common_utils.logging;
 import com.clumd.projects.java_common_utils.files.FileUtils;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
+import com.clumd.projects.java_common_utils.logging.controllers.FileController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,10 +13,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -23,6 +27,7 @@ import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,6 +86,47 @@ class LogRootTest {
     @Test
     void checkCreatingWithClass() {
         assertDoesNotThrow(() -> LogRoot.createLogger(LogRootTest.class));
+    }
+
+    @Test
+    void checkCreatingBasicFileHandlerCustomPath() {
+        assertDoesNotThrow(() -> {
+            FileController fc = (FileController)LogRoot.basicFileHandler(LOGGING_TEST_PATH);
+            fc.flush();
+            fc.close();
+        });
+        assertTrue(
+                Arrays
+                        .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                        .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                        .toList()
+                        .size()
+                        > 0
+        );
+    }
+
+    @Test
+    void checkCreatingBasicFileHandlerDefaultPath() {
+        final String existingUserDir = System.getProperty("user.dir");
+
+        try {
+            System.setProperty("user.dir", new File(LOGGING_TEST_PATH).getAbsolutePath());
+            assertDoesNotThrow(() -> {
+                FileController fc = (FileController)LogRoot.basicFileHandler();
+                fc.flush();
+                fc.close();
+            });
+            assertTrue(
+                    Arrays
+                            .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                            .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                            .toList()
+                            .size()
+                            > 0
+            );
+        } finally {
+            System.setProperty("user.dir", existingUserDir);
+        }
     }
 
 
