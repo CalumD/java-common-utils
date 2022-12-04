@@ -99,13 +99,13 @@ class CustomLevelTest {
 
     @Test
     void test_weak_equals_allows_priority_not_level() {
-        CustomLevel newLevel = new CustomLevel("NOT_INFO", 0);
+        CustomLevel newLevel = new CustomLevel("NOT_INFO", 800);
 
         assertEquals("INFO", INFO.getLevelName());
-        assertEquals(0, INFO.getPriority(), 0);
+        assertEquals(800, INFO.getPriority(), 0);
 
         assertEquals("NOT_INFO", newLevel.getLevelName());
-        assertEquals(0, newLevel.getPriority(), 0);
+        assertEquals(800, newLevel.getPriority(), 0);
 
         assertNotEquals(INFO, newLevel);
         assertTrue(INFO.weakEquals(newLevel));
@@ -116,7 +116,7 @@ class CustomLevelTest {
         CustomLevel newLevel = new CustomLevel("INFO", 123);
 
         assertEquals("INFO", INFO.getLevelName());
-        assertEquals(0, INFO.getPriority(), 0);
+        assertEquals(800, INFO.getPriority(), 0);
 
         assertEquals("INFO", newLevel.getLevelName());
         assertEquals(123, newLevel.getPriority(), 0);

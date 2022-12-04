@@ -24,25 +24,25 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     public static final CustomLevel OFF = CustomLevel.of("OFF", Integer.MAX_VALUE, RESET);
     public static final CustomLevel NONE = CustomLevel.of("NONE", Integer.MAX_VALUE, RESET);
 
-    public static final CustomLevel SHUTDOWN = CustomLevel.of("SHUTDOWN", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
-    public static final CustomLevel EMERGENCY = CustomLevel.of("EMERGENCY", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
-    public static final CustomLevel FATAL = CustomLevel.of("FATAL", 50, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
-    public static final CustomLevel CRITICAL = CustomLevel.of("CRITICAL", 40, BRIGHT_YELLOW);
-    public static final CustomLevel SEVERE = CustomLevel.of("SEVERE", 40, BRIGHT_YELLOW);
-    public static final CustomLevel ERROR = CustomLevel.of("ERROR", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
-    public static final CustomLevel FAILURE = CustomLevel.of("FAILURE", 30, createFormat(List.of(BOLD, BRIGHT_RED)));
-    public static final CustomLevel WARNING = CustomLevel.of("WARNING", 20, RED);
-    public static final CustomLevel IMPORTANT = CustomLevel.of("IMPORTANT", 10, createFormat(List.of(BOLD, BRIGHT_GREEN)));
-    public static final CustomLevel NOTIFICATION = CustomLevel.of("NOTIFICATION", 10, createFormat(List.of(BOLD, BRIGHT_GREEN)));
-    public static final CustomLevel INFO = CustomLevel.of("INFO", 0, GREEN);
-    public static final CustomLevel SUCCESS = CustomLevel.of("SUCCESS", 0, GREEN);
-    public static final CustomLevel CONFIG = CustomLevel.of("CONFIG", -10, PURPLE);
-    public static final CustomLevel DATA = CustomLevel.of("DATA", -10, PURPLE);
-    public static final CustomLevel VERBOSE = CustomLevel.of("VERBOSE", -20, BLUE);
-    public static final CustomLevel MINOR = CustomLevel.of("MINOR", -20, BLUE);
-    public static final CustomLevel DEBUG = CustomLevel.of("DEBUG", -30, createFormat(List.of(BOLD, CYAN, OUTLINE)));
-    public static final CustomLevel TESTING = CustomLevel.of("TESTING", -30, createFormat(List.of(BOLD, CYAN, OUTLINE)));
-    public static final CustomLevel TRACE = CustomLevel.of("TRACE", -40, WHITE);
+    public static final CustomLevel SHUTDOWN = CustomLevel.of("SHUTDOWN", 1050, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final CustomLevel EMERGENCY = CustomLevel.of("EMERGENCY", 1050, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final CustomLevel FATAL = CustomLevel.of("FATAL", 1050, createFormat(List.of(BOLD, BRIGHT_YELLOW)));
+    public static final CustomLevel CRITICAL = CustomLevel.of("CRITICAL", 1000, BRIGHT_YELLOW);
+    public static final CustomLevel SEVERE = CustomLevel.of("SEVERE", 1000, BRIGHT_YELLOW);
+    public static final CustomLevel ERROR = CustomLevel.of("ERROR", 950, createFormat(List.of(BOLD, BRIGHT_RED)));
+    public static final CustomLevel FAILURE = CustomLevel.of("FAILURE", 950, createFormat(List.of(BOLD, BRIGHT_RED)));
+    public static final CustomLevel WARNING = CustomLevel.of("WARNING", 900, RED);
+    public static final CustomLevel IMPORTANT = CustomLevel.of("IMPORTANT", 850, createFormat(List.of(BOLD, BRIGHT_GREEN)));
+    public static final CustomLevel NOTIFICATION = CustomLevel.of("NOTIFICATION", 850, createFormat(List.of(BOLD, BRIGHT_GREEN)));
+    public static final CustomLevel INFO = CustomLevel.of("INFO", 800, GREEN);
+    public static final CustomLevel SUCCESS = CustomLevel.of("SUCCESS", 800, GREEN);
+    public static final CustomLevel CONFIG = CustomLevel.of("CONFIG", 600, PURPLE);
+    public static final CustomLevel DATA = CustomLevel.of("DATA", 600, PURPLE);
+    public static final CustomLevel VERBOSE = CustomLevel.of("VERBOSE", 500, BLUE);
+    public static final CustomLevel MINOR = CustomLevel.of("MINOR", 500, BLUE);
+    public static final CustomLevel DEBUG = CustomLevel.of("DEBUG", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
+    public static final CustomLevel TESTING = CustomLevel.of("TESTING", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
+    public static final CustomLevel TRACE = CustomLevel.of("TRACE", 300, WHITE);
 
     @Getter
     private final String levelName;
