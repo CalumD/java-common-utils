@@ -9,6 +9,11 @@ package com.clumd.projects.java_common_utils.logging.api;
  */
 public interface LoggableData {
 
+    /**
+     * Used to return the data the implementing class would like to display within a Log statement.
+     *
+     * @return The data for the log formatted how you would like it to be displayed within a console.
+     */
     default String getFormattedLogData() {
         return this.toString();
     }

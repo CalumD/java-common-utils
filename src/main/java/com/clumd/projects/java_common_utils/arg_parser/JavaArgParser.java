@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A useful implementation of {@link CLIArgParser} with all basic features supported.
+ */
 public class JavaArgParser implements CLIArgParser {
 
     private static final String INDENT = "    ";

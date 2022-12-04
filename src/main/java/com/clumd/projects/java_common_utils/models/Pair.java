@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * A simple 'Pair' concept, which groups together two objects, via whatever logical grouping the user believes.
+ */
 @Data
 public class Pair<L extends Serializable, R extends Serializable> implements Serializable {
 

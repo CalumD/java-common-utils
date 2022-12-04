@@ -8,6 +8,14 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class is a very basic extension of the built-in JUL {@link Logger}, but with an expansive selection of 'log'
+ * methods for all the combinations of operations the average user might require.
+ * <p>
+ * There is also support for the 'tags' paradigm for log messages, explained as part of {@link ExtendedLogRecord}
+ * documentation. Other than the method signatures, basically the rest is a pass-through to the underling Logger, but
+ * using the aforementioned Extended Log Record in place of basic Log Record.
+ */
 public class ExtendedLogger extends Logger {
 
     /**

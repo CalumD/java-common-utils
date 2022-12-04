@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.util.Collection;
 
+/**
+ * Simple Formatting Utility class to describe basic transformations you could do to a Console Log String.
+ */
 public enum Format implements LogLevelFormat {
 
     // MODIFIERS
@@ -61,6 +64,13 @@ public enum Format implements LogLevelFormat {
         this.formatString = formatString;
     }
 
+    /**
+     * Used to create a custom Log Format with a selection of format modifiers, this can include Bold, underline and
+     * colour for example.
+     *
+     * @param formatModifiers The modifiers you would like this instance of Format to contain.
+     * @return The String representation for the asked for Format Modifiers.
+     */
     public static String createFormat(Collection<Format> formatModifiers) {
         formatModifiers = formatModifiers
                 .stream()

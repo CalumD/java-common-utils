@@ -15,6 +15,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A collection of useful methods to call for various File operations I find myself needing to do frequently.
+ */
 public class FileUtils {
 
     private FileUtils() {

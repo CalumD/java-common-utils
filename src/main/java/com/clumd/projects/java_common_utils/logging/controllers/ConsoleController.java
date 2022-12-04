@@ -1,6 +1,6 @@
 package com.clumd.projects.java_common_utils.logging.controllers;
 
-import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
+import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.api.LogLevel;
 import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
@@ -20,7 +20,7 @@ import java.util.logging.LogRecord;
 import static com.clumd.projects.java_common_utils.logging.LogRoot.ANON_THREAD;
 import static com.clumd.projects.java_common_utils.logging.LogRoot.TAB;
 
-public class ConsoleController extends ConsoleHandler implements CustomLogController {
+public class ConsoleController extends ConsoleHandler implements CustomLogHandler {
 
     private UUID traceID;
     private String systemID;

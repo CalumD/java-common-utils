@@ -1,6 +1,6 @@
 package com.clumd.projects.java_common_utils.logging.controllers;
 
-import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
+import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.api.LoggableData;
 import com.clumd.projects.java_common_utils.logging.common.ExtendedLogRecord;
 import com.clumd.projects.javajson.api.Json;
@@ -20,7 +20,7 @@ import java.util.logging.LogRecord;
 
 import static com.clumd.projects.java_common_utils.logging.LogRoot.ANON_THREAD;
 
-public class FileController extends FileHandler implements CustomLogController {
+public class FileController extends FileHandler implements CustomLogHandler {
 
     private UUID traceID;
     private String systemID;

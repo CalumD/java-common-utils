@@ -1,7 +1,7 @@
 package com.clumd.projects.java_common_utils.logging;
 
 import com.clumd.projects.java_common_utils.files.FileUtils;
-import com.clumd.projects.java_common_utils.logging.api.CustomLogController;
+import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
@@ -22,6 +22,13 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
+/**
+ * This class is a de-facto root for all Extended Logging functionality.
+ * <p>
+ * All methods are Static and this class cannot be instantiated.
+ * <p>
+ * The INIT method MUST be called before this LogRoot can be used to generate Loggers
+ */
 public final class LogRoot {
 
     private static final Map<Long, String> OVERRIDDEN_THREAD_NAME_MAPPINGS = new HashMap<>();
@@ -39,6 +46,20 @@ public final class LogRoot {
         // Don't allow this class to be instantiated. It should be used for static method calls only.
     }
 
+    /**
+     * Used to initialise the Log Root with some base parameters.
+     *
+     * @param discardablePackageIdEndingInDot The package name of the application using the logger, which must end in a
+     *                                        'dot' as this is how the package structure in Java is defined. For example
+     *                                        'com.x.y.z.' what this will allow is that any logger messages coming from
+     *                                        WITHIN your defined package, will be able to truncate the often
+     *                                        unnecessary base package definition in each log message.
+     * @param loggingRootID                   The ID which we should use as a core prefix, comparable to an 'App
+     *                                        reference' for every Log Message created in this application.
+     * @param systemID                        The ID of the system running this instance of the program using this
+     *                                        logger API.
+     * @return A LogRoot instance, which can then be enhanced with instances of Log Handlers.
+     */
     public static LogRoot init(
             @NonNull final String discardablePackageIdEndingInDot,
             @NonNull final String loggingRootID,
@@ -75,6 +96,10 @@ public final class LogRoot {
         return new LogRoot();
     }
 
+    /**
+     * As {@link LogRoot#init(String, String, String)}, but with systemID defaulting to null, which will use some
+     * programmatic ID, involving system hostname.
+     */
     public static LogRoot init(
             @NonNull final String discardablePackageIdEndingInDot,
             @NonNull final String loggingRootID
@@ -82,12 +107,18 @@ public final class LogRoot {
         return init(discardablePackageIdEndingInDot, loggingRootID, null);
     }
 
-    public void withHandlers(Collection<CustomLogController> wantedLogHandlers) {
+    /**
+     * Used to enhance the LogRoot with instances of Log Handler which will be used to capture all LogRecords written
+     * during the runtime of the application using this API.
+     *
+     * @param wantedLogHandlers The Collection of handlers which we want to be given each message in this app.
+     */
+    public void withHandlers(Collection<CustomLogHandler> wantedLogHandlers) {
 
         Logger root = Logger.getLogger("");
 
         // init each wanted handler
-        for (CustomLogController handler : wantedLogHandlers) {
+        for (CustomLogHandler handler : wantedLogHandlers) {
             handler.acceptLogRootRefs(SPECIFIC_RUN_ID, staticSystemName, OVERRIDDEN_THREAD_NAME_MAPPINGS);
             if (handler instanceof StreamHandler streamHandler) {
                 root.addHandler(streamHandler);
@@ -97,11 +128,24 @@ public final class LogRoot {
         }
     }
 
-    public static CustomLogController basicConsoleHandler(boolean useSpacerLines) {
+    /**
+     * Create a basic instance of a Console Handler with various defaults set.
+     *
+     * @param useSpacerLines Used to decide whether we want to add additional spacer lines to messages in the console.
+     * @return The instantiated ConsoleHandler instance.
+     */
+    public static CustomLogHandler basicConsoleHandler(boolean useSpacerLines) {
         return new ConsoleController(useSpacerLines);
     }
 
-    public static CustomLogController basicFileHandler(@NonNull String atDir) throws IOException {
+    /**
+     * Create a basic instance of a File Handler with various defaults set.
+     *
+     * @param atDir The Directory where the system should write its log files to.
+     * @return The instantiated FileHandler instance.
+     * @throws IOException Thrown if there was a problem creating or writing to the directory/file you intended.
+     */
+    public static CustomLogHandler basicFileHandler(@NonNull String atDir) throws IOException {
         FileUtils.makeAllDirs(atDir);
         return new FileController(
                 atDir + "/" + loggingRootId + "_" + staticSystemName + "_%g.log",
@@ -111,7 +155,14 @@ public final class LogRoot {
         );
     }
 
-    public static CustomLogController basicFileHandler() throws IOException {
+    /**
+     * As {@link LogRoot#basicFileHandler(String)} but the directory is defaulted to the CURRENT WORKING DIRECTORY WHEN
+     * THE JAVA PROCESS WAS STARTED.
+     *
+     * @return The instantiated FileHandler instance.
+     * @throws IOException Thrown if there was a problem creating or writing to the directory/file you intended.
+     */
+    public static CustomLogHandler basicFileHandler() throws IOException {
         return basicFileHandler(
                 new File(
                         System.getProperty("user.dir")
@@ -119,10 +170,25 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Used to create a Logger instance by referencing the Class you want the logger for.
+     *
+     * @param forClass The Class you would like the logger to be created for.
+     * @return The instantiated ExtendedLogger
+     */
     public static ExtendedLogger createLogger(@NonNull final Class<?> forClass) {
         return createLogger(null, forClass.getName());
     }
 
+    /**
+     * Used to create a Logger instance by a string name.
+     * <p>
+     * If there is some sort of hierarchy in these loggers, such as going into various sub-packages, then these should
+     * be dot-separated.
+     *
+     * @param loggerIdentifier The String name of the class you would like the Logger of.
+     * @return The instantiated ExtendedLogger
+     */
     public static ExtendedLogger createLogger(@NonNull String loggerIdentifier) {
         return createLogger(null, loggerIdentifier);
     }
@@ -141,6 +207,19 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Used to create a Logger instance by a string name, with a custom prefix.
+     * <p>
+     * This may be useful for classes who require Multiple instances of the same logger, but for slightly different
+     * purposes.
+     * <p>
+     * If there is some sort of hierarchy in these loggers, such as going into various sub-packages, then these should
+     * be dot-separated on the loggerIdentifier, NOT on the prefix.
+     *
+     * @param prefix           The name of the prefix for this Logger instance.
+     * @param loggerIdentifier The String name of the class you would like the Logger of.
+     * @return The instantiated ExtendedLogger
+     */
     public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier) {
         String loggerName = buildLogName(prefix, loggerIdentifier);
         Logger extLog = LogManager.getLogManager().getLogger(loggerName);
@@ -151,6 +230,15 @@ public final class LogRoot {
         return (ExtendedLogger) extLog;
     }
 
+    /**
+     * Used to set the logging level of the indicated branch of package hierarchy.
+     * <p>
+     * This will be SPECIFIC to loggers created within this API.
+     *
+     * @param selectedLevel The level you would like to set the indicated branch to.
+     * @param viaLogger     The Logger we should use to determine the Branch of logging hierarchy to update the log
+     *                      level to.
+     */
     public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final Logger viaLogger) {
         setGivenLoggersToLevel(
                 getAllLoggerNames(viaLogger.getName()),
@@ -158,6 +246,15 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Used to set the logging level of the indicated branch of package hierarchy.
+     * <p>
+     * This will be SPECIFIC to loggers created within this API.
+     *
+     * @param selectedLevel    The level you would like to set the indicated branch to.
+     * @param viaLogIdentifier The Logger reference we should use to determine the Branch of logging hierarchy to update
+     *                         the log level to.
+     */
     public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final String viaLogIdentifier) {
         String loggerName = buildLogName(null, viaLogIdentifier);
         setGivenLoggersToLevel(
@@ -166,6 +263,15 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Used to set the logging level of the indicated branch of package hierarchy.
+     * <p>
+     * This operation can apply ACROSS ALL LOGGERS KNOWN TO THE JVM.
+     *
+     * @param selectedLevel    The level you would like to set the indicated branch to.
+     * @param viaLogIdentifier The Logger reference we should use to determine the Branch of logging hierarchy to update
+     *                         the log level to.
+     */
     public static void setGlobalBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, @NonNull final String viaLogIdentifier) {
         setGivenLoggersToLevel(
                 getAllLoggerNames(viaLogIdentifier),
@@ -173,6 +279,16 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Used to set the logging level of the indicated branch of package hierarchy.
+     * <p>
+     * This will be SPECIFIC to loggers created within this API.
+     *
+     * @param selectedLevel    The level you would like to set the indicated branch to.
+     * @param viaLogPrefix     The specific prefix necessary to determine an exact Logger instance.
+     * @param viaLogIdentifier The Logger reference we should use to determine the Branch of logging hierarchy to update
+     *                         the log level to.
+     */
     public static void setBranchLoggingLevel(@NonNull final CustomLevel selectedLevel, final String viaLogPrefix, @NonNull final String viaLogIdentifier) {
         String loggerName = buildLogName(viaLogPrefix, viaLogIdentifier);
         setGivenLoggersToLevel(
@@ -181,6 +297,13 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Set the log level across the entire JVM to the given Custom Level.
+     * <p>
+     * Please note, CUSTOM log levels DO NOT necessarily overlap with the baked in JUL log levels.
+     *
+     * @param selectedLevel The LogLevel you would like to set across the whole application.
+     */
     public static void setGlobalLoggingLevel(@NonNull final CustomLevel selectedLevel) {
         setGivenLoggersToLevel(
                 getAllLoggerNames(null),
@@ -188,6 +311,12 @@ public final class LogRoot {
         );
     }
 
+    /**
+     * Set the log level across every Logger created within this API to the given Custom Level, but do NOT touch loggers
+     * used by 3rd party dependencies.
+     *
+     * @param selectedLevel The LogLevel you would like to set for the indicated loggers.
+     */
     public static void setApplicationGlobalLevel(@NonNull final CustomLevel selectedLevel) {
         setGivenLoggersToLevel(
                 getAllLoggerNames(loggingRootId),
@@ -196,7 +325,7 @@ public final class LogRoot {
     }
 
     private static List<String> getAllLoggerNames(String filteredBy) {
-        List<String> names =  Collections.list(
+        List<String> names = Collections.list(
                 LogManager
                         .getLogManager()
                         .getLoggerNames()

@@ -33,7 +33,7 @@ public interface CLIArgParser {
     ) throws ParseException;
 
     /**
-     * As {@link CLIArgParser#parseFromCLI(Collection, String[], boolean, boolean)} ()}, but defaulting to false for
+     * As {@link CLIArgParser#parseFromCLI(Collection, String[], boolean, boolean)}, but defaulting to false for
      * {@code ignoreUnknownCLIArgs} and {@code returnArgsWithDefaultButNotOnCLI}
      */
     Collection<Argument<Object>> parseFromCLI(

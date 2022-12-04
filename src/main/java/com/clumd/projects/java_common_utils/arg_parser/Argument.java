@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class Argument<T> {
 
     /**
-     * Used to index the options
+     * Used to index the options, must be unique and supplied by the user.
      */
     @Builder.Default
     private final int uniqueId = Integer.MIN_VALUE;
