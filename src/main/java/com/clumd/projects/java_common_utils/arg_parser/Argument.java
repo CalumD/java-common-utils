@@ -67,7 +67,7 @@ public class Argument<T> {
     /**
      * Used to track if a default value has been set for this argument to be used if no CLI value is found.
      */
-    boolean defaultValueSet = false;
+    boolean defaultValueSet;
 
     /**
      * If this argument needs a value, then this should be the fully validated and parsed output of that value.
