@@ -1,6 +1,15 @@
 # java-common-utils
 A collection of common utilities I find myself writing for most Java projects
 
+Best used with a simple Maven import
+```xml
+<dependency>
+    <groupId>com.clumd.projects</groupId>
+    <artifactId>java-common-utils</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+
 ### Arg Parser
 This is a simple yet powerful Java CLI arg parser. It takes a collection of all possible arguments, and using the args provided in the CLI, will do some intelligent parsing and validation, then return you the subset of your Arguments which was input to your program along with any associated values.
 
