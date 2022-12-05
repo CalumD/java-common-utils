@@ -4,15 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavaArgParserTest {
 
@@ -610,6 +604,31 @@ class JavaArgParserTest {
             fail("The previous method call should have thrown an exception");
         } catch (ParseException e) {
             assertEquals("Missing mandatory value for short option: a", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_missing_mandatory_argument() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId(1)
+                                    .description("testing when argument is mandatory but not provided")
+                                    .shortOptions(Set.of('a'))
+                                    .isMandatory(true)
+                                    .conversionFunction(Integer::parseInt)
+                                    .build()
+                    ),
+                    new String[]{""}
+            );
+            fail("The previous method call should have thrown an exception");
+        } catch (ParseException e) {
+            assertEquals(
+                    "Mandatory Argument was not provided {1 : testing when argument is mandatory but not provided}",
+                    e.getMessage()
+            );
         }
     }
 

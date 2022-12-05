@@ -34,6 +34,14 @@ public class Argument<T> {
     private final Set<String> longOptions = new HashSet<>();
 
     /**
+     * Used to indicate if this argument is mandatory and MUST be provided for the utilising code to function.
+     * If you set this value to true, you probably don't want to set a default value.
+     */
+    @Builder.Default
+    @Accessors(fluent = true)
+    private final boolean isMandatory = false;
+
+    /**
      * Used to indicate if this argument can be followed by a value, defaults to false
      */
     @Builder.Default
