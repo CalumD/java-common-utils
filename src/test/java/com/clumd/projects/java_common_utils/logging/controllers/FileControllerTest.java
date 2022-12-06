@@ -13,18 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileControllerTest {
 
@@ -51,6 +44,7 @@ class FileControllerTest {
 
     @BeforeEach
     void setup() throws IOException {
+        FileUtils.makeContainingDirs(LOGGING_TEST_PATH);
         controller = new FileController(LOGGING_TEST_PATH, 1000000, 1, false);
         runID = UUID.randomUUID();
         systemId = "system id";
