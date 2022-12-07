@@ -11,12 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -227,6 +222,11 @@ public final class LogRoot {
             extLog = new ExtendedLogger(loggerName);
             LogManager.getLogManager().addLogger(extLog);
         }
+
+        if (Thread.currentThread().getId() > 1) {
+            updateThreadIdName(Thread.currentThread().getId(), Thread.currentThread().getName());
+        }
+
         return (ExtendedLogger) extLog;
     }
 
@@ -322,6 +322,10 @@ public final class LogRoot {
                 getAllLoggerNames(loggingRootId),
                 selectedLevel
         );
+    }
+
+    public static void updateThreadIdName(long threadID, @NonNull String threadName) {
+        OVERRIDDEN_THREAD_NAME_MAPPINGS.put(threadID, threadName);
     }
 
     private static List<String> getAllLoggerNames(String filteredBy) {

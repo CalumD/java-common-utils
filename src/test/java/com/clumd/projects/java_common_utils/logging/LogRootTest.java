@@ -1,6 +1,7 @@
 package com.clumd.projects.java_common_utils.logging;
 
 import com.clumd.projects.java_common_utils.files.FileUtils;
+import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
@@ -15,20 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.logging.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LogRootTest {
@@ -49,16 +42,19 @@ class LogRootTest {
     @Mock
     private ExtendedConsoleController mockController;
 
+    private CustomLogHandler customConsoleHandler;
+
     @BeforeEach
     void setup() throws IOException {
         lenient().doNothing().when(mockController).publish(logCaptor.capture());
         FileUtils.deleteDirectoryIfExists(LOGGING_TEST_PATH);
+        customConsoleHandler = LogRoot.basicConsoleHandler(true);
         LogRoot.init(
                         DISCARDABLE_PACKAGE,
                         LOGGING_ROOT)
                 .withHandlers(List.of(
                         mockController,
-                        LogRoot.basicConsoleHandler(true)
+                        customConsoleHandler
                 ));
     }
 
@@ -129,6 +125,49 @@ class LogRootTest {
         }
     }
 
+    @Test
+    void checkThreadName_anonForMain() {
+        when(mockController.getFormatter()).thenReturn(((StreamHandler)customConsoleHandler).getFormatter());
+        ExtendedLogger el = LogRoot.createLogger(LogRootTest.class);
+
+        el.log(Level.INFO, "value");
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(1, capturedLogs.size(), 0);
+
+        assertTrue(mockController
+                .getFormatter()
+                .format(capturedLogs.get(0))
+                .contains("(1):Anon/Unknown Thread   ")
+        );
+    }
+
+    @Test
+    void checkThreadName_setsForNew() throws InterruptedException {
+        when(mockController.getFormatter()).thenReturn(((StreamHandler)customConsoleHandler).getFormatter());
+
+        Thread t = new Thread(
+                Thread.currentThread().getThreadGroup(),
+                () -> {
+                    ExtendedLogger el = LogRoot.createLogger(LogRootTest.class);
+                    el.log(Level.INFO, "value");
+                },
+                "some special thread name"
+        );
+
+        t.start();
+        t.join(1000L);
+
+        List<LogRecord> capturedLogs = logCaptor.getAllValues();
+        assertEquals(1, capturedLogs.size(), 0);
+
+        assertTrue(mockController
+                .getFormatter()
+                .format(capturedLogs.get(0))
+                .contains("):some special thread name   ")
+        );
+
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
