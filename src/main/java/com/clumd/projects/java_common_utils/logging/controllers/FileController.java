@@ -25,7 +25,7 @@ public class FileController extends FileHandler implements CustomLogHandler {
     private UUID traceID;
     private String systemID;
     private Map<Long, String> overriddenThreadNames;
-    public static final SimpleDateFormat FILE_DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    public final SimpleDateFormat fileDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     /**
      * Pass-through constructor ensuring we will use the desired custom formatter, and match ALL records.
@@ -90,7 +90,7 @@ public class FileController extends FileHandler implements CustomLogHandler {
             // Add all the basic info
             logEntry.addString("publisher", systemID)
                     .addString("traceID", traceID.toString())
-                    .addString("dateTime", FILE_DATE_TIME_FORMATTER.format(logRecord.getMillis()))
+                    .addString("dateTime", fileDateTimeFormatter.format(logRecord.getMillis()))
                     .addLong("machineDateTime", logRecord.getMillis())
                     .addString("logger", Objects.requireNonNullElse(logRecord.getLoggerName(), "Anon/Unknown Logger"))
                     .addLong("threadID", logRecord.getLongThreadID())
@@ -128,7 +128,7 @@ public class FileController extends FileHandler implements CustomLogHandler {
             }
 
             // Check for additional metadata about the log entry.
-            if (logRecord.getParameters() != null && logRecord.getParameters().length > 0) {
+            if (logRecord.getParameters() != null) {
                 for (Object metadata : logRecord.getParameters()) {
                     if (metadata instanceof LoggableData loggableMetadata) {
                         logEntry.addString(METADATA_ARRAY, strFormatter(loggableMetadata.getFormattedLogData()));

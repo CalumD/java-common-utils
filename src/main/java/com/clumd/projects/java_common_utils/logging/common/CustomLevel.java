@@ -6,17 +6,13 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
 import static com.clumd.projects.java_common_utils.logging.common.Format.*;
 
 public class CustomLevel extends Level implements LogLevel, Serializable {
-
-    private static final Map<Level, LogLevel> ALL_LEVELS = new HashMap<>();
 
     public static final String COLOUR_RESET = "\033[0m";
 
@@ -56,7 +52,6 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this.levelName = this.toString();
         this.priority = priority;
         this.levelFormat = null;
-        ALL_LEVELS.put(this, this);
     }
 
     public CustomLevel(@NonNull String level, int priority, @NonNull final String levelFormat) {
@@ -64,7 +59,6 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this.levelName = this.toString();
         this.priority = priority;
         this.levelFormat = levelFormat;
-        ALL_LEVELS.put(this, this);
     }
 
     public CustomLevel(@NonNull String level, int priority, @NonNull final LogLevelFormat format) {

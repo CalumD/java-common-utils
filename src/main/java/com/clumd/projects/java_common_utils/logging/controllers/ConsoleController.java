@@ -25,7 +25,7 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
     private UUID traceID;
     private String systemID;
     private Map<Long, String> overriddenThreadNames;
-    public static final SimpleDateFormat CONSOLE_DATE_TIME_FORMATTER = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
+    public final SimpleDateFormat consoleDateTimeFormatter = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
     private final boolean useSpacerLine;
 
     public ConsoleController(boolean useSpacerLines) {
@@ -92,7 +92,7 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
         private void formatMetadata(StringBuilder ret, LogRecord logRecord) {
             ret.append(traceID).append(TAB)
                     .append(systemID).append(TAB)
-                    .append(CONSOLE_DATE_TIME_FORMATTER.format(logRecord.getMillis())).append(TAB)
+                    .append(consoleDateTimeFormatter.format(logRecord.getMillis())).append(TAB)
                     .append(logRecord.getLoggerName()).append(TAB)
                     .append('(').append(logRecord.getLongThreadID()).append("):")
                     .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD)).append(TAB)

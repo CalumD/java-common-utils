@@ -11,7 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -223,8 +228,8 @@ public final class LogRoot {
             LogManager.getLogManager().addLogger(extLog);
         }
 
-        if (Thread.currentThread().getId() > 1) {
-            updateThreadIdName(Thread.currentThread().getId(), Thread.currentThread().getName());
+        if (Thread.currentThread().threadId() > 1) {
+            updateThreadIdName(Thread.currentThread().threadId(), Thread.currentThread().getName());
         }
 
         return (ExtendedLogger) extLog;

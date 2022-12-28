@@ -3,7 +3,13 @@ package com.clumd.projects.java_common_utils.arg_parser;
 import lombok.NonNull;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A useful implementation of {@link CLIArgParser} with all basic features supported.
@@ -105,10 +111,8 @@ public class JavaArgParser implements CLIArgParser {
 
         // Double check that any mandatory arguments were provided
         for (Argument<?> arg : possibleArguments) {
-            if (arg.isMandatory()) {
-                if (returnArgumentMap.get(arg.getUniqueId()) == null) {
-                    throw new ParseException("Mandatory Argument was not provided {" + arg.getUniqueId() + " : " + arg.getDescription() + "}", 0);
-                }
+            if (arg.isMandatory() && (returnArgumentMap.get(arg.getUniqueId()) == null)) {
+                throw new ParseException("Mandatory Argument was not provided {" + arg.getUniqueId() + " : " + arg.getDescription() + "}", 0);
             }
         }
 

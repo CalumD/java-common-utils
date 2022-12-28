@@ -7,7 +7,7 @@
     <!--  Top level metadata / coordinates  -->
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <!--  Basic application info  -->
@@ -41,8 +41,8 @@
 
     <!--  Useful properties for this POM  -->
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <delombok.output>${project.build.directory}/delombok</delombok.output>
     </properties>
