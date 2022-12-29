@@ -16,10 +16,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +72,12 @@ class LogRootTest {
     @AfterEach
     void tearDown() {
         LogManager.getLogManager().reset();
+    }
+
+    @Test
+    void checkBasicDenseConsoleHandlerNotNull() {
+        assertDoesNotThrow(LogRoot::basicDenseConsoleHandler);
+        assertNotNull(LogRoot.basicDenseConsoleHandler());
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.clumd.projects.java_common_utils.files.FileUtils;
 import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
+import com.clumd.projects.java_common_utils.logging.controllers.DenseConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
 import lombok.NonNull;
 
@@ -136,6 +137,15 @@ public final class LogRoot {
      */
     public static CustomLogHandler basicConsoleHandler(boolean useSpacerLines) {
         return new ConsoleController(useSpacerLines);
+    }
+
+    /**
+     * Creates a sparse no-fluff Console Handler with dense message output.
+     *
+     * @return The instantiated ConsoleHandler instance.
+     */
+    public static CustomLogHandler basicDenseConsoleHandler() {
+        return new DenseConsoleController();
     }
 
     /**
