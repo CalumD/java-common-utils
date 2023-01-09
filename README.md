@@ -1,5 +1,5 @@
 # java-common-utils
-[![Build](https://github.com/CalumD/Java-JSON/workflows/simple-tests/badge.svg)](https://github.com/CalumD/Java-JSON)
+[![Build](https://github.com/CalumD/java-common-utils/workflows/simple-tests/badge.svg)](https://github.com/CalumD/java-common-utils)
 [![JDK used](https://img.shields.io/badge/JDK--Used-19.0.1+10-green)](https://www.azul.com/downloads/?version=java-19-sts&package=jdk)
 [![Junit](https://img.shields.io/badge/JUnit-v5-green)](https://junit.org/junit5/docs/current/user-guide/)
 [![GitHub release](https://img.shields.io/github/v/release/CalumD/java-common-utils)](https://github.com/CalumD/java-common-utils/releases)
