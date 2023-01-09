@@ -1,4 +1,11 @@
 # java-common-utils
+[![Build](https://github.com/CalumD/Java-JSON/workflows/simple-tests/badge.svg)](https://github.com/CalumD/Java-JSON)
+[![JDK used](https://img.shields.io/badge/JDK--Used-19.0.1+10-green)](https://www.azul.com/downloads/?version=java-19-sts&package=jdk)
+[![Junit](https://img.shields.io/badge/JUnit-v5-green)](https://junit.org/junit5/docs/current/user-guide/)
+[![GitHub release](https://img.shields.io/github/v/release/CalumD/java-common-utils)](https://github.com/CalumD/java-common-utils/releases)
+[![Maven release](https://maven-badges.herokuapp.com/maven-central/com.clumd.projects/java-common-utils/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.clumd.projects/java-json)
+[![CodeQL](https://github.com/CalumD/java-common-utils/actions/workflows/CodeQL.yml/badge.svg)](https://github.com/CalumD/java-common-utils/actions/workflows/CodeQL.yml)
+
 A collection of common utilities I find myself writing for most Java projects
 
 Best used with a simple Maven import
@@ -6,12 +13,14 @@ Best used with a simple Maven import
 <dependency>
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.3</version>
 </dependency>
 ```
 
 ### Arg Parser
 This is a simple yet powerful Java CLI arg parser. It takes a collection of all possible arguments, and using the args provided in the CLI, will do some intelligent parsing and validation, then return you the subset of your Arguments which was input to your program along with any associated values.
+
+It also has the functionality to auto-generate the standard CLI boilerplate help text, using typical MAN-page formatting.
 
 ##### Usage
 The easiest way to create an Argument is with the Lombok Builder, something along the lines of the following (note that this is a builder, you dont need to use every option every time if the default suffices).
