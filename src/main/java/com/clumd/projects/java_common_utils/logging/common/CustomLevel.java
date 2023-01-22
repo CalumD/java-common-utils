@@ -95,6 +95,9 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         if (other instanceof CustomLevel otherLevel) {
             return otherLevel.priority == this.priority || Objects.equals(otherLevel.levelName, this.levelName);
         }
+        if (other instanceof Level julLevel) {
+            return julLevel.intValue() == this.priority || Objects.equals(julLevel.getName(), this.levelName);
+        }
         return false;
     }
 

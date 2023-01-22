@@ -2,6 +2,8 @@ package com.clumd.projects.java_common_utils.logging.common;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.logging.Level;
+
 import static com.clumd.projects.java_common_utils.logging.common.CustomLevel.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -139,5 +141,18 @@ class CustomLevelTest {
     void test_static_of() {
         assertNotNull(CustomLevel.of("newlevel", 10));
         assertNotNull(CustomLevel.of("newlevel2", 100));
+    }
+
+    @Test
+    void test_existing_levels_are_equalable() {
+        assertTrue(ALL.weakEquals(Level.ALL));
+        assertTrue(SEVERE.weakEquals(Level.SEVERE));
+        assertTrue(WARNING.weakEquals(Level.WARNING));
+        assertTrue(INFO.weakEquals(Level.INFO));
+        assertTrue(CONFIG.weakEquals(Level.CONFIG));
+        assertTrue(MINOR.weakEquals(Level.FINE));
+        assertTrue(DEBUG.weakEquals(Level.FINER));
+        assertTrue(TRACE.weakEquals(Level.FINEST));
+        assertTrue(OFF.weakEquals(Level.OFF));
     }
 }
