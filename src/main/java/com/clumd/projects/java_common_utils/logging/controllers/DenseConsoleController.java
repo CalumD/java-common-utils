@@ -112,14 +112,15 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
                 ret.append("Metadata:  <").append(logRecord.getParameters().length).append("> item(s)\n");
                 for (Object item : logRecord.getParameters()) {
                     if (item instanceof LoggableData loggableData) {
-                        ret.append("{ ").append(loggableData.getFormattedLogData()).append(" }\n");
+                        ret.append("{ ").append(loggableData.getFormattedLogData()).append(" }");
                     } else if (item instanceof Json jsonItem) {
-                        ret.append((jsonItem).asString(2)).append(logRecord.getParameters().length > 1 ? '\n' : "");
+                        ret.append((jsonItem).asString(2));
                     } else if (item == null) {
-                        ret.append("{ ").append("NULL").append(" }\n");
+                        ret.append("{ ").append("NULL").append(" }");
                     } else {
-                        ret.append("{ ").append(item.toString()).append(" }\n");
+                        ret.append("{ ").append(item.toString()).append(" }");
                     }
+                    ret.append('\n');
                 }
             }
 

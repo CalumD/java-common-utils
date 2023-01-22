@@ -127,14 +127,15 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
                 ret.append("Metadata:  <").append(logRecord.getParameters().length).append("> item(s)\n");
                 for (Object item : logRecord.getParameters()) {
                     if (item instanceof LoggableData loggableData) {
-                        ret.append("{\n").append(loggableData.getFormattedLogData()).append("\n}\n");
+                        ret.append("{\n").append(loggableData.getFormattedLogData()).append("\n}");
                     } else if (item instanceof Json jsonItem) {
-                        ret.append((jsonItem).asPrettyString(2)).append(logRecord.getParameters().length > 1 ? '\n' : "");
+                        ret.append((jsonItem).asPrettyString(2));
                     } else if (item == null) {
-                        ret.append("{ ").append("NULL").append(" }\n");
+                        ret.append("{ ").append("NULL").append(" }");
                     } else {
-                        ret.append("{ ").append(item.toString()).append(" }\n");
+                        ret.append("{ ").append(item.toString()).append(" }");
                     }
+                    ret.append('\n');
                 }
             }
             if (useSpacerLine) {
