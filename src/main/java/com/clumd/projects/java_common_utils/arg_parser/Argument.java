@@ -1,9 +1,11 @@
 package com.clumd.projects.java_common_utils.arg_parser;
 
+import com.clumd.projects.java_common_utils.base_enhancements.FunctionPotentialException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -18,8 +20,7 @@ public class Argument<T> {
     /**
      * Used to index the options, must be unique and supplied by the user.
      */
-    @Builder.Default
-    private final int uniqueId = Integer.MIN_VALUE;
+    private final int uniqueId;
 
     /**
      * Used to contain all the single character alias' to indicate this option
@@ -34,8 +35,8 @@ public class Argument<T> {
     private final Set<String> longOptions = new HashSet<>();
 
     /**
-     * Used to indicate if this argument is mandatory and MUST be provided for the utilising code to function.
-     * If you set this value to true, you probably don't want to set a default value.
+     * Used to indicate if this argument is mandatory and MUST be provided for the utilising code to function. If you
+     * set this value to true, you probably don't want to set a default value.
      */
     @Builder.Default
     @Accessors(fluent = true)
@@ -111,31 +112,110 @@ public class Argument<T> {
 
         // If the validation function is not provided, we should default to accepted.
         if (validationFunction != null) {
-            try {
-                return validationFunction.apply(argumentResult);
-            } catch (Throwable e) {
-                throw new IllegalArgumentException("Argument with ID {" + getUniqueId() + "} failed to validate. " +
-                        "Check supplied value, or that the default value is valid for the given Validation function, " +
-                        "if providing an argument is optional.", e);
-            }
+            return validationFunction.apply(argumentResult);
         }
 
         return true;
     }
 
+
+    /**
+     * Overridden Builder for part of the Lombok process. This is used to alter the basic setter functionality of the
+     * chained methods in the builder, dependent on the field being overridden.
+     *
+     * @param <T> The param type for the builder matching that of the base Argument class.
+     */
     public static class ArgumentBuilder<T> {
+        int uniqueId = Integer.MIN_VALUE;
         boolean defaultValueSet = false;
-        private T defaultValue;
+
+        /**
+         * This is used to set the uniqueId of this argument, it is only required as an override to the default
+         * constructor to have the value available to the exception strings in the {@link FunctionPotentialException}
+         * methods below
+         *
+         * @param toValue Used to index the options, must be unique and supplied by the user.
+         * @return This continued builder instance.
+         */
+        public Argument.ArgumentBuilder<T> uniqueId(int toValue) {
+            uniqueId = toValue;
+            return this;
+        }
 
         /**
          * Used to set the default value, and also mark that the default value has been set. This can be used to notify
          * a local Arg Parser that a local value exists, in case it wants to display this in help text.
          *
          * @param toValue The value to use as a default value for this argument.
+         * @return This continued builder instance.
          */
         public Argument.ArgumentBuilder<T> defaultValue(T toValue) {
             defaultValue = toValue;
             defaultValueSet = true;
+            return this;
+        }
+
+        /**
+         * This constructor is used to override the conversion function in order to wrap the call to the
+         * {@link Function#apply(Object)} such that the implementing user can use checked exceptions if they want,
+         * without it causing compile time issues. Any exceptions will be wrapped into the reason for an
+         * {@link IllegalArgumentException}.
+         *
+         * @param functionWhichMayThrowException An input lambda which may or may not throw an exception. The lambda's
+         *                                       single input parameter will be a String which would be the command line
+         *                                       argument value. The return type is tied to the typing of the base
+         *                                       {@link Argument<T>}. The exception is introspected by the definition of
+         *                                       the provided lambda.
+         * @param <E>                            Allowing the {@link FunctionPotentialException} to throw an instance of
+         *                                       an Exception, as a child reason to an IllegalArgumentException.
+         * @return This continued builder instance.
+         */
+        public <E extends Exception> Argument.ArgumentBuilder<T> conversionFunction(FunctionPotentialException<String, T, E> functionWhichMayThrowException) {
+            conversionFunction = cli -> {
+                try {
+                    return functionWhichMayThrowException.apply(cli);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Argument with ID {" + uniqueId + "} failed to parse from CLI arg. " +
+                            "Check supplied value for typos or read the description for this value in the --help.", e);
+                }
+            };
+            return this;
+        }
+
+        /**
+         * This constructor is used to override the value validation function in order to wrap the call to the
+         * {@link Function#apply(Object)} such that the implementing user can use checked exceptions if they want,
+         * without it causing compile time issues. Any exceptions will be wrapped into the reason for an
+         * {@link IllegalArgumentException}.
+         *
+         * @param functionWhichMayThrowException An input lambda which may or may not throw an exception. The lambda's
+         *                                       single input parameter will be the type-safe value, typed against the T
+         *                                       of the base {@link Argument}. The return type will be a boolean
+         *                                       determining whether the successfully parsed value is within some
+         *                                       user-defined acceptable range. The exception is introspected by the
+         *                                       definition of the provided lambda.
+         * @param <E>                            Allowing the {@link FunctionPotentialException} to throw an instance of
+         *                                       an Exception, as a child reason to an IllegalArgumentException.
+         * @return This continued builder instance.
+         */
+        public <E extends Exception> Argument.ArgumentBuilder<T> validationFunction(FunctionPotentialException<T, Boolean, E> functionWhichMayThrowException) {
+            validationFunction = cli -> {
+                try {
+                    Boolean valueValid = functionWhichMayThrowException.apply(cli);
+                    // I can see there being some poor soul who has written a poor validationFunction implementation
+                    // which nulls out and gets caught here, so adding this additional check to be safe.
+                    // We are only unable to return a primitive in the method declaration due to Java's typed-parameters not allowing primitives.
+                    if (valueValid == null) {
+                        throw new ParseException("Validation function returned a null instead of true/false. " +
+                                "Please check for edge cases.", 0);
+                    }
+                    return valueValid;
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Argument with ID {" + uniqueId + "} failed to validate. " +
+                            "Check supplied value, or that the default value is valid for the given Validation function, " +
+                            "if providing an argument is optional.", e);
+                }
+            };
             return this;
         }
     }

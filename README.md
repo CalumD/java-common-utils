@@ -50,6 +50,13 @@ If you used `-n 4` on the CLI, you would get an exception like `java.text.ParseE
 You can collect the values of your returned Argument after parsing with `anIntegerArgument.getArgumentResult();` which will return you the type-safe parsed version of your result. In this case it is an `Integer`.
 
 
+### Base Enhancements
+This is for all instances of base java, where I see opportunity for enhanced functionality or use.
+
+An example of this is the FunctionPotentialException class, which allows users to implement lambdas which may throw 
+checked exceptions, so long as it is wrapped by a method calling down to the "apply" method.
+
+
 ### Files
 Who hasn't written their own comfort lib for parsing files yet?
 

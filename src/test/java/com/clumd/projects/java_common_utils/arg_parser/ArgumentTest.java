@@ -95,10 +95,14 @@ class ArgumentTest {
                 .conversionFunction(Integer::parseInt)
                 .build();
 
-        assertThrows(
-                NumberFormatException.class,
-                () -> intArg.attemptValueConversion("abc")
-        );
+        try {
+            intArg.attemptValueConversion("abc");
+            fail("The previous method call should have thrown an exception.");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getCause());
+            assertNull(e.getCause().getCause());
+            assertEquals(NumberFormatException.class, e.getCause().getClass());
+        }
     }
 
     @Test
@@ -181,5 +185,78 @@ class ArgumentTest {
         intArg.attemptValueConversion(null);
 
         assertEquals(987, intArg.getArgumentResult(), 0);
+    }
+
+    @Test
+    void test_conversion_throws() {
+        // check regular argument conversion is successful
+        Argument.ArgumentBuilder<Integer> intArg = Argument
+                .<Integer>builder()
+                .conversionFunction(strValIn -> 1337);
+
+        Argument<Integer> result = intArg.build();
+        result.attemptValueConversion("1337");
+        assertEquals(1337, result.getArgumentResult(), 0);
+
+
+        // check argument conversion causes a checked exception
+        result = intArg
+                .conversionFunction(strValIn -> {throw new Exception("some test reason");})
+                .build();
+        try {
+            result.attemptValueConversion("1337");
+        } catch (Exception e) {
+            assertEquals(IllegalArgumentException.class, e.getClass());
+            assertNotNull(e.getCause());
+            assertNull(e.getCause().getCause());
+            assertEquals("some test reason", e.getCause().getMessage());
+        }
+
+
+        // Check value validation passes
+        result = intArg
+                .conversionFunction(Integer::parseInt)
+                .validationFunction(intIn -> intIn > 1000 && intIn < 1500)
+                .build();
+        result.attemptValueConversion("1337");
+        assertTrue(result.validateValue());
+        result.attemptValueConversion("999");
+        assertFalse(result.validateValue());
+        result.attemptValueConversion("1501");
+        assertFalse(result.validateValue());
+
+
+        // Check value validation returns a null
+        result = intArg
+                .conversionFunction(Integer::parseInt)
+                .validationFunction(intIn -> null)
+                .build();
+        result.attemptValueConversion("1337");
+        try {
+            result.validateValue();
+            fail("The previous method call should have thrown an exception.");
+        } catch (Exception e) {
+            assertEquals(IllegalArgumentException.class, e.getClass());
+            assertNotNull(e.getCause());
+            assertNull(e.getCause().getCause());
+            assertTrue(e.getCause().getMessage().contains("Validation function returned a null instead of true/false"));
+        }
+
+
+        // Check value validation throws an Exception
+        result = intArg
+                .conversionFunction(Integer::parseInt)
+                .validationFunction(intIn -> {throw new Exception("some test reason");})
+                .build();
+        result.attemptValueConversion("1337");
+        try {
+            result.validateValue();
+            fail("The previous method call should have thrown an exception.");
+        } catch (Exception e) {
+            assertEquals(IllegalArgumentException.class, e.getClass());
+            assertNotNull(e.getCause());
+            assertNull(e.getCause().getCause());
+            assertEquals("some test reason", e.getCause().getMessage());
+        }
     }
 }
