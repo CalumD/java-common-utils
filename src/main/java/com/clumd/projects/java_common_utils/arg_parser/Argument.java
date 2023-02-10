@@ -12,6 +12,8 @@ import java.util.function.Function;
 
 /**
  * This Class represents all the configuration required to parse a single Command Line Argument into a usable output
+ *
+ * @param <T> The type this Argument's value represents be post parsing.
  */
 @Data
 @Builder

@@ -6,6 +6,9 @@ import java.io.Serializable;
 
 /**
  * A simple 'Pair' concept, which groups together two objects, via whatever logical grouping the user believes.
+ *
+ * @param <L> The type of the first Pair member
+ * @param <R> The type of the second Pair member
  */
 @Data
 public class Pair<L extends Serializable, R extends Serializable> implements Serializable {

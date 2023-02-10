@@ -1,7 +1,7 @@
 package com.clumd.projects.java_common_utils.base_enhancements;
 
 /**
- * An extension to {@link java.util.function.Function<>} which allows the apply method to throw checked exceptions if
+ * An extension to {@link java.util.function.Function} which allows the apply method to throw checked exceptions if
  * desired.
  *
  * @param <T> The type of the input parameter to the function
