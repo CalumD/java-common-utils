@@ -47,9 +47,8 @@ public class Argument<T> {
     /**
      * Used to indicate if this argument can be followed by a value, defaults to false
      */
-    @Builder.Default
     @Accessors(fluent = true)
-    private final boolean hasValue = false;
+    private final boolean hasValue;
 
     /**
      * Used to indicate if the value to this argument can be optional, defaults to false. (e.g. value MUST be provided)
@@ -130,6 +129,8 @@ public class Argument<T> {
     public static class ArgumentBuilder<T> {
         int uniqueId = Integer.MIN_VALUE;
         boolean defaultValueSet = false;
+        boolean hasValue = false;
+        private boolean hasValueWasSetByDirectSetter = false;
 
         /**
          * This is used to set the uniqueId of this argument, it is only required as an override to the default
@@ -141,6 +142,19 @@ public class Argument<T> {
          */
         public Argument.ArgumentBuilder<T> uniqueId(int toValue) {
             uniqueId = toValue;
+            return this;
+        }
+
+        /**
+         * This is used to set the hasValue of this argument, it is only required as an override to the default
+         * constructor to allow the conversionFunction to trigger a change of state when a conversionFunction is provided.
+         *
+         * @param toValue Used to determine whether this Argument can be followed with a value.
+         * @return This continued builder instance.
+         */
+        public Argument.ArgumentBuilder<T> hasValue(boolean toValue) {
+            hasValue = toValue;
+            hasValueWasSetByDirectSetter = true;
             return this;
         }
 
@@ -181,6 +195,13 @@ public class Argument<T> {
                             "Check supplied value for typos or read the description for this value in the --help.", e);
                 }
             };
+
+            // If you provide a conversion function, then the Argument must be capable of accepting a value,
+            // we shouldn't need to explicitly state that otherwise.
+            // However, if the value was already set by the setter, we should NOT override it.
+            if (!hasValueWasSetByDirectSetter) {
+                hasValue = true;
+            }
             return this;
         }
 

@@ -13,7 +13,7 @@ Best used with a simple Maven import
 <dependency>
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>1.2.3</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
