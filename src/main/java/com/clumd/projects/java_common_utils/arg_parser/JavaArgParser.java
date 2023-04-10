@@ -26,11 +26,11 @@ public class JavaArgParser implements CLIArgParser {
     private String appBugs;
 
     private Collection<Argument<?>> possibleArguments;
-    private Map<Integer, Argument<Object>> returnArgumentMap;
+    private Map<String, Argument<Object>> returnArgumentMap;
     private boolean ignoreUnknownCLIArgs;
 
     @Override
-    public Collection<Argument<Object>> parseFromCLI(
+    public Map<String, Argument<Object>> parseFromCLI(
             @NonNull Collection<Argument<?>> possibleArguments,
             @NonNull String[] args
     ) throws ParseException {
@@ -38,7 +38,7 @@ public class JavaArgParser implements CLIArgParser {
     }
 
     @Override
-    public synchronized Collection<Argument<Object>> parseFromCLI(
+    public synchronized Map<String, Argument<Object>> parseFromCLI(
             @NonNull Collection<Argument<?>> possibleArguments,
             @NonNull String[] args,
             boolean ignoreUnknownCLIArgs,
@@ -125,7 +125,7 @@ public class JavaArgParser implements CLIArgParser {
             }
         }
 
-        return returnArgumentMap.values();
+        return returnArgumentMap;
     }
 
     private void sanitise() throws ParseException {
@@ -135,7 +135,7 @@ public class JavaArgParser implements CLIArgParser {
         // Ensure we have no duplicate argument IDs
         final int distinctArgInputCount = possibleArguments
                 .stream()
-                .filter(arg -> Integer.compare(Integer.MIN_VALUE, arg.getUniqueId()) == -1)
+                .filter(arg -> !"_._._._._._._._._._.".equals(arg.getUniqueId()))
                 .distinct()
                 .map(Argument::getUniqueId)
                 .toList()

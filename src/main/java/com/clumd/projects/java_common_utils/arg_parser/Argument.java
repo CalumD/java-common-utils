@@ -22,7 +22,7 @@ public class Argument<T> {
     /**
      * Used to index the options, must be unique and supplied by the user.
      */
-    private final int uniqueId;
+    private final String uniqueId;
 
     /**
      * Used to contain all the single character alias' to indicate this option
@@ -127,7 +127,7 @@ public class Argument<T> {
      * @param <T> The param type for the builder matching that of the base Argument class.
      */
     public static class ArgumentBuilder<T> {
-        int uniqueId = Integer.MIN_VALUE;
+        String uniqueId = "_._._._._._._._._._.";
         boolean defaultValueSet = false;
         boolean hasValue = false;
         private boolean hasValueWasSetByDirectSetter = false;
@@ -140,7 +140,7 @@ public class Argument<T> {
          * @param toValue Used to index the options, must be unique and supplied by the user.
          * @return This continued builder instance.
          */
-        public Argument.ArgumentBuilder<T> uniqueId(int toValue) {
+        public Argument.ArgumentBuilder<T> uniqueId(String toValue) {
             uniqueId = toValue;
             return this;
         }

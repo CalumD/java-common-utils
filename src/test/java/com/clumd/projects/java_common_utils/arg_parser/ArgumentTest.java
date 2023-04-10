@@ -20,9 +20,9 @@ class ArgumentTest {
     @Test
     void test_unique_id_set() {
         Argument<String> args = Argument.<String>builder().build();
-        assertEquals(Integer.MIN_VALUE, args.getUniqueId(), 0);
-        args = Argument.<String>builder().uniqueId(123).build();
-        assertEquals(123, args.getUniqueId(), 0);
+        assertEquals("_._._._._._._._._._.", args.getUniqueId());
+        args = Argument.<String>builder().uniqueId("123").build();
+        assertEquals("123", args.getUniqueId());
     }
 
     @Test
@@ -153,7 +153,7 @@ class ArgumentTest {
         // but the value is optional, and the default value is not provided (so will be interpreted as null)
         // Therefore when we ask for argument -a, with no argument, it will try to validate "null", which should break.
         Argument<Integer> a = Argument.<Integer>builder()
-                .uniqueId(1)
+                .uniqueId("1")
                 .description(
                         "A number between 10 and 30"
                 )

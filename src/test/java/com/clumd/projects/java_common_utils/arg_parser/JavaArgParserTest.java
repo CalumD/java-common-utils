@@ -4,9 +4,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class JavaArgParserTest {
 
@@ -23,7 +30,7 @@ class JavaArgParserTest {
                         List.of(
                                 Argument
                                         .builder()
-                                        .uniqueId(1)
+                                        .uniqueId("my named arg")
                                         .shortOptions(Set.of('a'))
                                         .build()
                         ),
@@ -53,8 +60,8 @@ class JavaArgParserTest {
         try {
             cliArgParser.parseFromCLI(
                     List.of(
-                            Argument.builder().uniqueId(1).build(),
-                            Argument.builder().uniqueId(1).build()
+                            Argument.builder().uniqueId("my named arg").build(),
+                            Argument.builder().uniqueId("my named arg").build()
                     ),
                     new String[]{""}
             );
@@ -73,8 +80,8 @@ class JavaArgParserTest {
         try {
             cliArgParser.parseFromCLI(
                     List.of(
-                            Argument.builder().uniqueId(1).shortOptions(Set.of('a')).build(),
-                            Argument.builder().uniqueId(2).shortOptions(Set.of('a')).build()
+                            Argument.builder().uniqueId("my named arg 1").shortOptions(Set.of('a')).build(),
+                            Argument.builder().uniqueId("my named arg 2").shortOptions(Set.of('a')).build()
                     ),
                     new String[]{""}
             );
@@ -92,8 +99,8 @@ class JavaArgParserTest {
         try {
             cliArgParser.parseFromCLI(
                     List.of(
-                            Argument.builder().uniqueId(1).longOptions(Set.of("opt")).build(),
-                            Argument.builder().uniqueId(2).longOptions(Set.of("opt")).build()
+                            Argument.builder().uniqueId("my named arg 1").longOptions(Set.of("opt")).build(),
+                            Argument.builder().uniqueId("my named arg 2").longOptions(Set.of("opt")).build()
                     ),
                     new String[]{""}
             );
@@ -111,14 +118,14 @@ class JavaArgParserTest {
         try {
             cliArgParser.parseFromCLI(
                     List.of(
-                            Argument.builder().uniqueId(1).build()
+                            Argument.builder().uniqueId("my named arg").build()
                     ),
                     new String[]{""}
             );
             fail("The above code should have thrown an exception.");
         } catch (ParseException e) {
             assertTrue(e.getMessage()
-                    .contains("No short or long options provided to activate Argument: {1}"));
+                    .contains("No short or long options provided to activate Argument: {my named arg}"));
         } catch (Exception e) {
             fail(e);
         }
@@ -131,7 +138,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -148,54 +155,58 @@ class JavaArgParserTest {
 
     @Test
     void test_short_args_are_recognised() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg 1")
                                 .shortOptions(Set.of('a'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(2)
+                                .uniqueId("my named arg 2")
                                 .shortOptions(Set.of('b'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(3)
+                                .uniqueId("my named arg 3")
                                 .shortOptions(Set.of('c'))
                                 .build()
                 ),
                 new String[]{"-b"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(2, actualArgs.get(0).getUniqueId());
+        assertNull(actualArgs.get("my named arg 1"));
+        assertEquals("my named arg 2", actualArgs.get("my named arg 2").getUniqueId());
+        assertNull(actualArgs.get("my named arg 3"));
     }
 
     @Test
     void test_long_args_are_recognised() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .builder()
-                                .uniqueId(1)
+                                .uniqueId("1")
                                 .longOptions(Set.of("a"))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(2)
+                                .uniqueId("2")
                                 .longOptions(Set.of("b"))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(3)
+                                .uniqueId("3")
                                 .longOptions(Set.of("c"))
                                 .build()
                 ),
                 new String[]{"--b"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(2, actualArgs.get(0).getUniqueId());
+        assertNull(actualArgs.get("1"));
+        assertEquals("2", actualArgs.get("2").getUniqueId());
+        assertNull(actualArgs.get("3"));
     }
 
     @Test
@@ -205,7 +216,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -224,7 +235,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -244,7 +255,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -263,7 +274,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -283,7 +294,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .longOptions(Set.of("a"))
                                     .build()
                     ),
@@ -302,7 +313,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .longOptions(Set.of("a"))
                                     .build()
                     ),
@@ -322,7 +333,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .build()
                     ),
@@ -341,7 +352,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .longOptions(Set.of("a"))
                                     .build()
                     ),
@@ -370,7 +381,7 @@ class JavaArgParserTest {
         String actualBoilerplate = cliArgParser.getBoilerplate(List.of(
                 Argument
                         .builder()
-                        .uniqueId(1)
+                        .uniqueId("my named arg 1")
                         .shortOptions(new TreeSet<>(Set.of('a', 'z')))
                         .longOptions(new TreeSet<>(Set.of("arg", "zulu")))
                         .description("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
@@ -386,13 +397,13 @@ class JavaArgParserTest {
                         .build(),
                 Argument
                         .builder()
-                        .uniqueId(2)
+                        .uniqueId("my named arg 2")
                         .longOptions(new TreeSet<>(Set.of("clobber", "zap", "pow")))
                         .description("dont ask")
                         .build(),
                 Argument
                         .builder()
-                        .uniqueId(3)
+                        .uniqueId("my named arg 3")
                         .shortOptions(new TreeSet<>(Set.of('y', 'o')))
                         .description("zoom zoom zoom zoom")
                         .hasValue(true)
@@ -400,41 +411,43 @@ class JavaArgParserTest {
                         .build()
         ));
 
-        assertEquals("\n" +
-                "NAME: \n" +
-                "    my name\n" +
-                "\n" +
-                "COMMAND: \n" +
-                "    my usage syntax\n" +
-                "\n" +
-                "SYNOPSIS: \n" +
-                "    my synopsis\n" +
-                "\n" +
-                "OPTIONS: \n" +
-                "    -a, -z, --arg, --zulu    =<value>    (default: 123)\n" +
-                "        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis vehicula cursus consequat. Sed tincidunt, ligula sit amet faucibus tempus, felis augue lobortis nulla, et molestie risus eros in lorem. Donec ornare velit in condimentum finibus. In scelerisque ornare massa nec fermentum. Pellentesque semper felis non erat dignissim, vel porta risus maximus. Duis lobortis libero faucibus odio varius, quis rutrum leo posuere. Maecenas sed accumsan tortor, sed vehicula nisi. Phasellus ultrices tempus ullamcorper.\n" +
-                "\n" +
-                "    --clobber, --pow, --zap\n" +
-                "        dont ask\n" +
-                "\n" +
-                "    -o, -y    (=<value>)\n" +
-                "        zoom zoom zoom zoom\n" +
-                "\n" +
-                "AUTHOR: \n" +
-                "    my author\n" +
-                "\n" +
-                "REPORTING BUGS: \n" +
-                "    where bugs\n" +
-                "\n", actualBoilerplate);
+        assertEquals("""
+
+                NAME:\s
+                    my name
+
+                COMMAND:\s
+                    my usage syntax
+
+                SYNOPSIS:\s
+                    my synopsis
+
+                OPTIONS:\s
+                    -a, -z, --arg, --zulu    =<value>    (default: 123)
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis vehicula cursus consequat. Sed tincidunt, ligula sit amet faucibus tempus, felis augue lobortis nulla, et molestie risus eros in lorem. Donec ornare velit in condimentum finibus. In scelerisque ornare massa nec fermentum. Pellentesque semper felis non erat dignissim, vel porta risus maximus. Duis lobortis libero faucibus odio varius, quis rutrum leo posuere. Maecenas sed accumsan tortor, sed vehicula nisi. Phasellus ultrices tempus ullamcorper.
+
+                    --clobber, --pow, --zap
+                        dont ask
+
+                    -o, -y    (=<value>)
+                        zoom zoom zoom zoom
+
+                AUTHOR:\s
+                    my author
+
+                REPORTING BUGS:\s
+                    where bugs
+
+                """, actualBoilerplate);
     }
 
     @Test
     void test_mandatory_short_option_in_arg() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -442,18 +455,18 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"-a=123"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(123, actualArgs.get(0).getArgumentResult());
+        assertEquals(123, actualArgs.get("my named arg").getArgumentResult());
     }
 
     @Test
     void test_mandatory_short_option_is_pulled_from_cli() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -461,9 +474,9 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"-a", "345"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(345, actualArgs.get(0).getArgumentResult());
+        assertEquals(345, actualArgs.get("my named arg").getArgumentResult());
     }
 
     @Test
@@ -471,7 +484,7 @@ class JavaArgParserTest {
         List<Argument<?>> input = List.of(
                 Argument
                         .<Integer>builder()
-                        .uniqueId(1)
+                        .uniqueId("my named arg")
                         .shortOptions(Set.of('a'))
                         .hasValue(true)
                         .valueIsOptional(true)
@@ -481,8 +494,8 @@ class JavaArgParserTest {
 
         // In arg passes;
         assertEquals(123,
-                new ArrayList<>(cliArgParser.parseFromCLI(input, new String[]{"-a=123"}))
-                        .get(0).getArgumentResult()
+                cliArgParser.parseFromCLI(input, new String[]{"-a=123"})
+                        .get("my named arg").getArgumentResult()
         );
 
 
@@ -498,11 +511,11 @@ class JavaArgParserTest {
 
     @Test
     void test_mandatory_long_option_in_arg() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg")
                                 .longOptions(Set.of("a"))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -510,18 +523,18 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"--a=123"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(123, actualArgs.get(0).getArgumentResult());
+        assertEquals(123, actualArgs.get("my named arg").getArgumentResult());
     }
 
     @Test
     void test_mandatory_long_option_is_pulled_from_cli() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg")
                                 .longOptions(Set.of("a"))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -529,9 +542,9 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"--a", "345"}
-        ));
+        );
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(345, actualArgs.get(0).getArgumentResult());
+        assertEquals(345, actualArgs.get("my named arg").getArgumentResult());
     }
 
     @Test
@@ -539,7 +552,7 @@ class JavaArgParserTest {
         List<Argument<?>> input = List.of(
                 Argument
                         .<Integer>builder()
-                        .uniqueId(1)
+                        .uniqueId("my named arg")
                         .longOptions(Set.of("a"))
                         .hasValue(true)
                         .valueIsOptional(true)
@@ -549,8 +562,8 @@ class JavaArgParserTest {
 
         // In arg passes;
         assertEquals(123,
-                new ArrayList<>(cliArgParser.parseFromCLI(input, new String[]{"--a=123"}))
-                        .get(0).getArgumentResult()
+                cliArgParser.parseFromCLI(input, new String[]{"--a=123"})
+                        .get("my named arg").getArgumentResult()
         );
 
 
@@ -570,7 +583,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .longOptions(Set.of("a"))
                                     .hasValue(true)
                                     .valueIsOptional(false)
@@ -592,7 +605,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .shortOptions(Set.of('a'))
                                     .hasValue(true)
                                     .valueIsOptional(false)
@@ -614,7 +627,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("1")
                                     .description("testing when argument is mandatory but not provided")
                                     .shortOptions(Set.of('a'))
                                     .isMandatory(true)
@@ -639,7 +652,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("1")
                                     .shortOptions(Set.of('a'))
                                     .hasValue(false)
                                     .build()
@@ -659,7 +672,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg")
                                     .longOptions(Set.of("a"))
                                     .hasValue(false)
                                     .build()
@@ -674,40 +687,42 @@ class JavaArgParserTest {
 
     @Test
     void test_multiple_short_args_recognised_in_one_key() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .builder()
-                                .uniqueId(1)
+                                .uniqueId("1")
                                 .shortOptions(Set.of('a'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(2)
+                                .uniqueId("2")
                                 .shortOptions(Set.of('b'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(3)
+                                .uniqueId("3")
                                 .shortOptions(Set.of('c'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(4)
+                                .uniqueId("4")
                                 .shortOptions(Set.of('d'))
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(5)
+                                .uniqueId("5")
                                 .shortOptions(Set.of('e'))
                                 .build()
                 ),
                 new String[]{"-ace"}
-        ));
+        );
         assertEquals(3, actualArgs.size(), 0);
-        assertEquals(1, actualArgs.get(0).getUniqueId());
-        assertEquals(3, actualArgs.get(1).getUniqueId());
-        assertEquals(5, actualArgs.get(2).getUniqueId());
+        assertEquals("1", actualArgs.get("1").getUniqueId());
+        assertNull(actualArgs.get("2"));
+        assertEquals("3", actualArgs.get("3").getUniqueId());
+        assertNull(actualArgs.get("4"));
+        assertEquals("5", actualArgs.get("5").getUniqueId());
     }
 
     @Test
@@ -717,12 +732,12 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .builder()
-                                    .uniqueId(1)
+                                    .uniqueId("my named arg 1")
                                     .shortOptions(Set.of('a'))
                                     .build()
                             , Argument
                                     .builder()
-                                    .uniqueId(2)
+                                    .uniqueId("my named arg 2")
                                     .shortOptions(Set.of('b'))
                                     .build()
                     ),
@@ -737,11 +752,11 @@ class JavaArgParserTest {
 
     @Test
     void test_multiple_short_args_with_values_consumer_later_in_cli() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .builder()
-                                .uniqueId(1)
+                                .uniqueId("1")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -749,7 +764,7 @@ class JavaArgParserTest {
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(2)
+                                .uniqueId("2")
                                 .shortOptions(Set.of('b'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -757,7 +772,7 @@ class JavaArgParserTest {
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(3)
+                                .uniqueId("3")
                                 .shortOptions(Set.of('c'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -765,7 +780,7 @@ class JavaArgParserTest {
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(4)
+                                .uniqueId("4")
                                 .shortOptions(Set.of('d'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -773,7 +788,7 @@ class JavaArgParserTest {
                                 .build()
                         , Argument
                                 .builder()
-                                .uniqueId(5)
+                                .uniqueId("5")
                                 .shortOptions(Set.of('e'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -781,14 +796,14 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"-ace", "1", "2", "3"}
-        ));
+        );
         assertEquals(3, actualArgs.size(), 0);
-        assertEquals(1, actualArgs.get(0).getUniqueId());
-        assertEquals(1, actualArgs.get(0).getArgumentResult());
-        assertEquals(3, actualArgs.get(1).getUniqueId());
-        assertEquals(2, actualArgs.get(1).getArgumentResult());
-        assertEquals(5, actualArgs.get(2).getUniqueId());
-        assertEquals(3, actualArgs.get(2).getArgumentResult()
+        assertEquals("1", actualArgs.get("1").getUniqueId());
+        assertEquals(1, actualArgs.get("1").getArgumentResult());
+        assertEquals("3", actualArgs.get("3").getUniqueId());
+        assertEquals(2, actualArgs.get("3").getArgumentResult());
+        assertEquals("5", actualArgs.get("5").getUniqueId());
+        assertEquals(3, actualArgs.get("5").getArgumentResult()
         );
     }
 
@@ -800,7 +815,7 @@ class JavaArgParserTest {
                     List.of(
                             Argument
                                     .<Integer>builder()
-                                    .uniqueId(1)
+                                    .uniqueId("1")
                                     .shortOptions(Set.of('a'))
                                     .hasValue(true)
                                     .conversionFunction(Integer::parseInt)
@@ -818,11 +833,11 @@ class JavaArgParserTest {
 
     @Test
     void test_validation_of_arg_value_input_with_success() throws ParseException {
-        List<Argument<Object>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Double>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .conversionFunction(Double::parseDouble)
@@ -831,21 +846,21 @@ class JavaArgParserTest {
                                 .build()
                 ),
                 new String[]{"-a=3.1415"}
-        ));
+        );
 
         assertEquals(1, actualArgs.size(), 0);
-        assertEquals(1, actualArgs.get(0).getUniqueId());
-        assertEquals(3.1415, actualArgs.get(0).getArgumentResult());
+        assertEquals("my named arg", actualArgs.get("my named arg").getUniqueId());
+        assertEquals(3.1415, actualArgs.get("my named arg").getArgumentResult());
     }
 
 
     @Test
     void test_give_back_args_with_default_values_when_not_provided() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg 1")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -853,7 +868,7 @@ class JavaArgParserTest {
                                 .build(),
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(2)
+                                .uniqueId("my named arg 2")
                                 .shortOptions(Set.of('b'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -862,7 +877,7 @@ class JavaArgParserTest {
                                 .build(),
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(3)
+                                .uniqueId("my named arg 3")
                                 .shortOptions(Set.of('c'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -872,21 +887,22 @@ class JavaArgParserTest {
                 new String[]{"-a", "34"},
                 false,
                 true
-        ));
+        );
 
 
         assertEquals(2, actualArgs.size(), 0);
-        assertEquals(34, actualArgs.get(0).getArgumentResult());
-        assertEquals(565, actualArgs.get(1).getArgumentResult());
+        assertEquals(34, actualArgs.get("my named arg 1").getArgumentResult());
+        assertNull(actualArgs.get("my named arg 3"));
+        assertEquals(565, actualArgs.get("my named arg 2").getArgumentResult());
     }
 
     @Test
     void test_give_back_args_with_default_values_wont_override_when_provided() throws ParseException {
-        List<Argument<?>> actualArgs = new ArrayList<>(cliArgParser.parseFromCLI(
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(1)
+                                .uniqueId("my named arg 1")
                                 .shortOptions(Set.of('a'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -894,7 +910,7 @@ class JavaArgParserTest {
                                 .build(),
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(2)
+                                .uniqueId("my named arg 2")
                                 .shortOptions(Set.of('b'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -903,7 +919,7 @@ class JavaArgParserTest {
                                 .build(),
                         Argument
                                 .<Integer>builder()
-                                .uniqueId(3)
+                                .uniqueId("my named arg 3")
                                 .shortOptions(Set.of('c'))
                                 .hasValue(true)
                                 .valueIsOptional(false)
@@ -914,13 +930,13 @@ class JavaArgParserTest {
                 new String[]{"-a", "100", "-b", "941"},
                 false,
                 true
-        ));
+        );
 
 
         assertEquals(3, actualArgs.size(), 0);
-        assertEquals(100, actualArgs.get(0).getArgumentResult());
-        assertEquals(941, actualArgs.get(1).getArgumentResult());
-        assertEquals(300, actualArgs.get(2).getArgumentResult());
+        assertEquals(100, actualArgs.get("my named arg 1").getArgumentResult());
+        assertEquals(941, actualArgs.get("my named arg 2").getArgumentResult());
+        assertEquals(300, actualArgs.get("my named arg 3").getArgumentResult());
     }
 
 }

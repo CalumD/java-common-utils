@@ -4,6 +4,7 @@ import lombok.NonNull;
 
 import java.text.ParseException;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * This represents the implementation of a class capable of parsing {@link Argument}s from the command line.
@@ -25,7 +26,7 @@ public interface CLIArgParser {
      * relevant and present.
      * @throws ParseException Thrown if any of the {@link Argument}s failed to parse.
      */
-    Collection<Argument<Object>> parseFromCLI(
+    Map<String, Argument<Object>> parseFromCLI(
             @NonNull final Collection<Argument<?>> possibleArguments,
             @NonNull final String[] args,
             final boolean ignoreUnknownCLIArgs,
@@ -36,7 +37,7 @@ public interface CLIArgParser {
      * As {@link CLIArgParser#parseFromCLI(Collection, String[], boolean, boolean)}, but defaulting to false for
      * {@code ignoreUnknownCLIArgs} and {@code returnArgsWithDefaultButNotOnCLI}
      */
-    Collection<Argument<Object>> parseFromCLI(
+    Map<String, Argument<Object>> parseFromCLI(
             @NonNull final Collection<Argument<?>> possibleArguments,
             @NonNull final String[] args
     ) throws ParseException;
