@@ -22,5 +22,13 @@ jobs:
           java-version: '19'
           cache: 'maven'
 
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: "~/.m2/repository"
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Run Maven Action
         run: mvn -B test --file pom.xml
