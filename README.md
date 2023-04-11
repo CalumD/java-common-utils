@@ -27,7 +27,7 @@ The easiest way to create an Argument is with the Lombok Builder, something alon
 
 ```java
 Argument<Integer> anIntegerArgument = Argument.<Integer>builder()
-        .uniqueId(1)
+        .uniqueId("my number arg")
         .description("A number between 10 and 30")
         .shortOptions(Set.of('n'))
         .longOptions(Set.of("number", "input"))
@@ -45,7 +45,7 @@ This will give you an argument which can be referenced on the CLI with any of:
 
 The conversion function is required as all arguments passed into the main method of your Java program will be a String, so you need a suitable conversion from String into the type you'd like.
 
-If you used `-n 4` on the CLI, you would get an exception like `java.text.ParseException: Argument value failed validation. Check argument {1} documentation: {A number between 10 and 30}`, so a well written description can be very helpful.
+If you used `-n 4` on the CLI, you would get an exception like `java.text.ParseException: Argument value failed validation. Check argument {my number arg} documentation: {A number between 10 and 30}`, so a well written description can be very helpful.
 
 You can collect the values of your returned Argument after parsing with `anIntegerArgument.getArgumentResult();` which will return you the type-safe parsed version of your result. In this case it is an `Integer`.
 
