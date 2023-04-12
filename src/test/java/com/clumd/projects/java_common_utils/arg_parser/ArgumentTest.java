@@ -259,4 +259,16 @@ class ArgumentTest {
             assertEquals("some test reason", e.getCause().getMessage());
         }
     }
+
+    @Test
+    void test_toString() {
+        Argument<Integer> intArg = Argument
+                .<Integer>builder()
+                .conversionFunction(Integer::parseInt)
+                .build();
+
+        intArg.attemptValueConversion("357");
+
+        assertEquals("357", intArg.toString());
+    }
 }

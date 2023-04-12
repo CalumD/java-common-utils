@@ -147,7 +147,8 @@ public class Argument<T> {
 
         /**
          * This is used to set the hasValue of this argument, it is only required as an override to the default
-         * constructor to allow the conversionFunction to trigger a change of state when a conversionFunction is provided.
+         * constructor to allow the conversionFunction to trigger a change of state when a conversionFunction is
+         * provided.
          *
          * @param toValue Used to determine whether this Argument can be followed with a value.
          * @return This continued builder instance.
@@ -241,5 +242,16 @@ public class Argument<T> {
             };
             return this;
         }
+    }
+
+    /**
+     * Overridden to make development cognitively easier by removing the Argument config, and only showing the output
+     * for itself.
+     *
+     * @return The string representation of the Argument Result to make scanning in debuggers easier.
+     */
+    @Override
+    public String toString() {
+        return getArgumentResult().toString();
     }
 }
