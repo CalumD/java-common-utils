@@ -35,7 +35,7 @@ class FileUtilsTest {
     void get_resource_as_string() throws IOException {
         final String asString = FileUtils.getLocalResourceAsString("com/clumd/projects/java_common_utils/files/FileUtils.class");
 
-        assertEquals(7714, asString.length(), 25);
+        assertEquals(7924, asString.length(), 25);
         assertTrue(asString.contains("com/clumd/projects/java_common_utils/files/FileUtils"));
     }
 
@@ -43,7 +43,7 @@ class FileUtilsTest {
     void get_resource_as_strings() throws IOException {
         final List<String> asStrings = FileUtils.getLocalResourceAsStrings("com/clumd/projects/java_common_utils/files/FileUtils.class");
 
-        assertEquals(77, asStrings.size(), 0);
+        assertEquals(78, asStrings.size(), 0);
         assertTrue(asStrings.get(4).contains("com/clumd/projects/java_common_utils/files/FileUtils"));
     }
 
@@ -144,10 +144,35 @@ class FileUtilsTest {
 //    }
 
     @Test
+    void test_file_is_valid() {
+        String path = "src" + File.separator + "test" + File.separator + "resources" + File.separator + "files" + File.separator + "logs" + File.separator + "placeholder.txt";
+        try {
+            String validFilePath = FileUtils.validateIsFile(path).getPath();
+            assertNotNull(validFilePath);
+            assertTrue(validFilePath.strip().length() > 0);
+            assertTrue(validFilePath.length() > path.length());
+            assertTrue(validFilePath.contains(path));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void test_file_but_is_directory() {
+        String path = "src" + File.separator + "test" + File.separator + "resources" + File.separator + "files" + File.separator + "logs";
+        try {
+            String validFilePath = FileUtils.validateIsFile(path).getPath();
+            fail("The previous method call should have thrown an exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("(Is a directory, not a file)"));
+        }
+    }
+
+    @Test
     void test_directory_is_valid() {
         String path = "src" + File.separator + "test" + File.separator + "resources" + File.separator + "files" + File.separator + "logs";
         try {
-            String validDirectoryPath = FileUtils.validateIsDirectory(path);
+            String validDirectoryPath = FileUtils.validateIsDirectory(path).getPath();
             assertNotNull(validDirectoryPath);
             assertTrue(validDirectoryPath.strip().length() > 0);
             assertTrue(validDirectoryPath.length() > path.length());

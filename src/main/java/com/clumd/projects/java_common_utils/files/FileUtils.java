@@ -141,13 +141,34 @@ public class FileUtils {
     }
 
     /**
+     * This is used to validate the existence (as a file) and permission to read.
+     *
+     * @param path The path to validate.
+     * @return The String of the resolved path to that file (removal of . and .. if necessary)
+     * @throws IOException Thrown if there was a problem accessing that path as a file.
+     */
+    public static File validateIsFile(final String path) throws IOException {
+        checkIfExistsOrIsFolder(path);
+
+        File f = new File(path).getCanonicalFile();
+
+        //check attributes
+        if (!f.canRead()) {
+            throw new IOException("The file provided cannot be read from.");
+        }
+
+        //return valid path
+        return f;
+    }
+
+    /**
      * This is used to validate the existence (as a directory) and permission to read from the given path.
      *
      * @param path The path to validate.
      * @return The String of the resolved path to that directory (removal of . and .. if necessary)
      * @throws IOException Thrown if there was a problem accessing that path as a directory.
      */
-    public static String validateIsDirectory(final String path) throws IOException {
+    public static File validateIsDirectory(final String path) throws IOException {
         File activeDir;
 
         //resolve canonical
@@ -169,7 +190,7 @@ public class FileUtils {
         }
 
         //return valid path
-        return activeDir.getPath();
+        return activeDir;
     }
 
     /**
@@ -276,7 +297,7 @@ public class FileUtils {
             return;
         }
 
-        file = new File(validateIsDirectory(path));
+        file = validateIsDirectory(path);
 
         deleteIfExists(file.getCanonicalPath());
     }
