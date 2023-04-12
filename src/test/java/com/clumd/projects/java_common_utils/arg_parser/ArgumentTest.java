@@ -271,4 +271,14 @@ class ArgumentTest {
 
         assertEquals("357", intArg.toString());
     }
+
+    @Test
+    void test_toString_when_value_null() {
+        Argument<Integer> intArg = Argument
+                .<Integer>builder()
+                .conversionFunction(Integer::parseInt)
+                .build();
+
+        assertEquals("*no value*", intArg.toString());
+    }
 }

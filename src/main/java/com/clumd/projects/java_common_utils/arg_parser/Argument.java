@@ -252,6 +252,6 @@ public class Argument<T> {
      */
     @Override
     public String toString() {
-        return getArgumentResult().toString();
+        return getArgumentResult() == null ? "*no value*" : getArgumentResult().toString();
     }
 }
