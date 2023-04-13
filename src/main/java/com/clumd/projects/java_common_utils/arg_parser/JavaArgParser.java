@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class JavaArgParser implements CLIArgParser {
     ) throws ParseException {
         // We use a map here as the collection type, to ensure that if there are duplicate options provided on the CLI,
         // that only one (the closest to the end) will become impactful.
-        returnArgumentMap = new HashMap<>();
+        returnArgumentMap = new LinkedHashMap<>();
 
         // Set references
         this.possibleArguments = possibleArguments;

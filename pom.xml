@@ -7,7 +7,7 @@
     <!--  Top level metadata / coordinates  -->
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <packaging>jar</packaging>
 
     <!--  Basic application info  -->
