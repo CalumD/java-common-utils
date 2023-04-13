@@ -145,6 +145,7 @@ class CustomLevelTest {
 
     @Test
     void test_existing_levels_are_equalable() {
+        assertTrue(ALL.weakEquals(ALL));
         assertTrue(ALL.weakEquals(Level.ALL));
         assertTrue(SEVERE.weakEquals(Level.SEVERE));
         assertTrue(WARNING.weakEquals(Level.WARNING));
@@ -154,5 +155,63 @@ class CustomLevelTest {
         assertTrue(DEBUG.weakEquals(Level.FINER));
         assertTrue(TRACE.weakEquals(Level.FINEST));
         assertTrue(OFF.weakEquals(Level.OFF));
+    }
+
+    @Test
+    void test_parse_custom_level_uses_custom_version() {
+        CustomLevel cl = CustomLevel.parse("InFo");
+
+        assertNotNull(cl);
+        assertNotNull(cl.getLevelFormat());
+        assertFalse(cl.getLevelFormat().isBlank());
+    }
+
+    @Test
+    void test_parse_custom_level_non_default_level() {
+        CustomLevel cl = CustomLevel.parse("DaTa");
+
+        assertNotNull(cl);
+        assertNotNull(cl.getLevelFormat());
+        assertFalse(cl.getLevelFormat().isBlank());
+    }
+
+    @Test
+    void test_parse_non_custom_level_but_still_jul_level() {
+        CustomLevel cl = CustomLevel.parse("fiNeSt");
+
+        assertNotNull(cl);
+        assertNull(cl.getLevelFormat());
+    }
+
+    @Test
+    void test_cant_just_parse_a_non_level() {
+        try {
+            CustomLevel.parse("NotLevel");
+            fail("The previous method call should have thrown an exception.");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().toLowerCase().contains("bad level"));
+        }
+    }
+
+    @Test
+    void test_once_not_a_level_now_a_level() {
+        String levelName = "NowALevel";
+        try {
+            CustomLevel.parse(levelName);
+            fail("The previous method call should have thrown an exception.");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().toLowerCase().contains("bad level"));
+        }
+
+        assertNotNull(CustomLevel.of(levelName, 700, Format.BRIGHT_BLUE));
+
+        try {
+            CustomLevel cl = CustomLevel.parse(levelName);
+            assertNotNull(cl);
+            assertNotNull(cl.getLevelFormat());
+            assertFalse(cl.getLevelFormat().isBlank());
+        } catch (IllegalArgumentException e) {
+            fail("The previous method call should have thrown an exception.");
+        }
     }
 }

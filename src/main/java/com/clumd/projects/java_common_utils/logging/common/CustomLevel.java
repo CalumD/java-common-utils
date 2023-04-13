@@ -7,6 +7,7 @@ import lombok.NonNull;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -32,13 +33,38 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     public static final CustomLevel NOTIFICATION = CustomLevel.of("NOTIFICATION", 850, createFormat(List.of(BOLD, BRIGHT_GREEN)));
     public static final CustomLevel INFO = CustomLevel.of("INFO", 800, GREEN);
     public static final CustomLevel SUCCESS = CustomLevel.of("SUCCESS", 800, GREEN);
-    public static final CustomLevel CONFIG = CustomLevel.of("CONFIG", 600, PURPLE);
-    public static final CustomLevel DATA = CustomLevel.of("DATA", 600, PURPLE);
+    public static final CustomLevel DATA = CustomLevel.of("DATA", 700, PURPLE);
+    public static final CustomLevel CONFIG = CustomLevel.of("CONFIG", 700, PURPLE);
     public static final CustomLevel VERBOSE = CustomLevel.of("VERBOSE", 500, BLUE);
     public static final CustomLevel MINOR = CustomLevel.of("MINOR", 500, BLUE);
     public static final CustomLevel DEBUG = CustomLevel.of("DEBUG", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
     public static final CustomLevel TESTING = CustomLevel.of("TESTING", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
     public static final CustomLevel TRACE = CustomLevel.of("TRACE", 300, WHITE);
+
+    private static final Map<String, CustomLevel> ALL_LEVELS = Map.ofEntries(
+            Map.entry(ALL.getLevelName(), ALL),
+            Map.entry(OFF.getLevelName(), OFF),
+            Map.entry(NONE.getLevelName(), NONE),
+            Map.entry(SHUTDOWN.getLevelName(), SHUTDOWN),
+            Map.entry(EMERGENCY.getLevelName(), EMERGENCY),
+            Map.entry(FATAL.getLevelName(), FATAL),
+            Map.entry(CRITICAL.getLevelName(), CRITICAL),
+            Map.entry(SEVERE.getLevelName(), SEVERE),
+            Map.entry(ERROR.getLevelName(), ERROR),
+            Map.entry(FAILURE.getLevelName(), FAILURE),
+            Map.entry(WARNING.getLevelName(), WARNING),
+            Map.entry(IMPORTANT.getLevelName(), IMPORTANT),
+            Map.entry(NOTIFICATION.getLevelName(), NOTIFICATION),
+            Map.entry(INFO.getLevelName(), INFO),
+            Map.entry(SUCCESS.getLevelName(), SUCCESS),
+            Map.entry(CONFIG.getLevelName(), CONFIG),
+            Map.entry(DATA.getLevelName(), DATA),
+            Map.entry(VERBOSE.getLevelName(), VERBOSE),
+            Map.entry(MINOR.getLevelName(), MINOR),
+            Map.entry(DEBUG.getLevelName(), DEBUG),
+            Map.entry(TESTING.getLevelName(), TESTING),
+            Map.entry(TRACE.getLevelName(), TRACE)
+    );
 
     @Getter
     private final String levelName;
@@ -75,6 +101,18 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
 
     public static CustomLevel of(@NonNull final String level, final int priority, @NonNull final LogLevelFormat format) {
         return new CustomLevel(level, priority, format);
+    }
+
+    public static CustomLevel parse(String thing) {
+        CustomLevel ret = ALL_LEVELS.get(thing.toUpperCase());
+        if (ret == null) {
+            Level boringLevel = Level.parse(thing.toUpperCase());
+            if (boringLevel instanceof CustomLevel extendedLevel) {
+                return extendedLevel;
+            }
+            return CustomLevel.of(boringLevel.getName(), boringLevel.intValue());
+        }
+        return ret;
     }
 
     @Override
