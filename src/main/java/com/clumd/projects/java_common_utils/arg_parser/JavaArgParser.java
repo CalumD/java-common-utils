@@ -136,9 +136,10 @@ public class JavaArgParser implements CLIArgParser {
         // Ensure we have no duplicate argument IDs
         final int distinctArgInputCount = possibleArguments
                 .stream()
-                .filter(arg -> !"_._._._._._._._._._.".equals(arg.getUniqueId()))
-                .distinct()
                 .map(Argument::getUniqueId)
+                .map(String::toUpperCase)
+                .filter(uniqueId -> !"_._._._._._._._._._.".equals(uniqueId))
+                .distinct()
                 .toList()
                 .size();
         if (distinctArgInputCount != possibleArguments.size()) {

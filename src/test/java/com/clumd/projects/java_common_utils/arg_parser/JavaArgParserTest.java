@@ -939,4 +939,28 @@ class JavaArgParserTest {
         assertEquals(300, actualArgs.get("my named arg 3").getArgumentResult());
     }
 
+    @Test
+    void test_unique_ids_must_be_unique() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId("must be unique")
+                                    .shortOptions(Set.of('a'))
+                                    .build()
+                            , Argument
+                                    .builder()
+                                    .uniqueId("MuSt Be uNiQue")
+                                    .shortOptions(Set.of('b'))
+                                    .build()
+                    ),
+                    new String[]{"-ab=123"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (ParseException e) {
+            assertEquals("Either, provided more than one CLI Argument with the same ID, " +
+                    "these must be unique; or no ID was provided.", e.getMessage());
+        }
+    }
 }
