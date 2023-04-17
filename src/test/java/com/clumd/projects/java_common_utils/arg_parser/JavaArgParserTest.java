@@ -442,6 +442,121 @@ class JavaArgParserTest {
     }
 
     @Test
+    void test_mandatory_opts_are_collected_separately_in_boilerplate() throws ParseException {
+        cliArgParser.setBoilerplate("my name", "my usage syntax", "my synopsis", "my author", "where bugs");
+
+        String actualBoilerplate = cliArgParser.getBoilerplate(List.of(
+                Argument
+                        .builder()
+                        .uniqueId("my named arg 1")
+                        .shortOptions(new TreeSet<>(Set.of('a', 'z')))
+                        .longOptions(new TreeSet<>(Set.of("arg", "zulu")))
+                        .description("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                                "Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis ")
+                        .hasValue(true)
+                        .defaultValue(123L)
+                        .build(),
+                Argument
+                        .builder()
+                        .uniqueId("my named arg 2")
+                        .longOptions(new TreeSet<>(Set.of("clobber", "zap", "pow")))
+                        .description("dont ask")
+                        .isMandatory(true)
+                        .build(),
+                Argument
+                        .builder()
+                        .uniqueId("my named arg 3")
+                        .shortOptions(new TreeSet<>(Set.of('y', 'o')))
+                        .description("zoom zoom zoom zoom")
+                        .hasValue(true)
+                        .valueIsOptional(true)
+                        .build()
+        ));
+
+        assertEquals("""
+
+                NAME:\s
+                    my name
+
+                COMMAND:\s
+                    my usage syntax
+
+                SYNOPSIS:\s
+                    my synopsis
+
+                MANDATORY OPTIONS:\s
+                    --clobber, --pow, --zap
+                        dont ask
+
+                OPTIONS:\s
+                    -a, -z, --arg, --zulu    =<value>    (default: 123)
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis\s
+
+                    -o, -y    (=<value>)
+                        zoom zoom zoom zoom
+
+                AUTHOR:\s
+                    my author
+
+                REPORTING BUGS:\s
+                    where bugs
+
+                """, actualBoilerplate);
+    }
+
+    @Test
+    void test_only_mandatory_opts_in_boilerplate() throws ParseException {
+        cliArgParser.setBoilerplate("my name", "my usage syntax", "my synopsis", "my author", "where bugs");
+
+        String actualBoilerplate = cliArgParser.getBoilerplate(List.of(
+                Argument
+                        .builder()
+                        .uniqueId("my named arg 1")
+                        .shortOptions(new TreeSet<>(Set.of('a', 'z')))
+                        .longOptions(new TreeSet<>(Set.of("arg", "zulu")))
+                        .description("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                                "Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis ")
+                        .hasValue(true)
+                        .defaultValue(123L)
+                        .isMandatory(true)
+                        .build(),
+                Argument
+                        .builder()
+                        .uniqueId("my named arg 2")
+                        .longOptions(new TreeSet<>(Set.of("clobber", "zap", "pow")))
+                        .description("dont ask")
+                        .isMandatory(true)
+                        .build()
+        ));
+
+        assertEquals("""
+
+                NAME:\s
+                    my name
+
+                COMMAND:\s
+                    my usage syntax
+
+                SYNOPSIS:\s
+                    my synopsis
+
+                MANDATORY OPTIONS:\s
+                    -a, -z, --arg, --zulu    =<value>    (default: 123)
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis\s
+
+                    --clobber, --pow, --zap
+                        dont ask
+
+                AUTHOR:\s
+                    my author
+
+                REPORTING BUGS:\s
+                    where bugs
+
+                """, actualBoilerplate);
+    }
+
+    @Test
     void test_mandatory_short_option_in_arg() throws ParseException {
         Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(

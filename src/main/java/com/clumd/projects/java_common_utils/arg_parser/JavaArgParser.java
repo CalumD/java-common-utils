@@ -316,36 +316,46 @@ public class JavaArgParser implements CLIArgParser {
             throw new ParseException("Boiler plate not yet set.", 0);
         }
 
-        StringBuilder opts = new StringBuilder();
+        StringBuilder mandatoryOpts = new StringBuilder();
+        StringBuilder optionalOpts = new StringBuilder();
 
         forArguments.forEach(arg -> {
-            opts.append(INDENT);
-            arg.getShortOptions().forEach(shortArg -> opts.append('-').append(shortArg).append(", "));
-            arg.getLongOptions().forEach(longArg -> opts.append("--").append(longArg).append(", "));
-            opts.delete(opts.length() - 2, opts.length());
-            if (arg.hasValue()) {
-                opts.append(INDENT);
-                if (arg.valueIsOptional()) {
-                    opts.append("(=<value>)");
-                } else {
-                    opts.append("=<value>");
-                }
-                if (arg.isDefaultValueSet()) {
-                    opts.append(INDENT).append("(default: ").append(arg.getDefaultValue()).append(")");
-                }
+            if (arg.isMandatory()) {
+                compileKnownOptsForBoilerplate(mandatoryOpts, arg);
+            } else {
+                compileKnownOptsForBoilerplate(optionalOpts, arg);
             }
-
-            opts.append(NEWLINE).append(INDENT).append(INDENT);
-            opts.append(arg.getDescription());
-            opts.append(SPACE_LINE);
         });
 
         return NEWLINE +
                 "NAME: " + NEWLINE + INDENT + appName + SPACE_LINE +
                 "COMMAND: " + NEWLINE + INDENT + appSyntax + SPACE_LINE +
                 "SYNOPSIS: " + NEWLINE + INDENT + appSynopsis + SPACE_LINE +
-                "OPTIONS: " + NEWLINE + opts +
+                (mandatoryOpts.length() > 0 ? ("MANDATORY OPTIONS: " + NEWLINE + mandatoryOpts) : "") +
+                (optionalOpts.length() > 0 ? ("OPTIONS: " + NEWLINE + optionalOpts) : "") +
                 "AUTHOR: " + NEWLINE + INDENT + appAuthor + SPACE_LINE +
                 "REPORTING BUGS: " + NEWLINE + INDENT + appBugs + SPACE_LINE;
+    }
+
+    private void compileKnownOptsForBoilerplate(StringBuilder mandatoryOpts, Argument<?> arg) {
+        mandatoryOpts.append(INDENT);
+        arg.getShortOptions().forEach(shortArg -> mandatoryOpts.append('-').append(shortArg).append(", "));
+        arg.getLongOptions().forEach(longArg -> mandatoryOpts.append("--").append(longArg).append(", "));
+        mandatoryOpts.delete(mandatoryOpts.length() - 2, mandatoryOpts.length());
+        if (arg.hasValue()) {
+            mandatoryOpts.append(INDENT);
+            if (arg.valueIsOptional()) {
+                mandatoryOpts.append("(=<value>)");
+            } else {
+                mandatoryOpts.append("=<value>");
+            }
+            if (arg.isDefaultValueSet()) {
+                mandatoryOpts.append(INDENT).append("(default: ").append(arg.getDefaultValue()).append(")");
+            }
+        }
+
+        mandatoryOpts.append(NEWLINE).append(INDENT).append(INDENT);
+        mandatoryOpts.append(arg.getDescription());
+        mandatoryOpts.append(SPACE_LINE);
     }
 }
