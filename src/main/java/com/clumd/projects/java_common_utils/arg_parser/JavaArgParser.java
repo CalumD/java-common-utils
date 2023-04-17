@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A useful implementation of {@link CLIArgParser} with all basic features supported.
@@ -108,6 +109,25 @@ public class JavaArgParser implements CLIArgParser {
                     throw new ParseException("Invalid/unknown CLI argument / value provided: {" + currentWholeCLI + "}", 0);
                 }
             }
+        }
+
+        // Check for any short circuit-able args
+        boolean thereAreShortCircuits = false;
+        for (Argument<?> arg : possibleArguments) {
+            if (arg.shouldShortCircuit() && returnArgumentMap.get(arg.getUniqueId()) != null) {
+                thereAreShortCircuits = true;
+                break;
+            }
+        }
+        if (thereAreShortCircuits) {
+            return returnArgumentMap
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getValue().shouldShortCircuit())
+                    .collect(Collectors.toUnmodifiableMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue
+                    ));
         }
 
         // Double check that any mandatory arguments were provided
@@ -263,6 +283,7 @@ public class JavaArgParser implements CLIArgParser {
         }
     }
 
+    @SuppressWarnings("unchecked") // Every Argument<?> WILL be an Argument of type <Object>, so no concern here.
     private void genericParseIntoArgument(final Argument<?> argDef, final String value) throws ParseException, IllegalArgumentException {
 
         argDef.attemptValueConversion(value);

@@ -45,6 +45,15 @@ public class Argument<T> {
     private final boolean isMandatory = false;
 
     /**
+     * Used to tell a parser that if this argument is detected on the CLI at all, it should ALWAYS be returnable to the
+     * caller with all present short circuit args. Ideally ignoring any other constraints, such as
+     * {@link Argument#isMandatory} = true;
+     */
+    @Builder.Default
+    @Accessors(fluent = true)
+    private final boolean shouldShortCircuit = false;
+
+    /**
      * Used to indicate if this argument can be followed by a value, defaults to false
      */
     @Accessors(fluent = true)
@@ -77,7 +86,7 @@ public class Argument<T> {
     /**
      * Used to track if a default value has been set for this argument to be used if no CLI value is found.
      */
-    boolean defaultValueSet;
+    private boolean defaultValueSet;
 
     /**
      * If this argument needs a value, then this should be the fully validated and parsed output of that value.

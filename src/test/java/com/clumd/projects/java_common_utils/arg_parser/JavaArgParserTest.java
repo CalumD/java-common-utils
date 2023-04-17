@@ -963,4 +963,65 @@ class JavaArgParserTest {
                     "these must be unique; or no ID was provided.", e.getMessage());
         }
     }
+
+    @Test
+    void test_short_circuit_args_are_not_interrupted_by_missing_mandatory_args() throws ParseException {
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
+                List.of(
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 1")
+                                .shortOptions(Set.of('a'))
+                                .shouldShortCircuit(true)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 2")
+                                .shortOptions(Set.of('b'))
+                                .isMandatory(true)
+                                .build()
+                ),
+                new String[]{"-a"}
+        );
+
+        assertEquals(1, actualArgs.size(), 0);
+        assertTrue(actualArgs.containsKey("my named arg 1"));
+    }
+
+    @Test
+    void test_short_circuit_args_cut_out_other_provided_args_except_other_short_circuits() throws ParseException {
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
+                List.of(
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 1")
+                                .shortOptions(Set.of('a'))
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 2")
+                                .shortOptions(Set.of('b'))
+                                .shouldShortCircuit(true)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 3")
+                                .shortOptions(Set.of('c'))
+                                .isMandatory(true)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("my named arg 4")
+                                .shortOptions(Set.of('d'))
+                                .shouldShortCircuit(true)
+                                .build()
+                ),
+                new String[]{"-a", "-b", "-d"}
+        );
+
+        assertEquals(2, actualArgs.size(), 0);
+        assertTrue(actualArgs.containsKey("my named arg 2"));
+        assertTrue(actualArgs.containsKey("my named arg 4"));
+    }
+
 }
