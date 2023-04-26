@@ -9,6 +9,6 @@ package com.clumd.projects.java_common_utils.base_enhancements;
  * @param <E> The typing of a potential checked exception
  */
 @FunctionalInterface
-public interface FunctionPotentialException<T, R, E extends Exception> {
+public interface FunctionPotentialException<T, R, E extends Throwable> {
     R apply(T t) throws E;
 }
