@@ -9,15 +9,15 @@ class WrappedThrowableTest {
 
     @Test
     void test_constructors_with_variadic_objects() {
-        WrappedThrowable v1 = new WrappedThrowableImpl("", 123);
-        WrappedThrowable v2 = new WrappedThrowableImpl("", new Object[] {1, 2, 3});
-        WrappedThrowable v3 = new WrappedThrowableImpl("", List.of("1", "2", "3"));
-        WrappedThrowable v4 = new WrappedThrowableImpl("", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        UnwrappableThrowable v1 = new WrappedThrowableImpl("", 123);
+        UnwrappableThrowable v2 = new WrappedThrowableImpl("", new Object[] {1, 2, 3});
+        UnwrappableThrowable v3 = new WrappedThrowableImpl("", List.of("1", "2", "3"));
+        UnwrappableThrowable v4 = new WrappedThrowableImpl("", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
         System.out.println("");
     }
 
-    private static class WrappedThrowableImpl extends WrappedThrowable {
+    private static class WrappedThrowableImpl extends UnwrappableException {
 
         public WrappedThrowableImpl(String reason) {
             super(reason);
@@ -49,11 +49,6 @@ class WrappedThrowableTest {
 
         public WrappedThrowableImpl(Supplier<String> reason, Throwable cause, Object... metadata) {
             super(reason, cause, metadata);
-        }
-
-        @Override
-        public List<String> unwrapIntoStrings(boolean withStackTrace) {
-            return List.of();
         }
     }
 }
