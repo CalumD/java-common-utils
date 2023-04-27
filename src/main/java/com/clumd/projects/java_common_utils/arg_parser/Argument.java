@@ -12,10 +12,9 @@ import java.util.function.Function;
 
 /**
  * This Class represents all the configuration required to parse a single Command Line Argument into a usable output
- * <p/>
+ * <p></p>
  * The Ideal implementation pattern for this is as follows:
  * <pre>
- *
  * {@code
  * public class YourProgramsArgParser {
  *
@@ -68,6 +67,7 @@ import java.util.function.Function;
  *
  *          return objectToActionArgsWith;
  *      }
+ * }
  * }
  * </pre>
  *
