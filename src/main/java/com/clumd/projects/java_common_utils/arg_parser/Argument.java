@@ -12,6 +12,64 @@ import java.util.function.Function;
 
 /**
  * This Class represents all the configuration required to parse a single Command Line Argument into a usable output
+ * <p/>
+ * The Ideal implementation pattern for this is as follows:
+ * <pre>
+ *
+ * {@code
+ * public class YourProgramsArgParser {
+ *
+ *      private static final List<Argument<?>> arguments;
+ *      private static final Argument<Void> helpFlag, otherHelpStyleFlags;
+ *      private static final Argument<String> someArgumentWithATypedValue;
+ *
+ *      static {
+ *          helpFlag = Argument.<Void>builder()
+ *                 .uniqueId("help flag")
+ *                 .shouldShortCircuit(true)
+ *                 ...
+ *                 .build();
+ *          otherHelpStyleFlags = Argument.<Void>builder()
+ *                 .uniqueId("other flag")
+ *                 ...
+ *                 .build();
+ *          someArgumentWithATypedValue = Argument.<String>builder()
+ *                 .uniqueId("typed arg")
+ *                 ...
+ *                 .build();
+ *
+ *          arguments = List.of(helpFlag,
+ *                 otherHelpStyleFlags,
+ *                 someArgumentWithATypedValue);
+ *
+ *         argParser = new JavaArgParser();
+ *         argParser.setBoilerplate(...);
+ *      }
+ *
+ *      public static ObjectToActionArgsWith getArgs(String[] args) throws UnwrappableThrowable {
+ *
+ *          ObjectToActionArgsWith objectToActionArgsWith = new ObjectToActionArgsWith;
+ *
+ *          Map<String, Argument<Object>> parsedArguments;
+ *          parsedArguments = argParser.parseFromCLI(arguments, args);
+ *
+ *          for (String argID : parsedArguments.keySet()) {
+ *              switch (argID) {
+ *                  case "help flag" -> {
+ *                      System.out.println(argParser.getBoilerplate(arguments));
+ *                      throw new UnwrappableRuntimeException("Instant quit.");
+ *                  }
+ *                  case "other flag" -> otherHelpStyleFlags.getArgumentResult();
+ *                  case "typed arg" -> someArgumentWithATypedValue.getArgumentResult();
+ *                  default ->
+ *                      throw new UnwrappableException("Argument {" + argID + "} configured, but not handled when present.");
+ *              }
+ *          }
+ *
+ *          return objectToActionArgsWith;
+ *      }
+ * }
+ * </pre>
  *
  * @param <T> The type this Argument's value represents be post parsing.
  */
@@ -128,6 +186,16 @@ public class Argument<T> {
         return true;
     }
 
+    /**
+     * Overridden to make development cognitively easier by removing the Argument config, and only showing the output
+     * for itself.
+     *
+     * @return The string representation of the Argument Result to make scanning in debuggers easier.
+     */
+    @Override
+    public String toString() {
+        return getArgumentResult() == null ? "*no value*" : getArgumentResult().toString();
+    }
 
     /**
      * Overridden Builder for part of the Lombok process. This is used to alter the basic setter functionality of the
@@ -251,16 +319,5 @@ public class Argument<T> {
             };
             return this;
         }
-    }
-
-    /**
-     * Overridden to make development cognitively easier by removing the Argument config, and only showing the output
-     * for itself.
-     *
-     * @return The string representation of the Argument Result to make scanning in debuggers easier.
-     */
-    @Override
-    public String toString() {
-        return getArgumentResult() == null ? "*no value*" : getArgumentResult().toString();
     }
 }
