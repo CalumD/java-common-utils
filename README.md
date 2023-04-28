@@ -15,7 +15,7 @@ Best used with a simple Maven import
 <dependency>
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>2.3.0</version>
+    <version>2.3.1</version>
 </dependency>
 ```
 

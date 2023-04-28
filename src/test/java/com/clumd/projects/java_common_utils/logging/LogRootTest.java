@@ -16,28 +16,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
+import java.util.*;
+import java.util.logging.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LogRootTest {
 
-    private static final String LOGGING_TEST_PATH = "src/test/resources/logging/logRoot";
+    static final String LOGGING_TEST_PATH = "src/test/resources/logging/logRoot";
     private static final String DISCARDABLE_PACKAGE = "com.clumd.projects.java_common_utils.logging.";
     private static final String LOGGING_ROOT = "L_T_R";
 

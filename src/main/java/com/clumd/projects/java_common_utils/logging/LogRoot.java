@@ -12,12 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -203,9 +198,37 @@ public final class LogRoot {
         return createLogger(null, loggerIdentifier);
     }
 
+    @SuppressWarnings("java:S106") // in the middle of creating a log name, so probably best to user System.err.
     private static String buildLogName(final String prefix, final String loggerIdentifier) {
-        if (loggingRootId == null) {
-            throw new ExceptionInInitializerError("Logging Root ID is not set, have you called the \"LogRoot.init\" method yet?");
+        if (LogRoot.loggingRootId == null) {
+            System.err.println("Warning, Logging Root ID is not set, have you called the \"LogRoot.init\" method yet? Going to create a really crude default...");
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+            /* call LogRoot.init() with a default package of the first class with a calling package in the stack trace
+               which is not inside of this utility lib.
+               We will then use all but that last two elements of that classes package.
+               This is based on the assumption that the first class to call us should be the Main class in the using app.
+               And we assume that the app structure is such that the PSVM is inside of only one package.
+               So by dropping the last, we drop the class name, and dropping the second last we drop the main enclosing
+               folder, leaving us at the root of the using apps source code.
+               As mentioned in the above s.err, this is very crude - but then again you should be manually
+               calling LogRoot.init() if you want to use this anyway.
+            */
+            for (int stackTraceIndex = 1; stackTraceIndex < stackTrace.length; stackTraceIndex++) {
+                if (!stackTrace[stackTraceIndex].getClassName().startsWith("com.clumd.projects.java_common_utils.logging.")) {
+                    String[] packageStructure = stackTrace[stackTraceIndex].getClassName().split("\\.");
+                    StringBuilder discardablePackageIdEndingInDot = new StringBuilder(packageStructure[0]);
+                    for (int packageIndex = 1; packageIndex < packageStructure.length - 2; packageIndex++) {
+                        discardablePackageIdEndingInDot.append('.').append(packageStructure[packageIndex]);
+                    }
+                    discardablePackageIdEndingInDot.append('.');
+                    LogRoot.init(discardablePackageIdEndingInDot.toString(), "LogRoot");
+                    break;
+                }
+            }
+            if (LogRoot.loggingRootId == null) {
+                throw new ExceptionInInitializerError("Logging Root ID is not set, have you called the \"LogRoot.init\" method yet?");
+            }
         }
 
         return loggingRootId
