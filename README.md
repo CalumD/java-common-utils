@@ -15,7 +15,7 @@ Best used with a simple Maven import
 <dependency>
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>2.3.1</version>
+    <version>2.4.0</version>
 </dependency>
 ```
 
@@ -25,8 +25,9 @@ This is a simple yet powerful Java CLI arg parser. It takes a collection of all 
 provided in the CLI, will do some intelligent parsing and validation, then return you the subset of your Arguments which
 was input to your program along with any associated values.
 
-It also has the functionality to auto-generate the standard CLI boilerplate help text, using typical MAN-page
-formatting.
+It also has the functionality to auto-generate the standard CLI boilerplate help text (check out the test
+arg_parser/JavaArgParserTest.java#test_getting_boiler_plate_after_set_equals for an example of this), using typical
+MAN-page formatting.
 
 ##### Usage
 
@@ -39,6 +40,8 @@ Argument<Integer> anIntegerArgument = Argument.<Integer>builder()
         .description("A number between 10 and 30")
         .shortOptions(Set.of('n'))
         .longOptions(Set.of("number", "input"))
+        .mustBeUsedWith(Set.of("some other arg"))
+        .mustNotBeUsedWith(Set.of("some mutually exclusive arg"))
         .isMandatory(true)
         .hasValue(true)
         .valueIsOptional(false)
