@@ -1073,6 +1073,26 @@ class JavaArgParserTest {
     }
 
     @Test
+    void test_unique_id_must_not_be_empty() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .builder()
+                                    .uniqueId("  ")
+                                    .shortOptions(Set.of('a'))
+                                    .build()
+                    ),
+                    new String[]{"-a"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (ParseException e) {
+            assertEquals("Either, provided more than one CLI Argument with the same ID, " +
+                    "these must be unique; or no ID was provided.", e.getMessage());
+        }
+    }
+
+    @Test
     void test_short_circuit_args_are_not_interrupted_by_missing_mandatory_args() throws ParseException {
         Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
                 List.of(

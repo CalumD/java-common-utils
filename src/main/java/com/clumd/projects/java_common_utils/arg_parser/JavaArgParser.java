@@ -153,6 +153,7 @@ public class JavaArgParser implements CLIArgParser {
                 .stream()
                 .map(Argument::getUniqueId)
                 .map(String::toUpperCase)
+                .filter(Predicate.not(String::isBlank))
                 .filter(uniqueId -> !"_._._._._._._._._._.".equals(uniqueId))
                 .distinct()
                 .toList()
