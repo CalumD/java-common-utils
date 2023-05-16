@@ -387,20 +387,31 @@ class JavaArgParserTest {
                                 "accumsan tortor, sed vehicula nisi. Phasellus ultrices tempus ullamcorper.")
                         .hasValue(true)
                         .defaultValue(123L)
+                        .mustBeUsedWith(Set.of("my named arg 3"))
                         .build(),
                 Argument
                         .builder()
                         .uniqueId("my named arg 2")
                         .longOptions(new TreeSet<>(Set.of("clobber", "zap", "pow")))
-                        .description("dont ask")
+                        .description("argument with only long options, no value, and must not be used with 3")
+                        .mustNotBeUsedWith(Set.of("my named arg 3"))
                         .build(),
                 Argument
                         .builder()
                         .uniqueId("my named arg 3")
                         .shortOptions(new TreeSet<>(Set.of('y', 'o')))
-                        .description("zoom zoom zoom zoom")
+                        .description("argument with only short options and an optional value")
                         .hasValue(true)
                         .valueIsOptional(true)
+                        .build(),
+                Argument
+                        .builder()
+                        .uniqueId("this is required")
+                        .longOptions(new TreeSet<>(Set.of("must")))
+                        .description("this argument MUST be provided on the command line for this program, along with 1 but not 3")
+                        .isMandatory(true)
+                        .mustBeUsedWith(Set.of("my named arg 1", "my named arg 3"))
+                        .mustNotBeUsedWith(Set.of("my named arg 2"))
                         .build()
         ));
 
@@ -415,15 +426,19 @@ class JavaArgParserTest {
                 SYNOPSIS:\s
                     my synopsis
 
+                MANDATORY OPTIONS:\s
+                    --must    {Requires: my named arg 1, my named arg 3}    {Exclusive with: my named arg 2}
+                        this argument MUST be provided on the command line for this program, along with 1 but not 3
+
                 OPTIONS:\s
-                    -a, -z, --arg, --zulu    =<value>    (default: 123)
+                    -a, -z, --arg, --zulu    =<value>    (default: 123)    {Requires: my named arg 3}
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse id odio a purus feugiat condimentum. Aliquam consectetur felis vehicula cursus consequat. Sed tincidunt, ligula sit amet faucibus tempus, felis augue lobortis nulla, et molestie risus eros in lorem. Donec ornare velit in condimentum finibus. In scelerisque ornare massa nec fermentum. Pellentesque semper felis non erat dignissim, vel porta risus maximus. Duis lobortis libero faucibus odio varius, quis rutrum leo posuere. Maecenas sed accumsan tortor, sed vehicula nisi. Phasellus ultrices tempus ullamcorper.
 
-                    --clobber, --pow, --zap
-                        dont ask
+                    --clobber, --pow, --zap    {Exclusive with: my named arg 3}
+                        argument with only long options, no value, and must not be used with 3
 
                     -o, -y    (=<value>)
-                        zoom zoom zoom zoom
+                        argument with only short options and an optional value
 
                 AUTHOR:\s
                     my author

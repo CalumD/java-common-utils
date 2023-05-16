@@ -386,25 +386,37 @@ public class JavaArgParser implements CLIArgParser {
                 "REPORTING BUGS: " + NEWLINE + INDENT + appBugs + SPACE_LINE;
     }
 
-    private void compileKnownOptsForBoilerplate(StringBuilder mandatoryOpts, Argument<?> arg) {
-        mandatoryOpts.append(INDENT);
-        arg.getShortOptions().forEach(shortArg -> mandatoryOpts.append('-').append(shortArg).append(", "));
-        arg.getLongOptions().forEach(longArg -> mandatoryOpts.append("--").append(longArg).append(", "));
-        mandatoryOpts.delete(mandatoryOpts.length() - 2, mandatoryOpts.length());
+    private void compileKnownOptsForBoilerplate(StringBuilder optBeingBuilt, Argument<?> arg) {
+        optBeingBuilt.append(INDENT);
+        arg.getShortOptions().forEach(shortArg -> optBeingBuilt.append('-').append(shortArg).append(", "));
+        arg.getLongOptions().forEach(longArg -> optBeingBuilt.append("--").append(longArg).append(", "));
+        optBeingBuilt.delete(optBeingBuilt.length() - 2, optBeingBuilt.length());
         if (arg.hasValue()) {
-            mandatoryOpts.append(INDENT);
+            optBeingBuilt.append(INDENT);
             if (arg.valueIsOptional()) {
-                mandatoryOpts.append("(=<value>)");
+                optBeingBuilt.append("(=<value>)");
             } else {
-                mandatoryOpts.append("=<value>");
+                optBeingBuilt.append("=<value>");
             }
             if (arg.isDefaultValueSet()) {
-                mandatoryOpts.append(INDENT).append("(default: ").append(arg.getDefaultValue()).append(")");
+                optBeingBuilt.append(INDENT).append("(default: ").append(arg.getDefaultValue()).append(")");
             }
         }
+        if (!arg.mustBeUsedWith().isEmpty()) {
+            optBeingBuilt.append(INDENT);
+            optBeingBuilt.append("{Requires: ");
+            optBeingBuilt.append(String.join(", ", arg.mustBeUsedWith()));
+            optBeingBuilt.append("}");
+        }
+        if (!arg.mustNotBeUsedWith().isEmpty()) {
+            optBeingBuilt.append(INDENT);
+            optBeingBuilt.append("{Exclusive with: ");
+            optBeingBuilt.append(String.join(", ", arg.mustNotBeUsedWith()));
+            optBeingBuilt.append("}");
+        }
 
-        mandatoryOpts.append(NEWLINE).append(INDENT).append(INDENT);
-        mandatoryOpts.append(arg.getDescription());
-        mandatoryOpts.append(SPACE_LINE);
+        optBeingBuilt.append(NEWLINE).append(INDENT).append(INDENT);
+        optBeingBuilt.append(arg.getDescription());
+        optBeingBuilt.append(SPACE_LINE);
     }
 }
