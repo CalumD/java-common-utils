@@ -4,6 +4,7 @@ import lombok.NonNull;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -141,6 +142,22 @@ public class JavaArgParser implements CLIArgParser {
             }
         }
 
+        // Finally verify declared cross-compatibility of total CLI arguments.
+        for (Map.Entry<String, Argument<Object>> entry : returnArgumentMap.entrySet()) {
+            for (String mustBe : entry.getValue().mustBeUsedWith()) {
+                if (returnArgumentMap.get(mustBe) == null) {
+                    throw new ParseException("Argument {" + entry.getKey() + "} declares it MUST be used with " +
+                            "{" + mustBe + "}, but that argument was not presented in the CLI args.", 0);
+                }
+            }
+            for (String mustNotBe : entry.getValue().mustNotBeUsedWith()) {
+                if (returnArgumentMap.get(mustNotBe) != null) {
+                    throw new ParseException("Argument {" + entry.getKey() + "} declares it MUST NOT be used with " +
+                            "{" + mustNotBe + "}, but that argument WAS also presented in the CLI args.", 0);
+                }
+            }
+        }
+
         return returnArgumentMap;
     }
 
@@ -182,6 +199,38 @@ public class JavaArgParser implements CLIArgParser {
                     throw new ParseException("Argument long-option {" + s + "} is used by multiple Arguments", 0);
                 }
                 allLongArgs.add(s);
+            }
+            for (String s : arg.mustBeUsedWith()) {
+                Optional<String> matchedArg = possibleArguments.stream()
+                        .map(Argument::getUniqueId)
+                        .map(String::toUpperCase)
+                        .filter(otherArgUniqueID -> otherArgUniqueID.equals(s.toUpperCase()))
+                        .findFirst();
+
+                if (matchedArg.isEmpty()) {
+                    throw new ParseException("Argument {" + arg.getUniqueId() + "} states it must be used with " +
+                            "{" + s + "}, but that argument has NOT been defined as a possible argument.", 0);
+                }
+
+                // We only need to check this in this branch, since it MUST also be defined here to be an issue in the
+                // mustNotBeUsedWith() branch too.
+                if (arg.mustNotBeUsedWith().contains(s)) {
+                    throw new ParseException("Argument {" + arg.getUniqueId() + "} makes contradictory declarations " +
+                            "about the arguments it (must/must not) be used with, in relation to argument id " +
+                            "{" + s + "}", 0);
+                }
+            }
+            for (String s : arg.mustNotBeUsedWith()) {
+                Optional<String> matchedArg = possibleArguments.stream()
+                        .map(Argument::getUniqueId)
+                        .map(String::toUpperCase)
+                        .filter(otherArgUniqueID -> otherArgUniqueID.equals(s.toUpperCase()))
+                        .findFirst();
+
+                if (matchedArg.isEmpty()) {
+                    throw new ParseException("Argument {" + arg.getUniqueId() + "} states it must NOT be used with " +
+                            "{" + s + "}, but that argument has NOT been defined as a possible argument.", 0);
+                }
             }
         }
     }

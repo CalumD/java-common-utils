@@ -1193,4 +1193,395 @@ class JavaArgParserTest {
         assertTrue(actualArgs.containsKey("second short circuiter"));
     }
 
+    @Test
+    void test_args_must_be_used_with_references_non_arg() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("first")
+                                    .shortOptions(Set.of('a'))
+                                    .mustBeUsedWith(Set.of("this doesnt exist"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("second")
+                                    .build()
+                    ),
+                    new String[]{"-a"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {first} states it must be used with " +
+                    "{this doesnt exist}, but that argument has NOT been defined as a possible argument.", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_args_must_not_be_used_with_references_non_arg() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("first")
+                                    .shortOptions(Set.of('a'))
+                                    .mustNotBeUsedWith(Set.of("this doesnt exist"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("second")
+                                    .build()
+                    ),
+                    new String[]{"-a"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {first} states it must NOT be used with " +
+                    "{this doesnt exist}, but that argument has NOT been defined as a possible argument.", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_arg_cross_compatibility_is_mutually_exclusive() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("first")
+                                    .shortOptions(Set.of('a'))
+                                    .mustBeUsedWith(Set.of("other"))
+                                    .mustNotBeUsedWith(Set.of("other"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .shortOptions(Set.of('b'))
+                                    .uniqueId("other")
+                                    .build()
+                    ),
+                    new String[]{"-a"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {first} makes contradictory declarations about the arguments it " +
+                    "(must/must not) be used with, in relation to argument id {other}", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_multiple_args_can_declare_the_same_arg_cross_compatibility() {
+        try {
+            Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("first")
+                                    .shortOptions(Set.of('a'))
+                                    .mustBeUsedWith(Set.of("must be"))
+                                    .mustNotBeUsedWith(Set.of("must not be"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("second")
+                                    .shortOptions(Set.of('b'))
+                                    .mustBeUsedWith(Set.of("must be"))
+                                    .mustNotBeUsedWith(Set.of("must not be"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("must be")
+                                    .shortOptions(Set.of('c'))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("must not be")
+                                    .shortOptions(Set.of('d'))
+                                    .build()
+                    ),
+                    new String[]{"-abc"}
+            );
+
+            assertEquals(3, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("first"));
+            assertNotNull(actualArgs.get("second"));
+            assertNotNull(actualArgs.get("must be"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void test_args_must_be_used_with_are_not_acceptable_on_their_own() {
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(
+                            Argument
+                                    .<Integer>builder()
+                                    .uniqueId("first")
+                                    .shortOptions(Set.of('a'))
+                                    .mustBeUsedWith(Set.of("this doesnt exist"))
+                                    .build(),
+                            Argument
+                                    .<Integer>builder()
+                                    .shortOptions(Set.of('b'))
+                                    .uniqueId("second")
+                                    .build()
+                    ),
+                    new String[]{"-a"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {first} states it must be used with " +
+                    "{this doesnt exist}, but that argument has NOT been defined as a possible argument.", e.getMessage());
+        }
+    }
+
+    @Test
+    void test_args_must_be_used_with_are_directional() {
+        Argument<Integer> one = Argument
+                .<Integer>builder()
+                .uniqueId("1")
+                .shortOptions(Set.of('1'))
+                .mustBeUsedWith(Set.of("2", "3"))
+                .build();
+        Argument<Integer> two = Argument
+                .<Integer>builder()
+                .uniqueId("2")
+                .shortOptions(Set.of('2'))
+                .build();
+        Argument<Integer> three = Argument
+                .<Integer>builder()
+                .uniqueId("3")
+                .shortOptions(Set.of('3'))
+                .mustBeUsedWith(Set.of("2"))
+                .build();
+        Argument<Integer> four = Argument
+                .<Integer>builder()
+                .uniqueId("4")
+                .shortOptions(Set.of('4'))
+                .mustBeUsedWith(Set.of("5"))
+                .build();
+        Argument<Integer> five = Argument
+                .<Integer>builder()
+                .uniqueId("5")
+                .shortOptions(Set.of('5'))
+                .mustBeUsedWith(Set.of("4"))
+                .build();
+        Argument<Integer> six = Argument
+                .<Integer>builder()
+                .uniqueId("6")
+                .shortOptions(Set.of('6'))
+                .mustBeUsedWith(Set.of("1"))
+                .build();
+        Map<String, Argument<Object>> actualArgs;
+
+        // One must be used with 2 and 3, but 2 can be used solo
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-1"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertTrue(e.getMessage().contains("but that argument was not presented in the CLI args"));
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-123"}
+            );
+            assertEquals(3, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("1"));
+            assertNotNull(actualArgs.get("2"));
+            assertNotNull(actualArgs.get("3"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-2"}
+            );
+            assertEquals(1, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("2"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+
+        // 3 requires 2, but even though 1 requires it, 3 does not require 1
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-3"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {3} declares it MUST be used with {2}, " +
+                    "but that argument was not presented in the CLI args.", e.getMessage());
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-23"}
+            );
+            assertEquals(2, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("2"));
+            assertNotNull(actualArgs.get("3"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+
+        // Test bi-directional requirements, 4 requires 5 and 5 requires 4
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(four, five),
+                    new String[]{"-4"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {4} declares it MUST be used with {5}, " +
+                    "but that argument was not presented in the CLI args.", e.getMessage());
+        }
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(four, five),
+                    new String[]{"-5"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {5} declares it MUST be used with {4}, " +
+                    "but that argument was not presented in the CLI args.", e.getMessage());
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(four, five),
+                    new String[]{"-45"}
+            );
+            assertEquals(2, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("4"));
+            assertNotNull(actualArgs.get("5"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+
+        // Six must be used with 1, but since 1 must also be used by 2 and 3,
+        // this should cause a transitive dependency on 2 and 3 for 6
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(six, one, two, three),
+                    new String[]{"-61"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            // Even though 1 was provided as the dependency to 6, we still missed the transitive on 2 and 3 due to 1.
+            assertTrue(e.getMessage().contains("Argument {1} declares it MUST be used with "));
+            assertTrue(e.getMessage().contains("but that argument was not presented in the CLI args"));
+        }
+    }
+
+    @Test
+    void test_args_must_not_be_used_with_are_acceptable_on_their_own() {
+        Argument<Integer> one = Argument
+                .<Integer>builder()
+                .uniqueId("1")
+                .shortOptions(Set.of('1'))
+                .mustNotBeUsedWith(Set.of("2", "3"))
+                .build();
+        Argument<Integer> two = Argument
+                .<Integer>builder()
+                .uniqueId("2")
+                .shortOptions(Set.of('2'))
+                .build();
+        Argument<Integer> three = Argument
+                .<Integer>builder()
+                .uniqueId("3")
+                .shortOptions(Set.of('3'))
+                .mustNotBeUsedWith(Set.of("2"))
+                .build();
+        Map<String, Argument<Object>> actualArgs;
+
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-1"}
+            );
+            assertEquals(1, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("1"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-2"}
+            );
+            assertEquals(1, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("2"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+        try {
+            actualArgs = cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-3"}
+            );
+            assertEquals(1, actualArgs.size(), 0);
+            assertNotNull(actualArgs.get("3"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void test_args_must_not_be_used_with_are_not_acceptable_on_mentioned_arg() {
+        Argument<Integer> one = Argument
+                .<Integer>builder()
+                .uniqueId("1")
+                .shortOptions(Set.of('1'))
+                .mustNotBeUsedWith(Set.of("2", "3"))
+                .build();
+        Argument<Integer> two = Argument
+                .<Integer>builder()
+                .uniqueId("2")
+                .shortOptions(Set.of('2'))
+                .build();
+        Argument<Integer> three = Argument
+                .<Integer>builder()
+                .uniqueId("3")
+                .shortOptions(Set.of('3'))
+                .mustNotBeUsedWith(Set.of("2"))
+                .build();
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-12"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {1} declares it MUST NOT be used with {2}, " +
+                    "but that argument WAS also presented in the CLI args.", e.getMessage());
+        }
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-13"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {1} declares it MUST NOT be used with {3}, " +
+                    "but that argument WAS also presented in the CLI args.", e.getMessage());
+        }
+        try {
+            cliArgParser.parseFromCLI(
+                    List.of(one, two, three),
+                    new String[]{"-23"}
+            );
+            fail("The previous method call should have thrown an exception.");
+        } catch (Throwable e) {
+            assertEquals("Argument {3} declares it MUST NOT be used with {2}, " +
+                    "but that argument WAS also presented in the CLI args.", e.getMessage());
+        }
+    }
 }

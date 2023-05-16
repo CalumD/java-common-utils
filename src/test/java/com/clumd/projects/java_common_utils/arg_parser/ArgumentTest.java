@@ -36,6 +36,33 @@ class ArgumentTest {
     }
 
     @Test
+    void test_must_be_used_with_defaults() {
+        assertTrue(argForTest.mustBeUsedWith().isEmpty());
+    }
+
+    @Test
+    void test_must_not_be_used_with_defaults() {
+        assertTrue(argForTest.mustNotBeUsedWith().isEmpty());
+    }
+
+    @Test
+    void test_combination_modifiers_can_be_set_to_anything() {
+        Argument<Integer> a = Argument.<Integer>builder()
+                .uniqueId("1")
+                .mustBeUsedWith(Set.of("number 2", "and 3"))
+                .mustNotBeUsedWith(Set.of("but never 4", "or 5"))
+                .build();
+
+        assertNotNull(a);
+        assertFalse(a.mustBeUsedWith().isEmpty());
+        assertFalse(a.mustNotBeUsedWith().isEmpty());
+        assertTrue(a.mustBeUsedWith().contains("number 2"));
+        assertTrue(a.mustBeUsedWith().contains("and 3"));
+        assertTrue(a.mustNotBeUsedWith().contains("but never 4"));
+        assertTrue(a.mustNotBeUsedWith().contains("or 5"));
+    }
+
+    @Test
     void test_has_value_defaults() {
         assertFalse(argForTest.hasValue());
     }

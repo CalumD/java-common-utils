@@ -95,6 +95,22 @@ public class Argument<T> {
     private final Set<String> longOptions = new HashSet<>();
 
     /**
+     * Used to denote other CLI Arguments (by reference to their {@link Argument#uniqueId}) which MUST be present if,
+     * and only if, this Argument is found on the CLI.
+     */
+    @Builder.Default
+    @Accessors(fluent = true)
+    private final Set<String> mustBeUsedWith = new HashSet<>();
+
+    /**
+     * Used to denote other CLI Arguments (by reference to their {@link Argument#uniqueId}) which MUST NOT be used in
+     * conjunction with this one if, and only if, this Argument is found on the CLI.
+     */
+    @Builder.Default
+    @Accessors(fluent = true)
+    private final Set<String> mustNotBeUsedWith = new HashSet<>();
+
+    /**
      * Used to indicate if this argument is mandatory and MUST be provided for the utilising code to function. If you
      * set this value to true, you probably don't want to set a default value.
      */
@@ -105,7 +121,7 @@ public class Argument<T> {
     /**
      * Used to tell a parser that if this argument is detected on the CLI at all, it should ALWAYS be returnable to the
      * caller with all present short circuit args. Ideally ignoring any other constraints, such as
-     * {@link Argument#isMandatory} = true;
+     * {@link Argument#isMandatory} = true; or an already parsed argument with {@link Argument#mustBeUsedWith} set.
      * This will only take effect, if a short-circuiting argument is found on the command line before another CLI
      * option which would cause the parser to fail.
      */
@@ -206,6 +222,9 @@ public class Argument<T> {
      * @param <T> The param type for the builder matching that of the base Argument class.
      */
     public static class ArgumentBuilder<T> {
+
+        // This variable has to be brought into this builder to be used in potential
+        // exception messages of conversion / validation functions
         String uniqueId = "_._._._._._._._._._.";
         boolean defaultValueSet = false;
         boolean hasValue = false;
