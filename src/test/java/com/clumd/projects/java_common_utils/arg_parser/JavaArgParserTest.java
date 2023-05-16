@@ -4,16 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JavaArgParserTest {
 
@@ -1137,6 +1130,47 @@ class JavaArgParserTest {
         assertEquals(2, actualArgs.size(), 0);
         assertTrue(actualArgs.containsKey("my named arg 2"));
         assertTrue(actualArgs.containsKey("my named arg 4"));
+    }
+
+    @Test
+    void test_short_circuit_args_make_it_back_to_caller_even_if_failure() throws ParseException {
+        Map<String, Argument<Object>> actualArgs = cliArgParser.parseFromCLI(
+                List.of(
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("first short circuiter")
+                                .shortOptions(Set.of('a'))
+                                .shouldShortCircuit(true)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("regular arg")
+                                .shortOptions(Set.of('b'))
+                                .defaultValue(123)
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("throwing arg")
+                                .shortOptions(Set.of('c'))
+                                .isMandatory(true)
+                                .conversionFunction((val) -> {
+                                    throw new RuntimeException("deliberate failure");
+                                })
+                                .build(),
+                        Argument
+                                .<Integer>builder()
+                                .uniqueId("second short circuiter")
+                                .shortOptions(Set.of('d'))
+                                .shouldShortCircuit(true)
+                                .build()
+                ),
+                new String[]{"-a", "-b", "-c=123", "-d"}
+        );
+
+        // The regular arg should be dropped here, as we are now only interested in short-circuiting arguments.
+        assertEquals(2, actualArgs.size(), 0);
+        assertTrue(actualArgs.containsKey("first short circuiter"));
+        assertTrue(actualArgs.containsKey("second short circuiter"));
     }
 
 }

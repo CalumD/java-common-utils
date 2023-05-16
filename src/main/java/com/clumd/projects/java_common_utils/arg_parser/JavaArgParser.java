@@ -3,14 +3,7 @@ package com.clumd.projects.java_common_utils.arg_parser;
 import lombok.NonNull;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +23,7 @@ public class JavaArgParser implements CLIArgParser {
     private Collection<Argument<?>> possibleArguments;
     private Map<String, Argument<Object>> returnArgumentMap;
     private boolean ignoreUnknownCLIArgs;
+    private boolean thereAreShortCircuits = false;
 
     @Override
     public Map<String, Argument<Object>> parseFromCLI(
@@ -69,56 +63,57 @@ public class JavaArgParser implements CLIArgParser {
         // Carry out the actual argument parsing:
         Iterator<String> argumentIterator = Arrays.stream(args).iterator();
         String currentWholeCLI;
+        thereAreShortCircuits = false;
 
         while (argumentIterator.hasNext()) {
             currentWholeCLI = argumentIterator.next();
 
-            if (currentWholeCLI.startsWith("--")) {
-                currentWholeCLI = currentWholeCLI.substring(2);
+            try {
+                if (currentWholeCLI.startsWith("--")) {
+                    currentWholeCLI = currentWholeCLI.substring(2);
 
-                if (currentWholeCLI.strip().isBlank()) {
-                    throw new ParseException("Long argument indicator found, but no argument provided.", 0);
-                }
+                    if (currentWholeCLI.strip().isBlank()) {
+                        throw new ParseException("Long argument indicator found, but no argument provided.", 0);
+                    }
 
-                String longArgKey = currentWholeCLI.contains("=")
-                        ? currentWholeCLI.split("=")[0]
-                        : currentWholeCLI;
+                    String longArgKey = currentWholeCLI.contains("=")
+                            ? currentWholeCLI.split("=")[0]
+                            : currentWholeCLI;
 
-                parseLongArgument(
-                        currentWholeCLI,
-                        longArgKey,
-                        longArgMap.getOrDefault(longArgKey, null),
-                        argumentIterator
-                );
+                    parseLongArgument(
+                            currentWholeCLI,
+                            longArgKey,
+                            longArgMap.getOrDefault(longArgKey, null),
+                            argumentIterator
+                    );
 
-            } else if (currentWholeCLI.startsWith("-")) {
-                currentWholeCLI = currentWholeCLI.substring(1);
+                } else if (currentWholeCLI.startsWith("-")) {
+                    currentWholeCLI = currentWholeCLI.substring(1);
 
-                if (currentWholeCLI.strip().isBlank()) {
-                    throw new ParseException("Short argument indicator found, but no argument provided.", 0);
-                }
+                    if (currentWholeCLI.strip().isBlank()) {
+                        throw new ParseException("Short argument indicator found, but no argument provided.", 0);
+                    }
 
-                if (currentWholeCLI.contains("=")) {
-                    parseSingleShortArgWithValue(currentWholeCLI, shortArgMap);
+                    if (currentWholeCLI.contains("=")) {
+                        parseSingleShortArgWithValue(currentWholeCLI, shortArgMap);
+                    } else {
+                        parseMultipleShortArgsFromCLIEntry(currentWholeCLI, argumentIterator, shortArgMap);
+                    }
+
                 } else {
-                    parseMultipleShortArgsFromCLIEntry(currentWholeCLI, argumentIterator, shortArgMap);
+                    if (!currentWholeCLI.strip().isBlank() && !ignoreUnknownCLIArgs) {
+                        throw new ParseException("Invalid/unknown CLI argument / value provided: {" + currentWholeCLI + "}", 0);
+                    }
                 }
-
-            } else {
-                if (!currentWholeCLI.strip().isBlank() && !ignoreUnknownCLIArgs) {
-                    throw new ParseException("Invalid/unknown CLI argument / value provided: {" + currentWholeCLI + "}", 0);
+            } catch (Throwable e) {
+                // This is to allow us to additionally return any other short-circuiting arguments which may be present
+                // on the command line, but which come AFTER the 'problem' argument and it's value
+                if (!thereAreShortCircuits) {
+                    throw e;
                 }
             }
         }
 
-        // Check for any short circuit-able args
-        boolean thereAreShortCircuits = false;
-        for (Argument<?> arg : possibleArguments) {
-            if (arg.shouldShortCircuit() && returnArgumentMap.get(arg.getUniqueId()) != null) {
-                thereAreShortCircuits = true;
-                break;
-            }
-        }
         if (thereAreShortCircuits) {
             return returnArgumentMap
                     .entrySet()
@@ -290,6 +285,10 @@ public class JavaArgParser implements CLIArgParser {
 
         if (!argDef.validateValue()) {
             throw new ParseException("Argument value failed validation. Check argument {" + argDef.getUniqueId() + "} documentation: {" + argDef.getDescription() + "}", 0);
+        }
+
+        if (argDef.shouldShortCircuit()) {
+            thereAreShortCircuits = true;
         }
 
         returnArgumentMap.put(argDef.getUniqueId(), (Argument<Object>) argDef);

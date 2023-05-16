@@ -106,6 +106,8 @@ public class Argument<T> {
      * Used to tell a parser that if this argument is detected on the CLI at all, it should ALWAYS be returnable to the
      * caller with all present short circuit args. Ideally ignoring any other constraints, such as
      * {@link Argument#isMandatory} = true;
+     * This will only take effect, if a short-circuiting argument is found on the command line before another CLI
+     * option which would cause the parser to fail.
      */
     @Builder.Default
     @Accessors(fluent = true)
