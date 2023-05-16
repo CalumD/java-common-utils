@@ -388,8 +388,8 @@ public class JavaArgParser implements CLIArgParser {
 
     private void compileKnownOptsForBoilerplate(StringBuilder optBeingBuilt, Argument<?> arg) {
         optBeingBuilt.append(INDENT);
-        arg.getShortOptions().forEach(shortArg -> optBeingBuilt.append('-').append(shortArg).append(", "));
-        arg.getLongOptions().forEach(longArg -> optBeingBuilt.append("--").append(longArg).append(", "));
+        arg.getShortOptions().stream().sorted().toList().forEach(shortArg -> optBeingBuilt.append('-').append(shortArg).append(", "));
+        arg.getLongOptions().stream().sorted().toList().forEach(longArg -> optBeingBuilt.append("--").append(longArg).append(", "));
         optBeingBuilt.delete(optBeingBuilt.length() - 2, optBeingBuilt.length());
         if (arg.hasValue()) {
             optBeingBuilt.append(INDENT);
@@ -405,13 +405,13 @@ public class JavaArgParser implements CLIArgParser {
         if (!arg.mustBeUsedWith().isEmpty()) {
             optBeingBuilt.append(INDENT);
             optBeingBuilt.append("{Requires: ");
-            optBeingBuilt.append(String.join(", ", arg.mustBeUsedWith()));
+            optBeingBuilt.append(String.join(", ", arg.mustBeUsedWith().stream().sorted().toList()));
             optBeingBuilt.append("}");
         }
         if (!arg.mustNotBeUsedWith().isEmpty()) {
             optBeingBuilt.append(INDENT);
             optBeingBuilt.append("{Exclusive with: ");
-            optBeingBuilt.append(String.join(", ", arg.mustNotBeUsedWith()));
+            optBeingBuilt.append(String.join(", ", arg.mustNotBeUsedWith().stream().sorted().toList()));
             optBeingBuilt.append("}");
         }
 
