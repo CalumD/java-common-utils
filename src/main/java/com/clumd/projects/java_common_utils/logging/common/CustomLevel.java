@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,6 +15,8 @@ import java.util.logging.Level;
 import static com.clumd.projects.java_common_utils.logging.common.Format.*;
 
 public class CustomLevel extends Level implements LogLevel, Serializable {
+
+    private static final Map<String, CustomLevel> ALL_LEVELS = new HashMap<>(); // This will be populated by each static CustomLevel.of() call in the following lines.
 
     public static final String COLOUR_RESET = "\033[0m";
 
@@ -41,31 +44,6 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     public static final CustomLevel TESTING = CustomLevel.of("TESTING", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
     public static final CustomLevel TRACE = CustomLevel.of("TRACE", 300, WHITE);
 
-    private static final Map<String, CustomLevel> ALL_LEVELS = Map.ofEntries(
-            Map.entry(ALL.getLevelName(), ALL),
-            Map.entry(OFF.getLevelName(), OFF),
-            Map.entry(NONE.getLevelName(), NONE),
-            Map.entry(SHUTDOWN.getLevelName(), SHUTDOWN),
-            Map.entry(EMERGENCY.getLevelName(), EMERGENCY),
-            Map.entry(FATAL.getLevelName(), FATAL),
-            Map.entry(CRITICAL.getLevelName(), CRITICAL),
-            Map.entry(SEVERE.getLevelName(), SEVERE),
-            Map.entry(ERROR.getLevelName(), ERROR),
-            Map.entry(FAILURE.getLevelName(), FAILURE),
-            Map.entry(WARNING.getLevelName(), WARNING),
-            Map.entry(IMPORTANT.getLevelName(), IMPORTANT),
-            Map.entry(NOTIFICATION.getLevelName(), NOTIFICATION),
-            Map.entry(INFO.getLevelName(), INFO),
-            Map.entry(SUCCESS.getLevelName(), SUCCESS),
-            Map.entry(CONFIG.getLevelName(), CONFIG),
-            Map.entry(DATA.getLevelName(), DATA),
-            Map.entry(VERBOSE.getLevelName(), VERBOSE),
-            Map.entry(MINOR.getLevelName(), MINOR),
-            Map.entry(DEBUG.getLevelName(), DEBUG),
-            Map.entry(TESTING.getLevelName(), TESTING),
-            Map.entry(TRACE.getLevelName(), TRACE)
-    );
-
     @Getter
     private final String levelName;
     @Getter
@@ -73,46 +51,78 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     @Getter
     private final String levelFormat;
 
-    public CustomLevel(@NonNull String level, int priority) {
+    protected CustomLevel(@NonNull String level, int priority) {
         super(level.toUpperCase(), priority);
         this.levelName = this.toString();
         this.priority = priority;
-        this.levelFormat = null;
+        this.levelFormat = RESET.getFormatString();
     }
 
-    public CustomLevel(@NonNull String level, int priority, @NonNull final String levelFormat) {
+    protected CustomLevel(@NonNull String level, int priority, @NonNull final String levelFormat) {
         super(level.toUpperCase(), priority);
         this.levelName = this.toString();
         this.priority = priority;
         this.levelFormat = levelFormat;
     }
 
-    public CustomLevel(@NonNull String level, int priority, @NonNull final LogLevelFormat format) {
+    protected CustomLevel(@NonNull String level, int priority, @NonNull final LogLevelFormat format) {
         this(level, priority, format.getFormatString());
     }
 
-    public static CustomLevel of(@NonNull final String level, final int priority) {
-        return new CustomLevel(level, priority);
+    public static CustomLevel of(@NonNull String level, final int priority) {
+        level = level.toUpperCase();
+        if (ALL_LEVELS.containsKey(level)) {
+            return ALL_LEVELS.get(level);
+        } else {
+            CustomLevel newLevel = CustomLevel.parse(level, priority, RESET.getFormatString());
+            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
+            return newLevel;
+        }
     }
 
-    public static CustomLevel of(@NonNull final String level, final int priority, @NonNull final String levelFormat) {
-        return new CustomLevel(level, priority, levelFormat);
+    public static CustomLevel of(@NonNull String level, final int priority, @NonNull final String levelFormat) {
+        level = level.toUpperCase();
+        if (ALL_LEVELS.containsKey(level)) {
+            return ALL_LEVELS.get(level);
+        } else {
+            CustomLevel newLevel = CustomLevel.parse(level, priority, levelFormat);
+            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
+            return newLevel;
+        }
     }
 
-    public static CustomLevel of(@NonNull final String level, final int priority, @NonNull final LogLevelFormat format) {
-        return new CustomLevel(level, priority, format);
+    public static CustomLevel of(@NonNull String level, final int priority, @NonNull final LogLevelFormat format) {
+        level = level.toUpperCase();
+        if (ALL_LEVELS.containsKey(level)) {
+            return ALL_LEVELS.get(level);
+        } else {
+            CustomLevel newLevel = CustomLevel.parse(level, priority, format.toString());
+            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
+            return newLevel;
+        }
     }
 
-    public static CustomLevel parse(String thing) {
-        CustomLevel ret = ALL_LEVELS.get(thing.toUpperCase());
+    public static CustomLevel parse(@NonNull final String levelNameToParse) {
+        // Check if we already have this level
+        CustomLevel ret = ALL_LEVELS.get(levelNameToParse.toUpperCase());
         if (ret == null) {
-            Level boringLevel = Level.parse(thing.toUpperCase());
-            if (boringLevel instanceof CustomLevel extendedLevel) {
-                return extendedLevel;
-            }
-            return CustomLevel.of(boringLevel.getName(), boringLevel.intValue());
+            // Check if there is already a base instance for this log level
+            Level boringLevel = Level.parse(levelNameToParse.toUpperCase());
+            // there is, so convert it to our customs, if there isn't, we will throw out to caller
+            ret = new CustomLevel(boringLevel.getName(), boringLevel.intValue());
+            ALL_LEVELS.put(ret.getLevelName(), ret);
         }
         return ret;
+    }
+
+    private static CustomLevel parse(@NonNull final String levelNameToParse, final int priority, @NonNull final String formatString) {
+        try {
+            return CustomLevel.parse(levelNameToParse);
+        } catch (IllegalArgumentException e) {
+            CustomLevel ret = new CustomLevel(levelNameToParse, priority, formatString);
+            ALL_LEVELS.put(ret.getLevelName(), ret);
+            return ret;
+        }
     }
 
     @Override

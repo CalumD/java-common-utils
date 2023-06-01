@@ -2,6 +2,7 @@ package com.clumd.projects.java_common_utils.logging.common;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
 import java.util.logging.Level;
 
 import static com.clumd.projects.java_common_utils.logging.common.CustomLevel.*;
@@ -180,7 +181,7 @@ class CustomLevelTest {
         CustomLevel cl = CustomLevel.parse("fiNeSt");
 
         assertNotNull(cl);
-        assertNull(cl.getLevelFormat());
+        assertEquals(COLOUR_RESET, cl.getLevelFormat());
     }
 
     @Test
@@ -195,7 +196,7 @@ class CustomLevelTest {
 
     @Test
     void test_once_not_a_level_now_a_level() {
-        String levelName = "NowALevel";
+        String levelName = UUID.randomUUID().toString().replaceAll("[0-9-]", "");
         try {
             CustomLevel.parse(levelName);
             fail("The previous method call should have thrown an exception.");
@@ -211,7 +212,7 @@ class CustomLevelTest {
             assertNotNull(cl.getLevelFormat());
             assertFalse(cl.getLevelFormat().isBlank());
         } catch (IllegalArgumentException e) {
-            fail("The previous method call should have thrown an exception.");
+            fail("Parsing the custom level should have succeeded the second time", e);
         }
     }
 }
