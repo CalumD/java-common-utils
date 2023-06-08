@@ -72,7 +72,7 @@ class NamedThreadFactoryTest {
         Thread normalPriority = namedThreadFactory.newThread(new Thread(() -> {
         }));
 
-        assertEquals(Thread.currentThread().getPriority(), normalPriority.getPriority(), 0);
+        assertEquals(Thread.NORM_PRIORITY, normalPriority.getPriority(), 0);
 
         Thread.currentThread().setPriority(originalPriority);
     }

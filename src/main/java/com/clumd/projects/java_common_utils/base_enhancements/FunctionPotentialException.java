@@ -10,5 +10,13 @@ package com.clumd.projects.java_common_utils.base_enhancements;
  */
 @FunctionalInterface
 public interface FunctionPotentialException<T, R, E extends Throwable> {
+
+    /**
+     * Applies this function to the given argument, which may throw an unchecked or checked exception.
+     *
+     * @param t The function argument.
+     * @return The function result.
+     * @throws E A checked exception which may be thrown.
+     */
     R apply(T t) throws E;
 }

@@ -44,6 +44,7 @@ public abstract class UnwrappableRuntimeException extends RuntimeException imple
         this.metadata = List.of(metadata);
     }
 
+    @Override
     public List<String> unwrapReasonsIntoList(boolean includeTrace) {
         return UnwrappableException.unwrapReasonsIntoList(this, includeTrace);
     }
