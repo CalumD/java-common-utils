@@ -37,26 +37,25 @@ import java.util.function.Function;
  *                 ...
  *                 .build();
  *
- *          arguments = List.of(helpFlag,
+ *          arguments = List.of(
+ *                 helpFlag,
  *                 otherHelpStyleFlags,
- *                 someArgumentWithATypedValue);
+ *                 someArgumentWithATypedValue
+ *          );
  *
- *         argParser = new JavaArgParser();
- *         argParser.setBoilerplate(...);
+ *          argParser = new JavaArgParser();
+ *          argParser.setBoilerplate(...);
  *      }
  *
- *      public static ObjectToActionArgsWith getArgs(String[] args) throws UnwrappableThrowable {
+ *      public static void getArgs(String[] args) throws UnwrappableThrowable {
  *
- *          ObjectToActionArgsWith objectToActionArgsWith = new ObjectToActionArgsWith;
- *
- *          Map<String, Argument<Object>> parsedArguments;
- *          parsedArguments = argParser.parseFromCLI(arguments, args);
+ *          Map<String, Argument<Object>> parsedArguments = argParser.parseFromCLI(arguments, args);
  *
  *          for (String argID : parsedArguments.keySet()) {
  *              switch (argID) {
  *                  case "help flag" -> {
  *                      System.out.println(argParser.getBoilerplate(arguments));
- *                      throw new UnwrappableRuntimeException("Instant quit.");
+ *                      throw new UnwrappableRuntimeException("Instant quit or something.");
  *                  }
  *                  case "other flag" -> otherHelpStyleFlags.getArgumentResult();
  *                  case "typed arg" -> someArgumentWithATypedValue.getArgumentResult();
@@ -64,8 +63,6 @@ import java.util.function.Function;
  *                      throw new UnwrappableException("Argument {" + argID + "} configured, but not handled when present.");
  *              }
  *          }
- *
- *          return objectToActionArgsWith;
  *      }
  * }
  * }
@@ -89,7 +86,8 @@ public class Argument<T> {
     private final Set<Character> shortOptions = new HashSet<>();
 
     /**
-     * Used to contain all the word alias' to indicate this option
+     * Used to contain all the word alias' to indicate this option.
+     * For longer words or phrases, lower kebab-case should be used.
      */
     @Builder.Default
     private final Set<String> longOptions = new HashSet<>();
@@ -136,14 +134,15 @@ public class Argument<T> {
     private final boolean hasValue;
 
     /**
-     * Used to indicate if the value to this argument can be optional, defaults to false. (e.g. value MUST be provided)
+     * Used to indicate if the value to this argument can be optional, defaults to false.
+     * (e.g. value MUST be provided when this argument is present)
      */
     @Builder.Default
     @Accessors(fluent = true)
     private final boolean valueIsOptional = false;
 
     /**
-     * Used to describe the purpose of this Argument and how it should be used.
+     * Used to describe the purpose of this Argument and how it should be used to an end user.
      */
     @Builder.Default
     private final String description = "";
@@ -160,7 +159,7 @@ public class Argument<T> {
     private final Function<String, T> conversionFunction;
 
     /**
-     * Used to track if a default value has been set for this argument to be used if no CLI value is found.
+     * Used to track if a default value has been set for this argument; to be used if no CLI value is found.
      */
     private boolean defaultValueSet;
 
@@ -188,7 +187,7 @@ public class Argument<T> {
 
     /**
      * If a value is possible for this CLI Argument, then this method will be called to verify that the argument
-     * provided is acceptable by the calling process. This works by calling the implementation-provided
+     * provided is acceptable for the calling process. This works by calling the implementation-provided
      * {@link #validationFunction} to decide if it is acceptable
      *
      * @return True (default if no function was provided), if the value provided meets the acceptance criteria of the
