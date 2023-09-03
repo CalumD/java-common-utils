@@ -42,16 +42,13 @@ public class PortableSocket implements AutoCloseable {
     @Getter
     private final Socket socket;
 
-    // TODO: Decide on a clean implementation to avoid having to call ObjectOutputStream's protected void writeStreamHeader() or give it as custom
-    @Getter
-    private final ObjectOutputStream outputStream;
+    private final Object[] requiredSocketStreamHeaderContent;
 
-    // TODO: Decide on a clean implementation to avoid having to call ObjectInputStream's protected void readStreamHeader() or give it as custom
+    private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
 
 
-    public PortableSocket(@NonNull final Socket socket) throws IOException {
-        this.socket = socket;
+    public PortableSocket(@NonNull final Socket socket, Object... requiredSocketStreamHeaderContent) throws IOException {
         if (socket.isClosed() || socket.getRemoteSocketAddress() == null) {
             throw new UnsupportedOperationException(
                     "Invalid way to create a PortableSocket wrapper.",
@@ -60,16 +57,18 @@ public class PortableSocket implements AutoCloseable {
                             + "To create a new connection please use the constructor with hostname and port fields.")
             );
         }
-
+        this.socket = socket;
+        this.requiredSocketStreamHeaderContent = requiredSocketStreamHeaderContent;
         setMediumTimeout();
-        this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+        this.outputStream = getOutputStream();
     }
 
-    public PortableSocket(@NonNull final String hostname, final int port) throws IOException {
+    public PortableSocket(@NonNull final String hostname, final int port, Object... requiredSocketStreamHeaderContent) throws IOException {
         socket = new Socket();
+        this.requiredSocketStreamHeaderContent = requiredSocketStreamHeaderContent;
         socket.connect(new InetSocketAddress(hostname, port), THREE_SECONDS_IN_MS);
         setMediumTimeout();
-        this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+        this.outputStream = getOutputStream();
     }
 
     public static boolean portableIsReachable(@NonNull final String hostname, final int port) throws IOException {
@@ -111,9 +110,10 @@ public class PortableSocket implements AutoCloseable {
         }
 
         try {
-            inputStream = new ObjectInputStreamWithClassLoader(
+            inputStream = new ObjectInputStreamWithClassLoaderAndHeaders(
                     this.socket.getInputStream(),
-                    componentLoaderForInputStream
+                    componentLoaderForInputStream,
+                    requiredSocketStreamHeaderContent
             );
         } catch (final IOException e) {
             throw new IOException("Failed to properly initialise a PortableSocket's input stream", e);
@@ -122,9 +122,20 @@ public class PortableSocket implements AutoCloseable {
         return getInputStream();
     }
 
+    public ObjectOutputStream getOutputStream() throws IOException {
+        if (outputStream == null) {
+            outputStream = new ObjectOutputStreamWithCustomisableHeaders(
+                    socket.getOutputStream(),
+                    requiredSocketStreamHeaderContent
+            );
+        }
+
+        return outputStream;
+    }
+
     public ObjectInputStream getInputStream() throws IOException {
         if (inputStream == null) {
-            inputStream = new ObjectInputStream(socket.getInputStream());
+            return initialiseInputStreamWithComponentLoader(new URLClassLoader(new URL[]{}));
         }
 
         return inputStream;
