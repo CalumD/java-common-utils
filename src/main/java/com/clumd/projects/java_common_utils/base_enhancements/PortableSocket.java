@@ -6,6 +6,7 @@ import lombok.NonNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.net.*;
 import java.util.Set;
 
@@ -110,11 +111,42 @@ public class PortableSocket implements AutoCloseable {
         }
 
         try {
-            inputStream = new ObjectInputStreamWithClassLoaderAndHeaders(
+            inputStream = new ObjectInputStreamWithClassLoader(
                     this.socket.getInputStream(),
-                    componentLoaderForInputStream,
-                    requiredSocketStreamHeaderContent
-            );
+                    componentLoaderForInputStream
+            ) {
+                @Override
+                protected void readStreamHeader() throws IOException {
+                    if (requiredSocketStreamHeaderContent == null) {
+                        return;
+                    }
+                    if (requiredSocketStreamHeaderContent.length == 0) {
+                        super.readStreamHeader();
+                        return;
+                    }
+                    Object readObject;
+                    for (Object o : requiredSocketStreamHeaderContent) {
+                        try {
+                            readObject = super.readObject();
+                        } catch (ClassNotFoundException e) {
+                            throw new StreamCorruptedException("Failed to initialise ObjectInputStream with custom header requirements. " +
+                                    "Unknown class received. " + e.getMessage());
+                        }
+                        if (o == null) {
+                            if (readObject != null) {
+                                throw new StreamCorruptedException("Expected to read a null in the stream, but got something else instead " +
+                                        "{" + readObject.getClass().getCanonicalName() + "}");
+                            }
+                            continue;
+                        }
+                        if (!o.equals(readObject)) {
+                            throw new StreamCorruptedException("Expected to read a " +
+                                    "{" + readObject.getClass().getCanonicalName() + "} from the stream header, but got a non-matching " +
+                                    "{" + readObject.getClass().getCanonicalName() + "} instead.");
+                        }
+                    }
+                }
+            };
         } catch (final IOException e) {
             throw new IOException("Failed to properly initialise a PortableSocket's input stream", e);
         }
@@ -124,10 +156,23 @@ public class PortableSocket implements AutoCloseable {
 
     public ObjectOutputStream getOutputStream() throws IOException {
         if (outputStream == null) {
-            outputStream = new ObjectOutputStreamWithCustomisableHeaders(
-                    socket.getOutputStream(),
-                    requiredSocketStreamHeaderContent
-            );
+            outputStream = new ObjectOutputStream(
+                    socket.getOutputStream()
+            ) {
+                @Override
+                protected void writeStreamHeader() throws IOException {
+                    if (requiredSocketStreamHeaderContent == null) {
+                        return;
+                    }
+                    if (requiredSocketStreamHeaderContent.length == 0) {
+                        super.writeStreamHeader();
+                        return;
+                    }
+                    for (Object o : requiredSocketStreamHeaderContent) {
+                        super.writeObject(o);
+                    }
+                }
+            };
         }
 
         return outputStream;
