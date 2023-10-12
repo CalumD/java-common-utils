@@ -2,7 +2,10 @@ package com.clumd.projects.java_common_utils.base_enhancements;
 
 import lombok.NonNull;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.net.URLClassLoader;
 
 /**
@@ -10,11 +13,9 @@ import java.net.URLClassLoader;
  * connection.
  * It also allows the caller to provide a custom overridden set of objects expected to be read from the InputStream when initialising
  */
-public class ObjectInputStreamWithClassLoaderAndHeaders extends ObjectInputStream {
+public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
     private final URLClassLoader customLoader;
-    private final Object[] requiredStreamHeaderContent;
-
 
     /**
      * Custom constructor to include the classloader for the stream.
@@ -29,10 +30,9 @@ public class ObjectInputStreamWithClassLoaderAndHeaders extends ObjectInputStrea
      *                                    initialise.
      * @throws IOException Thrown as per super's specification
      */
-    public ObjectInputStreamWithClassLoaderAndHeaders(@NonNull InputStream in, @NonNull URLClassLoader customLoader, Object... requiredStreamHeaderContent) throws IOException {
+    public ObjectInputStreamWithClassLoader(@NonNull InputStream in, @NonNull URLClassLoader customLoader) throws IOException {
         super(in);
         this.customLoader = customLoader;
-        this.requiredStreamHeaderContent = requiredStreamHeaderContent;
     }
 
     /**
@@ -45,37 +45,5 @@ public class ObjectInputStreamWithClassLoaderAndHeaders extends ObjectInputStrea
     @Override
     protected Class<?> resolveClass(ObjectStreamClass deserializedClassDescription) throws ClassNotFoundException {
         return Class.forName(deserializedClassDescription.getName(), true, customLoader);
-    }
-
-    @Override
-    protected void readStreamHeader() throws IOException {
-        if (requiredStreamHeaderContent == null) {
-            return;
-        }
-        if (requiredStreamHeaderContent.length == 0) {
-            super.readStreamHeader();
-            return;
-        }
-        Object readObject;
-        for (Object o : requiredStreamHeaderContent) {
-            try {
-                readObject = super.readObject();
-            } catch (ClassNotFoundException e) {
-                throw new StreamCorruptedException("Failed to initialise ObjectInputStream with custom header requirements. " +
-                        "Unknown class received. " + e.getMessage());
-            }
-            if (o == null) {
-                if (readObject != null) {
-                    throw new StreamCorruptedException("Expected to read a null in the stream, but got something else instead " +
-                            "{" + readObject.getClass().getCanonicalName() + "}");
-                }
-                continue;
-            }
-            if (!o.equals(readObject)) {
-                throw new StreamCorruptedException("Expected to read a " +
-                        "{" + readObject.getClass().getCanonicalName() + "} from the stream header, but got a non-matching " +
-                        "{" + readObject.getClass().getCanonicalName() + "} instead.");
-            }
-        }
     }
 }
