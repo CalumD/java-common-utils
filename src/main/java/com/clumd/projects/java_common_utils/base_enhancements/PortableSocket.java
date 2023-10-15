@@ -6,13 +6,20 @@ import lombok.NonNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StreamCorruptedException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Set;
 
 /**
  * This {@link java.net.Socket} wrapper serves to accumulate some convenience methods for dealing with sockets, such as setting up ObjectStreams,
- * setting timeouts and preparing customised ClassLoaders for interpreting incoming objects.
+ * setting timeouts and preparing customised ClassLoaders for interpreting incoming objects. It is also called 'Portable' as THIS is the object
+ * reference which should be passed around to represent a socket endpoint, rather than the socket itself and create multiple input/output streams on.
  * <p>
  * One other extremely useful feature it provides is a PORTABLE method of determining a connection's reachability.
  * <p>
@@ -20,6 +27,7 @@ import java.util.Set;
  * <a href="https://download.java.net/java/early_access/jdk21/docs/api/java.base/java/net/InetAddress.html#isReachable(int)">Java documentation</a>
  * and countless stackoverflow posts, the baked in {@link InetAddress#isReachable(int)} will only make best-effort to perform a regular ICMP PING
  * request. However, certain operating systems may only allow these calls if the JVM is running with ROOT/ADMIN privileges. This implementation
+ * ({@link #portableIsReachable(String, int)})
  * seeks to improve this, by going a few steps further to determine reachability such as actually trying to construct a Socket to the peer on a
  * known, provided, port.
  */
@@ -49,7 +57,28 @@ public class PortableSocket implements AutoCloseable {
     private ObjectInputStream inputStream;
 
 
-    public PortableSocket(@NonNull final Socket socket, Object... requiredSocketStreamHeaderContent) throws IOException {
+    /**
+     * This constructor accepts a *connected* Socket, and potentially, a collection of objects which will be written and expected to be read as a
+     * stream header. This allows both sides of a PortableSocket to match each other reliably.
+     * This constructor will create an OutputStream for this socket, will set a Medium timeout, but will NOT immediately create an InputStream.
+     * This is to allow a caller to potentially provide a custom URL ClassLoader through
+     * {@link #initialiseInputStreamWithComponentLoader(URLClassLoader)}.
+     *
+     * @param socket                            The already connected low level Socket. If a socket is provided but is not connected, then you can't
+     *                                          use a portable socket yet as, to cope with this, involves having to then keep track of all the is
+     *                                          initialised and connected etc. Basically I'm just a bit lazy, but I don't think it makes sense for
+     *                                          this class.
+     * @param requiredSocketStreamHeaderContent Variadic args for what to write down the socket on connection, and expect to read from the socket
+     *                                          on connection.
+     *                                          Passing nothing and treating this constructor as if this variadic did not exist, will leave the
+     *                                          DEFAULT (In/Out)putStream header behaviour in place.
+     *                                          Passing a type-casted {@code (Object[]) null}, will disable any read/write operations within the
+     *                                          streams initialisations.
+     *                                          Passing any other variadic data, will write those objects in order and expect to read the same from
+     *                                          the other side on initialisation.
+     * @throws IOException This can be thrown if there was an issue creating the output streams, or defaulting the socket operation timeouts.
+     */
+    public PortableSocket(@NonNull final Socket socket, final Serializable... requiredSocketStreamHeaderContent) throws IOException {
         if (socket.isClosed() || socket.getRemoteSocketAddress() == null) {
             throw new UnsupportedOperationException(
                     "Invalid way to create a PortableSocket wrapper.",
@@ -64,10 +93,30 @@ public class PortableSocket implements AutoCloseable {
         this.outputStream = getOutputStream();
     }
 
-    public PortableSocket(@NonNull final String hostname, final int port, Object... requiredSocketStreamHeaderContent) throws IOException {
+    /**
+     * This constructor accepts a hostname and port which we would like to connect to and, potentially, a collection of objects which will be written
+     * and expected to be read as a stream header. This allows both sides of a PortableSocket to match each other reliably.
+     * This constructor will always connect with a medium timeout, create an OutputStream for this socket and set a Medium timeout, but will NOT
+     * immediately create an InputStream.
+     * This is to allow a caller to potentially provide a custom URL ClassLoader through
+     * {@link #initialiseInputStreamWithComponentLoader(URLClassLoader)}.
+     *
+     * @param hostname                          The network hostname or IP of the peer we would like to connect to.
+     * @param port                              The port number we would like to initialise a connection on.
+     * @param requiredSocketStreamHeaderContent Variadic args for what to write down the socket on connection, and expect to read from the socket
+     *                                          on connection.
+     *                                          Passing nothing and treating this constructor as if this variadic did not exist, will leave the
+     *                                          DEFAULT (In/Out)putStream header behaviour in place.
+     *                                          Passing a type-casted {@code (Object[]) null}, will disable any read/write operations within the
+     *                                          streams initialisations.
+     *                                          Passing any other variadic data, will write those objects in order and expect to read the same from
+     *                                          the other side on initialisation.
+     * @throws IOException This can be thrown if there was an issue creating the output streams, or defaulting the socket operation timeouts.
+     */
+    public PortableSocket(@NonNull final String hostname, final int port, final Serializable... requiredSocketStreamHeaderContent) throws IOException {
         socket = new Socket();
-        this.requiredSocketStreamHeaderContent = requiredSocketStreamHeaderContent;
         socket.connect(new InetSocketAddress(hostname, port), THREE_SECONDS_IN_MS);
+        this.requiredSocketStreamHeaderContent = requiredSocketStreamHeaderContent;
         setMediumTimeout();
         this.outputStream = getOutputStream();
     }
