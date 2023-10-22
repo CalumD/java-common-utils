@@ -227,15 +227,15 @@ public class PortableSocket implements AutoCloseable {
                         }
                         if (o == null) {
                             if (readObject != null) {
-                                throw new StreamCorruptedException("Expected to read a null in the stream, but got something else instead " +
+                                throw new StreamCorruptedException("Expected to read a null in the stream header, but got something else instead: " +
                                         "{" + readObject.getClass().getCanonicalName() + "}");
                             }
                             continue;
                         }
                         if (!o.equals(readObject)) {
                             throw new StreamCorruptedException("Expected to read a " +
-                                    "{" + readObject.getClass().getCanonicalName() + "} from the stream header, but got a non-matching " +
-                                    "{" + readObject.getClass().getCanonicalName() + "} instead.");
+                                    "{" + o.getClass().getCanonicalName() + "} from the stream header, but got a non-matching " +
+                                    "{" + (readObject == null ? "null" : readObject.getClass().getCanonicalName()) + "} instead.");
                         }
                     }
                 }
@@ -244,7 +244,7 @@ public class PortableSocket implements AutoCloseable {
             throw new IOException("Failed to properly initialise a PortableSocket's input stream", e);
         }
 
-        return getInputStream();
+        return inputStream;
     }
 
     /**

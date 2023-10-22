@@ -25,6 +25,7 @@ public class AsyncTestThread {
 
     public void start() {
         thread.start();
+        NetworkingTestUtils.sleep();
     }
 
     public void interrupt() {

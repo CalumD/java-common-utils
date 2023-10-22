@@ -39,26 +39,24 @@ class ObjectInputStreamWithClassLoaderTest {
                 assertNotNull(serverSend);
                 assertNotNull(serverReceive);
                 assertTrue(serverReceive.readBoolean());
+                serverSend.reset();
             } catch (Exception e) {
                 fail(e);
             }
         });
         serverThread.start();
-        NetworkingTestUtils.sleep();
 
         Socket client = new Socket(InetAddress.getLoopbackAddress(), NetworkingTestUtils.FIRST_SERVER_PORT);
         ObjectOutputStream outputStream = new ObjectOutputStream(client.getOutputStream());
         outputStream.writeBoolean(true);
         outputStream.flush();
-        assertDoesNotThrow(() -> new ObjectInputStreamWithClassLoader(client.getInputStream(), urlClassLoader));
+        assertDoesNotThrow(() -> {
+            try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(client.getInputStream(), urlClassLoader)) {
+                ois.available();
+            }
+        });
         client.close();
 
         serverThread.finalise();
-    }
-
-    @Test
-    void testOtherThings() {
-        // TODO: do more tests
-        assertTrue(true);
     }
 }
