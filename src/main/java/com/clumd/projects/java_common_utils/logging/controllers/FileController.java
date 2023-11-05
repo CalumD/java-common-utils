@@ -78,9 +78,9 @@ public class FileController extends FileHandler implements CustomLogHandler {
             return input == null
                     ? "NULL"
                     : input
-                    .replaceAll("\\n", "  ")            //rid newlines
-                    .replaceAll("\\\\\"", "\\\\\\\"")   //escape, escaped quotes
-                    .replaceAll("\"", "\\\\\"");        //escape quotes
+                    .replace("\n", "  ")         //rid newlines
+                    .replace("\\\"", "\\\\\"")   //escape, escaped quotes
+                    .replace("\"", "\\\"");      //escape quotes
         }
 
         @Override
@@ -130,14 +130,15 @@ public class FileController extends FileHandler implements CustomLogHandler {
             // Check for additional metadata about the log entry.
             if (logRecord.getParameters() != null) {
                 for (Object metadata : logRecord.getParameters()) {
-                    if (metadata instanceof LoggableData loggableMetadata) {
-                        logEntry.addString(METADATA_ARRAY, strFormatter(loggableMetadata.getFormattedLogData()));
-                    } else if (metadata instanceof Json jsonMetadata) {
-                        logEntry.addBuilderBlock(METADATA_ARRAY, jsonMetadata);
-                    } else if (metadata == null) {
-                        logEntry.addString(METADATA_ARRAY, "NULL");
-                    } else {
-                        logEntry.addString(METADATA_ARRAY, strFormatter(metadata.toString()));
+                    switch (metadata) {
+                        case LoggableData loggableMetadata ->
+                                logEntry.addString(METADATA_ARRAY, strFormatter(loggableMetadata.getFormattedLogData()));
+                        case Json jsonMetadata ->
+                                logEntry.addBuilderBlock(METADATA_ARRAY, jsonMetadata);
+                        case null ->
+                                logEntry.addString(METADATA_ARRAY, "NULL");
+                        default ->
+                                logEntry.addString(METADATA_ARRAY, strFormatter(metadata.toString()));
                     }
                 }
             }

@@ -22,11 +22,11 @@ import static com.clumd.projects.java_common_utils.logging.LogRoot.TAB;
 
 public class ConsoleController extends ConsoleHandler implements CustomLogHandler {
 
+    public final SimpleDateFormat consoleDateTimeFormatter = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
+    private final boolean useSpacerLine;
     private UUID traceID;
     private String systemID;
     private Map<Long, String> overriddenThreadNames;
-    public final SimpleDateFormat consoleDateTimeFormatter = new SimpleDateFormat("EEE dd/MMM/yyyy HH:mm:ss.SSS");
-    private final boolean useSpacerLine;
 
     public ConsoleController(boolean useSpacerLines) {
         super();
@@ -126,14 +126,15 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
             if (logRecord.getParameters() != null && logRecord.getParameters().length > 0) {
                 ret.append("Metadata:  <").append(logRecord.getParameters().length).append("> item(s)\n");
                 for (Object item : logRecord.getParameters()) {
-                    if (item instanceof LoggableData loggableData) {
-                        ret.append("{\n").append(loggableData.getFormattedLogData()).append("\n}");
-                    } else if (item instanceof Json jsonItem) {
-                        ret.append((jsonItem).asPrettyString(2));
-                    } else if (item == null) {
-                        ret.append("{ ").append("NULL").append(" }");
-                    } else {
-                        ret.append("{ ").append(item.toString()).append(" }");
+                    switch (item) {
+                        case LoggableData loggableData ->
+                                ret.append("{\n").append(loggableData.getFormattedLogData()).append("\n}");
+                        case Json jsonItem ->
+                                ret.append((jsonItem).asPrettyString(2));
+                        case null ->
+                                ret.append("{ ").append("NULL").append(" }");
+                        default ->
+                                ret.append("{ ").append(item).append(" }");
                     }
                     ret.append('\n');
                 }

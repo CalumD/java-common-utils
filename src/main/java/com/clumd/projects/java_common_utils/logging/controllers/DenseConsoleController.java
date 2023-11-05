@@ -52,7 +52,7 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
 
             // Give the main message to log
             ret.append(logRecord.getMessage());
-            ret.append("\n");
+            ret.append('\n');
 
             // Check if the log contains an error
             return formatThrowablesAndData(ret, logRecord);
@@ -62,7 +62,7 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
             StringBuilder ret = new StringBuilder();
 
             // Apply colour
-            ret.append("[");
+            ret.append('[');
             ret.append(level.getLevelFormat());
 
             // Provide meta data info
@@ -72,7 +72,7 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
 
             // Normalise Colours and give the main message to log
             ret.append(logRecord.getMessage());
-            ret.append("\n");
+            ret.append('\n');
 
             // Check if the log contains an error
             return formatThrowablesAndData(ret, logRecord);
@@ -98,10 +98,10 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
                     } else {
                         ret.append("Nested Reason:  ");
                     }
-                    ret.append("(").append(throwable.getClass().getSimpleName()).append(") ");
-                    ret.append(throwable.getMessage()).append("\n");
+                    ret.append('(').append(throwable.getClass().getSimpleName()).append(") ");
+                    ret.append(throwable.getMessage()).append('\n');
                     for (Object stackTraceLine : throwable.getStackTrace()) {
-                        ret.append("  ").append(stackTraceLine.toString()).append("\n");
+                        ret.append("  ").append(stackTraceLine.toString()).append('\n');
                     }
                     throwable = throwable.getCause();
                 } while (throwable != null && throwable != throwable.getCause());
@@ -111,14 +111,15 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
             if (logRecord.getParameters() != null && logRecord.getParameters().length > 0) {
                 ret.append("Metadata:  <").append(logRecord.getParameters().length).append("> item(s)\n");
                 for (Object item : logRecord.getParameters()) {
-                    if (item instanceof LoggableData loggableData) {
-                        ret.append("{ ").append(loggableData.getFormattedLogData()).append(" }");
-                    } else if (item instanceof Json jsonItem) {
-                        ret.append((jsonItem).asString(2));
-                    } else if (item == null) {
-                        ret.append("{ ").append("NULL").append(" }");
-                    } else {
-                        ret.append("{ ").append(item.toString()).append(" }");
+                    switch (item) {
+                        case LoggableData loggableData -> 
+                                ret.append("{ ").append(loggableData.getFormattedLogData()).append(" }");
+                        case Json jsonItem -> 
+                                ret.append((jsonItem).asString(2));
+                        case null -> 
+                                ret.append("{ ").append("NULL").append(" }");
+                        default -> 
+                                ret.append("{ ").append(item).append(" }");
                     }
                     ret.append('\n');
                 }
