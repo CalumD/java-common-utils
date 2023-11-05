@@ -5,6 +5,7 @@ import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import com.clumd.projects.java_common_utils.logging.controllers.DenseConsoleController;
+import com.clumd.projects.java_common_utils.logging.controllers.DenseFileController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
 import lombok.NonNull;
 
@@ -12,7 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -161,6 +167,23 @@ public final class LogRoot {
     }
 
     /**
+     * Creates a sparse no-fluff File Handler with dense message output and other defaults set.
+     *
+     * @param atDir The Directory where the system should write its log files to.
+     * @return The instantiated FileHandler instance.
+     * @throws IOException Thrown if there was a problem creating or writing to the directory/file you intended.
+     */
+    public static CustomLogHandler basicDenseFileHandler(@NonNull String atDir) throws IOException {
+        FileUtils.makeAllDirs(atDir);
+        return new DenseFileController(
+                atDir + "/" + loggingRootId + "_" + staticSystemName + "_%g.log",
+                SINGLE_FILE_LOG_SIZE,
+                LOG_FILE_ROTATIONS,
+                true
+        );
+    }
+
+    /**
      * As {@link LogRoot#basicFileHandler(String)} but the directory is defaulted to the CURRENT WORKING DIRECTORY WHEN
      * THE JAVA PROCESS WAS STARTED.
      *
@@ -169,6 +192,21 @@ public final class LogRoot {
      */
     public static CustomLogHandler basicFileHandler() throws IOException {
         return basicFileHandler(
+                new File(
+                        System.getProperty("user.dir")
+                ).getAbsolutePath()
+        );
+    }
+
+    /**
+     * As {@link LogRoot#basicDenseFileHandler(String)} but the directory is defaulted to the CURRENT WORKING DIRECTORY WHEN
+     * THE JAVA PROCESS WAS STARTED.
+     *
+     * @return The instantiated FileHandler instance.
+     * @throws IOException Thrown if there was a problem creating or writing to the directory/file you intended.
+     */
+    public static CustomLogHandler basicDenseFileHandler() throws IOException {
+        return basicDenseFileHandler(
                 new File(
                         System.getProperty("user.dir")
                 ).getAbsolutePath()

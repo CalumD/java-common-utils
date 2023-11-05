@@ -4,6 +4,7 @@ import com.clumd.projects.java_common_utils.files.FileUtils;
 import com.clumd.projects.java_common_utils.logging.api.CustomLogHandler;
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
+import com.clumd.projects.java_common_utils.logging.controllers.DenseFileController;
 import com.clumd.projects.java_common_utils.logging.controllers.FileController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +17,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +46,7 @@ class LogRootTest {
     @Captor
     private ArgumentCaptor<LogRecord> logCaptor;
 
-    private class ExtendedConsoleController extends ConsoleController {
+    private static class ExtendedConsoleController extends ConsoleController {
         public ExtendedConsoleController(boolean useSpacerLines) {
             super(useSpacerLines);
         }
@@ -97,14 +110,10 @@ class LogRootTest {
             fc.flush();
             fc.close();
         });
-        assertTrue(
-                Arrays
-                        .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
-                        .filter(filename -> filename.startsWith(LOGGING_ROOT))
-                        .toList()
-                        .size()
-                        > 0
-        );
+        assertFalse(Arrays
+                .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                .toList().isEmpty());
     }
 
     @Test
@@ -118,14 +127,43 @@ class LogRootTest {
                 fc.flush();
                 fc.close();
             });
-            assertTrue(
-                    Arrays
-                            .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
-                            .filter(filename -> filename.startsWith(LOGGING_ROOT))
-                            .toList()
-                            .size()
-                            > 0
-            );
+            assertFalse(Arrays
+                    .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                    .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                    .toList().isEmpty());
+        } finally {
+            System.setProperty("user.dir", existingUserDir);
+        }
+    }
+
+    @Test
+    void checkCreatingBasicDenseFileHandlerCustomPath() {
+        assertDoesNotThrow(() -> {
+            DenseFileController fc = (DenseFileController)LogRoot.basicDenseFileHandler(LOGGING_TEST_PATH);
+            fc.flush();
+            fc.close();
+        });
+        assertFalse(Arrays
+                .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                .toList().isEmpty());
+    }
+
+    @Test
+    void checkCreatingBasicDenseFileHandlerDefaultPath() {
+        final String existingUserDir = System.getProperty("user.dir");
+
+        try {
+            System.setProperty("user.dir", new File(LOGGING_TEST_PATH).getAbsolutePath());
+            assertDoesNotThrow(() -> {
+                DenseFileController fc = (DenseFileController)LogRoot.basicDenseFileHandler();
+                fc.flush();
+                fc.close();
+            });
+            assertFalse(Arrays
+                    .stream(Objects.requireNonNull(new File(LOGGING_TEST_PATH).list()))
+                    .filter(filename -> filename.startsWith(LOGGING_ROOT))
+                    .toList().isEmpty());
         } finally {
             System.setProperty("user.dir", existingUserDir);
         }
