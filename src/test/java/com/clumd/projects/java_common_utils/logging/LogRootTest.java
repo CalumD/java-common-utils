@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -101,6 +102,11 @@ class LogRootTest {
     @Test
     void checkCreatingWithClass() {
         assertDoesNotThrow(() -> LogRoot.createLogger(LogRootTest.class));
+    }
+
+    @Test
+    void checkCreatingWithClassAndBaked() {
+        assertDoesNotThrow(() -> LogRoot.createLogger(LogRootTest.class, Set.of("Always", "baked", "tags")));
     }
 
     @Test
@@ -237,20 +243,20 @@ class LogRootTest {
     private Map<String, Logger> setupLoggers() {
         Map<String, Logger> loggers = new HashMap<>();
 
-        ExtendedLogger top = LogRoot.createLogger("top");
+        ExtendedLogger top = LogRoot.createLogger("top", Set.of("always me", "and me too"));
 
-        ExtendedLogger _1a = LogRoot.createLogger("top.1a");
-        ExtendedLogger _1b = LogRoot.createLogger("top.1b");
-        ExtendedLogger _1c = LogRoot.createLogger("top.1c");
+        ExtendedLogger _1a = LogRoot.createLogger("top.1a", Set.of("always me", "and me too"));
+        ExtendedLogger _1b = LogRoot.createLogger("top.1b", Set.of("always me", "and me too"));
+        ExtendedLogger _1c = LogRoot.createLogger("top.1c", Set.of("always me", "and me too"));
 
-        ExtendedLogger _2a = LogRoot.createLogger("top.1a.2a");
-        ExtendedLogger _2b = LogRoot.createLogger("top.1c.2b");
+        ExtendedLogger _2a = LogRoot.createLogger("top.1a.2a", Set.of("always me three", "and me four"));
+        ExtendedLogger _2b = LogRoot.createLogger("top.1c.2b", Set.of("always me three", "and me four"));
 
-        ExtendedLogger _3a = LogRoot.createLogger("top.1a.2a.3a");
-        ExtendedLogger _3b = LogRoot.createLogger("top.1a.2a.3b");
-        ExtendedLogger _3c = LogRoot.createLogger("top.1a.2a.3c");
+        ExtendedLogger _3a = LogRoot.createLogger("top.1a.2a.3a", Set.of("always me three", "and me four"));
+        ExtendedLogger _3b = LogRoot.createLogger("top.1a.2a.3b", Set.of("always me three", "and me four"));
+        ExtendedLogger _3c = LogRoot.createLogger("top.1a.2a.3c", Set.of("always me three", "and me four"));
 
-        ExtendedLogger _4a = LogRoot.createLogger("top.1a.2a.3b.4a");
+        ExtendedLogger _4a = LogRoot.createLogger("top.1a.2a.3b.4a", Set.of("always me three", "and me four"));
 
 
         loggers.put("top", top);

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -224,6 +225,21 @@ public final class LogRoot {
     }
 
     /**
+     * Used to create a Logger instance by referencing the Class you want the logger for.
+     * This version of construction also takes a Set of Strings, which will be added to the tags section on every log message executed by the
+     * returned logger.
+     * This approach is targeted for things like distributed trace IDs.
+     *
+     * @param forClass    The Class you would like the logger to be created for.
+     * @param bakedInTags A collection of tags which should be applied to every single log message that the Logger returned by this method  will
+     *                    generate.
+     * @return The instantiated ExtendedLogger
+     */
+    public static ExtendedLogger createLogger(@NonNull final Class<?> forClass, @NonNull final Set<String> bakedInTags) {
+        return createLogger(null, forClass.getName(), bakedInTags);
+    }
+
+    /**
      * Used to create a Logger instance by a string name.
      * <p>
      * If there is some sort of hierarchy in these loggers, such as going into various sub-packages, then these should
@@ -236,8 +252,27 @@ public final class LogRoot {
         return createLogger(null, loggerIdentifier);
     }
 
+    /**
+     * Used to create a Logger instance by a string name.
+     * <p>
+     * If there is some sort of hierarchy in these loggers, such as going into various sub-packages, then these should
+     * be dot-separated.
+     * <p>
+     * This version of construction also takes a Set of Strings, which will be added to the tags section on every log message executed by the
+     * returned logger.
+     * This approach is targeted for things like distributed trace IDs
+     *
+     * @param loggerIdentifier The String name of the class you would like the Logger of.
+     * @param bakedInTags      A collection of tags which should be applied to every single log message that the Logger returned by this method  will
+     *                         generate.
+     * @return The instantiated ExtendedLogger
+     */
+    public static ExtendedLogger createLogger(@NonNull String loggerIdentifier, @NonNull final Set<String> bakedInTags) {
+        return createLogger(null, loggerIdentifier, bakedInTags);
+    }
+
     @SuppressWarnings("java:S106") // in the middle of creating a log name, so probably best to user System.err.
-    private static String buildLogName(final String prefix, final String loggerIdentifier) {
+    private static String buildLogName(final String prefix, @NonNull final String loggerIdentifier) {
         if (LogRoot.loggingRootId == null) {
             System.err.println("Warning, Logging Root ID is not set, have you called the \"LogRoot.init\" method yet? Going to create a really crude default...");
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -292,10 +327,33 @@ public final class LogRoot {
      * @return The instantiated ExtendedLogger
      */
     public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier) {
+        return createLogger(prefix, loggerIdentifier, null);
+    }
+
+    /**
+     * Used to create a Logger instance by a string name, with a custom prefix.
+     * <p>
+     * This may be useful for classes who require Multiple instances of the same logger, but for slightly different
+     * purposes.
+     * <p>
+     * If there is some sort of hierarchy in these loggers, such as going into various sub-packages, then these should
+     * be dot-separated on the loggerIdentifier, NOT on the prefix.
+     * <p>
+     * This version of construction also takes a Set of Strings, which will be added to the tags section on every log message executed by the
+     * returned logger.
+     * This approach is targeted for things like distributed trace IDs
+     *
+     * @param prefix           The name of the prefix for this Logger instance.
+     * @param loggerIdentifier The String name of the class you would like the Logger of.
+     * @param bakedInTagsA     collection of tags which should be applied to every single log message that the Logger returned by this method  will
+     *                         generate.
+     * @return The instantiated ExtendedLogger
+     */
+    public static ExtendedLogger createLogger(final String prefix, final String loggerIdentifier, final Set<String> bakedInTags) {
         String loggerName = buildLogName(prefix, loggerIdentifier);
         Logger extLog = LogManager.getLogManager().getLogger(loggerName);
         if (extLog == null) {
-            extLog = new ExtendedLogger(loggerName);
+            extLog = new ExtendedLogger(loggerName, bakedInTags);
             LogManager.getLogManager().addLogger(extLog);
         }
 
