@@ -34,4 +34,30 @@ class ExtendedLogRecordTest {
     void test_tag_accepts() {
         assertEquals(Set.of("val1"), new ExtendedLogRecord(Level.INFO, "msg", "val1").getTags());
     }
+
+    @Test
+    void test_baked_in_tags_will_default_to_null() {
+        assertNull(new ExtendedLogRecord(Level.INFO, "msg").getBakedInTags());
+    }
+
+    @Test
+    void test_accepts_some_baked_in_tags() {
+        Set<String> expectedBakedInTags = Set.of("Something", "baked", "in");
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(Level.INFO, "msg");
+        logRecord.referencingBakedInTags(expectedBakedInTags);
+
+        assertEquals(expectedBakedInTags, logRecord.getBakedInTags());
+    }
+
+    @Test
+    void test_baked_in_does_not_collide_with_instance_tags() {
+        Set<String> expectedBakedInTags = Set.of("Something", "baked", "in");
+        Set<String> expectedInstanceTags = Set.of("regular", "tags");
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(Level.INFO, "msg", expectedInstanceTags);
+        logRecord.referencingBakedInTags(expectedBakedInTags);
+
+        assertEquals(expectedBakedInTags, logRecord.getBakedInTags());
+        assertEquals(expectedInstanceTags, logRecord.getTags());
+
+    }
 }

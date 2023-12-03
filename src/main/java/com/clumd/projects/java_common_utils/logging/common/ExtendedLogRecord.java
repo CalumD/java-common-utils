@@ -13,11 +13,16 @@ import java.util.logging.LogRecord;
  * Tagging could be used to cross-reference which could be related, but come from totally distinct loggers. For EXAMPLE,
  * tagging with 'Security', but for messages coming from some User Input validation, vs some Socket level communication,
  * which could then be pulled out or used as an Index in some log aggregation.
+ * <p>
+ * Also, with reference to so-called "bakedInTags", these should point to an additional pre-initialised, ideally Immutable Set of String tags.
+ * These additional tags should be stamped along-side any other potentially provided tags and tends to be most useful for things such as
+ * distributed compute trace IDs or things such as concrete / unchanging environment variables.
  */
+@Getter
 public class ExtendedLogRecord extends LogRecord {
 
-    @Getter
     private Set<String> tags;
+    private Set<String> bakedInTags;
 
     public ExtendedLogRecord(Level level, String msg) {
         super(level, msg);
@@ -30,5 +35,10 @@ public class ExtendedLogRecord extends LogRecord {
 
     public ExtendedLogRecord(Level level, String msg, @NonNull String tag) {
         this(level, msg, Set.of(tag));
+    }
+
+    public ExtendedLogRecord referencingBakedInTags(final Set<String> bakedInTags) {
+        this.bakedInTags = bakedInTags;
+        return this;
     }
 }
