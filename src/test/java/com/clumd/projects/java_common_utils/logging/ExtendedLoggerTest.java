@@ -23,23 +23,6 @@ class ExtendedLoggerTest {
 
     private ExtendedLogger extendedLogger;
 
-    private class ExtendedLoggerVerification extends ExtendedLogger {
-        protected ExtendedLoggerVerification(String name) {
-            super(name);
-        }
-
-        @Override
-        public void log(LogRecord record) {
-            capturedLogRecord = (ExtendedLogRecord) record;
-        }
-    }
-
-    @BeforeEach
-    void setup() {
-        extendedLogger = new ExtendedLoggerVerification("test.extended.logger");
-        extendedLogger.setLevel(Level.ALL);
-    }
-
     @Test
     void test_LevelString() {
         extendedLogger.log(CustomLevel.TESTING, "msg");
@@ -49,8 +32,15 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
+    }
+
+    @BeforeEach
+    void setup() {
+        extendedLogger = new ExtendedLoggerVerification("test.extended.logger");
+        extendedLogger.setLevel(Level.ALL);
     }
 
     @Test
@@ -62,6 +52,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -75,6 +66,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -88,6 +80,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -101,6 +94,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -114,6 +108,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -127,6 +122,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -142,6 +138,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -157,6 +154,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -172,6 +170,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -187,6 +186,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -202,6 +202,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -217,6 +218,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -234,6 +236,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -251,6 +254,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -268,6 +272,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -285,6 +290,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -302,6 +308,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNull(capturedLogRecord.getThrown());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -319,6 +326,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertNotNull(capturedLogRecord.getThrown());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
@@ -333,6 +341,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -346,6 +355,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -359,6 +369,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -372,6 +383,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -385,6 +397,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNull(capturedLogRecord.getParameters());
     }
@@ -398,6 +411,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -413,6 +427,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -428,6 +443,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -443,6 +459,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -458,6 +475,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -473,6 +491,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(1, capturedLogRecord.getParameters().length, 0);
@@ -488,6 +507,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -505,6 +525,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -522,6 +543,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -539,6 +561,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertNull(capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -556,6 +579,7 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertEquals(Set.of("tag1"), capturedLogRecord.getTags());
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
@@ -573,11 +597,62 @@ class ExtendedLoggerTest {
         assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
         assertEquals("msg", capturedLogRecord.getMessage());
         assertTrue(capturedLogRecord.getTags().equals(Set.of("tag1", "tag2")) || capturedLogRecord.getTags().equals(Set.of("tag2", "tag1")));
+        assertNull(capturedLogRecord.getBakedInTags());
         assertEquals("test", capturedLogRecord.getThrown().getMessage());
         assertNotNull(capturedLogRecord.getParameters());
         assertEquals(3, capturedLogRecord.getParameters().length, 0);
         assertEquals(1, capturedLogRecord.getParameters()[0]);
         assertEquals(2, capturedLogRecord.getParameters()[1]);
         assertEquals(3, capturedLogRecord.getParameters()[2]);
+    }
+
+    @Test
+    void test_verifyThatBakedInLogsAreAppliedToAMessageWithNoOtherTags() {
+        Set<String> expectedTags = Set.of("baked", "in", "tags");
+        extendedLogger = new ExtendedLoggerVerification("test.extended.logger", expectedTags);
+        extendedLogger.setLevel(Level.ALL);
+
+        extendedLogger.log(CustomLevel.TESTING, "msg");
+
+        assertNotNull(capturedLogRecord);
+
+        assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
+        assertEquals("msg", capturedLogRecord.getMessage());
+        assertNull(capturedLogRecord.getTags());
+        assertEquals(expectedTags, capturedLogRecord.getBakedInTags());
+        assertNull(capturedLogRecord.getThrown());
+        assertNull(capturedLogRecord.getParameters());
+    }
+
+    @Test
+    void test_verifyThatBakedInLogsAreAppliedToAMessageWithOtherTags() {
+        Set<String> expectedTags = Set.of("baked");
+        extendedLogger = new ExtendedLoggerVerification("test.extended.logger", expectedTags);
+        extendedLogger.setLevel(Level.ALL);
+
+        extendedLogger.log(CustomLevel.TESTING, Set.of("case-by-case"), "msg");
+
+        assertNotNull(capturedLogRecord);
+
+        assertEquals(CustomLevel.TESTING, capturedLogRecord.getLevel());
+        assertEquals("msg", capturedLogRecord.getMessage());
+        assertEquals(Set.of("case-by-case"), capturedLogRecord.getTags());
+        assertEquals(expectedTags, capturedLogRecord.getBakedInTags());
+        assertNull(capturedLogRecord.getThrown());
+        assertNull(capturedLogRecord.getParameters());
+    }
+
+    private class ExtendedLoggerVerification extends ExtendedLogger {
+        protected ExtendedLoggerVerification(String name) {
+            super(name);
+        }
+        protected ExtendedLoggerVerification(String name, Set<String> bakedInTags) {
+            super(name, bakedInTags);
+        }
+
+        @Override
+        public void log(LogRecord record) {
+            capturedLogRecord = (ExtendedLogRecord) record;
+        }
     }
 }
