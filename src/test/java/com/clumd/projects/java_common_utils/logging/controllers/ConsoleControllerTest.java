@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConsoleControllerTest {
@@ -174,6 +175,42 @@ class ConsoleControllerTest {
 
         assertTrue(formattedString.contains(CustomLevel.WARNING.getLevelFormat() + runID + "    " + systemId + "    "));
         assertTrue(formattedString.contains("\n[tag1, tag2]\n") || formattedString.contains("\n[tag2, tag1]\n"));
+        assertFalse(formattedString.contains("\n[baked, in]\n") || formattedString.contains("\n[in, baked]\n"));
+        assertTrue(formattedString.endsWith("\nMessage<" + CustomLevel.WARNING + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+    }
+
+    @Test
+    void test_message_format_with_baked_in_tags() {
+        String message = "msg";
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(CustomLevel.WARNING, message)
+                .referencingBakedInTags(Set.of("baked", "in"));
+
+        String formattedString = controller
+                .getFormatter()
+                .format(logRecord);
+
+        assertTrue(formattedString.contains(CustomLevel.WARNING.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertFalse(formattedString.contains("\n[tag1, tag2]\n") || formattedString.contains("\n[tag2, tag1]\n"));
+        assertTrue(formattedString.contains("\n[baked, in]\n") || formattedString.contains("\n[in, baked]\n"));
+        assertTrue(formattedString.endsWith("\nMessage<" + CustomLevel.WARNING + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+    }
+
+    @Test
+    void test_message_format_with_regular_and_baked_in_tags() {
+        String message = "msg";
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(
+                CustomLevel.WARNING,
+                message,
+                Set.of("tag1", "tag2")
+        ).referencingBakedInTags(Set.of("baked", "in"));
+
+        String formattedString = controller
+                .getFormatter()
+                .format(logRecord);
+
+        assertTrue(formattedString.contains(CustomLevel.WARNING.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertTrue(formattedString.contains("][tag1, tag2]\n") || formattedString.contains("][tag2, tag1]\n"));
+        assertTrue(formattedString.contains("\n[baked, in][") || formattedString.contains("\n[in, baked]["));
         assertTrue(formattedString.endsWith("\nMessage<" + CustomLevel.WARNING + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
     }
 }

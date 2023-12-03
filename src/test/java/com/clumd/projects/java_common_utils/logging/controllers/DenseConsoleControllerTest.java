@@ -147,4 +147,32 @@ class DenseConsoleControllerTest {
         assertTrue(formattedString.contains(", WARNING, [tag2, tag1]" + CustomLevel.COLOUR_RESET + "] msg\n")
                 || formattedString.contains(", WARNING, [tag1, tag2]" + CustomLevel.COLOUR_RESET + "] msg\n"));
     }
+
+    @Test
+    void test_message_format_with_baked_in_tags() {
+        String message = "msg";
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(CustomLevel.WARNING, message)
+                .referencingBakedInTags(Set.of("baked"));
+
+        String formattedString = controller
+                .getFormatter()
+                .format(logRecord);
+
+        assertTrue(formattedString.startsWith("["));
+        assertTrue(formattedString.contains(", WARNING, [baked]" + CustomLevel.COLOUR_RESET + "] msg\n"));
+    }
+
+    @Test
+    void test_message_format_with_regular_and_baked_in_tags() {
+        String message = "msg";
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(CustomLevel.WARNING, message, Set.of("tag1"))
+                .referencingBakedInTags(Set.of("baked"));
+
+        String formattedString = controller
+                .getFormatter()
+                .format(logRecord);
+
+        assertTrue(formattedString.startsWith("["));
+        assertTrue(formattedString.contains(", WARNING, [baked], [tag1]" + CustomLevel.COLOUR_RESET + "] msg\n"));
+    }
 }

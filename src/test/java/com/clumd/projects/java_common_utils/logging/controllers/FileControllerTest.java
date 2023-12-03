@@ -13,11 +13,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileControllerTest {
 
@@ -175,13 +182,11 @@ class FileControllerTest {
         assertEquals(systemId, logWritten.getStringAt("publisher"));
         assertEquals(message, logWritten.getStringAt("message"));
         assertEquals("Anon/Unknown Thread", logWritten.getStringAt("threadName"));
-        assertThrows(JsonKeyException.class, () -> {
-            logWritten.getStringAt("tags");
-        });
+        assertThrows(JsonKeyException.class, () -> logWritten.getStringAt("tags"));
     }
 
     @Test
-    void test_log_tags_to_file() throws IOException {
+    void test_log_tags_to_file_with_only_regular() throws IOException {
         String message = "blah";
         controller.publish(new ExtendedLogRecord(Level.INFO, message, Set.of("tag1", "tag2")));
 
@@ -194,5 +199,39 @@ class FileControllerTest {
         assertEquals(2, logWritten.getArrayAt("tags").size(), 0);
         assertTrue(logWritten.getValueAt("tags[0]").equals("tag1") || logWritten.getValueAt("tags[0]").equals("tag2"));
         assertTrue(logWritten.getValueAt("tags[1]").equals("tag1") || logWritten.getValueAt("tags[1]").equals("tag2"));
+    }
+
+
+    @Test
+    void test_log_tags_to_file_with_baked_in_tags() throws IOException {
+        String message = "blah";
+        controller.publish(new ExtendedLogRecord(Level.INFO, message)
+                .referencingBakedInTags(Set.of("baked")));
+
+        List<String> fileContents = FileUtils.getFileAsStrings(LOGGING_TEST_PATH);
+
+        assertEquals(1, fileContents.size(), 0);
+        Json logWritten = JsonParser.parse(fileContents.get(0));
+
+        assertDoesNotThrow(() -> logWritten.getArrayAt("tags"));
+        assertEquals(1, logWritten.getArrayAt("tags").size(), 0);
+        assertEquals("baked", logWritten.getValueAt("tags[0]"));
+    }
+
+    @Test
+    void test_log_tags_to_file_with_regular_and_baked_in_tags() throws IOException {
+        String message = "blah";
+        controller.publish(new ExtendedLogRecord(Level.INFO, message, Set.of("tag1"))
+                .referencingBakedInTags(Set.of("baked")));
+
+        List<String> fileContents = FileUtils.getFileAsStrings(LOGGING_TEST_PATH);
+
+        assertEquals(1, fileContents.size(), 0);
+        Json logWritten = JsonParser.parse(fileContents.get(0));
+
+        assertDoesNotThrow(() -> logWritten.getArrayAt("tags"));
+        assertEquals(2, logWritten.getArrayAt("tags").size(), 0);
+        assertTrue(logWritten.getValueAt("tags[0]").equals("tag1") || logWritten.getValueAt("tags[0]").equals("baked"));
+        assertTrue(logWritten.getValueAt("tags[1]").equals("tag1") || logWritten.getValueAt("tags[1]").equals("baked"));
     }
 }

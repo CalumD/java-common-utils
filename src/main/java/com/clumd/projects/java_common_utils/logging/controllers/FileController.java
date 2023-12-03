@@ -99,8 +99,13 @@ public class FileController extends FileHandler implements CustomLogHandler {
                     .addString("message", strFormatter(logRecord.getMessage()));
 
             // Check if we have tags to write
-            if (logRecord instanceof ExtendedLogRecord elr && elr.getTags() != null) {
-                elr.getTags().forEach(t -> logEntry.addString("tags[]", t));
+            if (logRecord instanceof ExtendedLogRecord elr) {
+                if (elr.getBakedInTags() != null) {
+                    elr.getBakedInTags().forEach(t -> logEntry.addString("tags[]", t));
+                }
+                if (elr.getTags() != null) {
+                    elr.getTags().forEach(t -> logEntry.addString("tags[]", t));
+                }
             }
 
             // Check for a thrown error

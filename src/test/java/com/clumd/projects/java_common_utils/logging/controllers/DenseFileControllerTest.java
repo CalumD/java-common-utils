@@ -170,7 +170,7 @@ class DenseFileControllerTest {
     }
 
     @Test
-    void test_log_tags_to_file() throws IOException {
+    void test_log_tags_to_file_with_only_regular() throws IOException {
         String message = "blah";
         controller.publish(new ExtendedLogRecord(Level.INFO, message, Set.of("tag1", "tag2")));
 
@@ -179,6 +179,35 @@ class DenseFileControllerTest {
         assertEquals(1, fileContents.size(), 0);
         assertTrue(fileContents.get(0).startsWith("["));
         assertTrue(fileContents.get(0).contains(", INFO, [tag1, tag2]]  " + message) || fileContents.get(0).contains(", INFO, [tag2, tag1]]  " + message) );
+        assertTrue(fileContents.get(0).endsWith("\n"));
+    }
+
+
+    @Test
+    void test_log_tags_to_file_with_baked_in_tags() throws IOException {
+        String message = "blah";
+        controller.publish(new ExtendedLogRecord(Level.INFO, message)
+                .referencingBakedInTags(Set.of("baked")));
+
+        List<String> fileContents = FileUtils.getFileAsStrings(LOGGING_TEST_PATH);
+
+        assertEquals(1, fileContents.size(), 0);
+        assertTrue(fileContents.get(0).startsWith("["));
+        assertTrue(fileContents.get(0).contains(", INFO, [baked]]  " + message));
+        assertTrue(fileContents.get(0).endsWith("\n"));
+    }
+
+    @Test
+    void test_log_tags_to_file_with_regular_and_baked_in_tags() throws IOException {
+        String message = "blah";
+        controller.publish(new ExtendedLogRecord(Level.INFO, message, Set.of("tag1"))
+                .referencingBakedInTags(Set.of("baked")));
+
+        List<String> fileContents = FileUtils.getFileAsStrings(LOGGING_TEST_PATH);
+
+        assertEquals(1, fileContents.size(), 0);
+        assertTrue(fileContents.get(0).startsWith("["));
+        assertTrue(fileContents.get(0).contains(", INFO, [baked], [tag1]]  " + message));
         assertTrue(fileContents.get(0).endsWith("\n"));
     }
 }

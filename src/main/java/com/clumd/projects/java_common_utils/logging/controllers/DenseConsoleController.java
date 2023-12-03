@@ -82,8 +82,13 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
             ret.append(denseConsoleDateTimeFormatter.format(logRecord.getMillis()));
             ret.append(", ");
             ret.append(logRecord.getLevel().getName());
-            if (logRecord instanceof ExtendedLogRecord elr && elr.getTags() != null) {
-                ret.append(", ").append(elr.getTags());
+            if (logRecord instanceof ExtendedLogRecord elr) {
+                if (elr.getBakedInTags() != null) {
+                    ret.append(", ").append(elr.getBakedInTags());
+                }
+                if (elr.getTags() != null) {
+                    ret.append(", ").append(elr.getTags());
+                }
             }
         }
 

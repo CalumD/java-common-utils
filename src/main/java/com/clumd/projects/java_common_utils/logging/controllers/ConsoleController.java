@@ -97,8 +97,16 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
                     .append('(').append(logRecord.getLongThreadID()).append("):")
                     .append(Objects.requireNonNullElse(overriddenThreadNames.get(logRecord.getLongThreadID()), ANON_THREAD)).append(TAB)
                     .append("\n");
-            if (logRecord instanceof ExtendedLogRecord elr && elr.getTags() != null) {
-                ret.append(elr.getTags()).append("\n");
+            if (logRecord instanceof ExtendedLogRecord elr) {
+                if (elr.getBakedInTags() != null) {
+                    ret.append(elr.getBakedInTags());
+                }
+                if (elr.getTags() != null) {
+                    ret.append(elr.getTags());
+                }
+                if ((elr.getBakedInTags() != null || elr.getTags() != null)) {
+                    ret.append("\n");
+                }
             }
         }
 
