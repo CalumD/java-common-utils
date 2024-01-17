@@ -3,9 +3,11 @@ package com.clumd.projects.java_common_utils.logging.common;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 /**
  * An extended {@link LogRecord} which also supports the notion of 'tagging' log messages.
@@ -23,9 +25,12 @@ public class ExtendedLogRecord extends LogRecord {
 
     private Set<String> tags;
     private Set<String> bakedInTags;
+    private Set<Class<? extends StreamHandler>> controllersWhichShouldDisregardThisMessage;
 
     public ExtendedLogRecord(Level level, String msg) {
         super(level, msg);
+        Optional<CustomLevel> custom = CustomLevel.convertJulEquivalent(level);
+        custom.ifPresent(this::setLevel);
     }
 
     public ExtendedLogRecord(Level level, String msg, @NonNull Set<String> tags) {
@@ -39,6 +44,11 @@ public class ExtendedLogRecord extends LogRecord {
 
     public ExtendedLogRecord referencingBakedInTags(final Set<String> bakedInTags) {
         this.bakedInTags = bakedInTags;
+        return this;
+    }
+
+    public ExtendedLogRecord withControllersWhichShouldIgnore(final Set<Class<? extends StreamHandler>> controllersWhichShouldDisregardThisMessage) {
+        this.controllersWhichShouldDisregardThisMessage = controllersWhichShouldDisregardThisMessage;
         return this;
     }
 }

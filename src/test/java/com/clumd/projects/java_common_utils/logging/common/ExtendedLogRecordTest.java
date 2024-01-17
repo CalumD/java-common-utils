@@ -1,9 +1,12 @@
 package com.clumd.projects.java_common_utils.logging.common;
 
+import com.clumd.projects.java_common_utils.logging.controllers.ConsoleController;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.StreamHandler;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,12 +44,26 @@ class ExtendedLogRecordTest {
     }
 
     @Test
+    void test_with_controllers_which_should_ignore_defaults_to_null() {
+        assertNull(new ExtendedLogRecord(Level.INFO, "msg").getControllersWhichShouldDisregardThisMessage());
+    }
+
+    @Test
     void test_accepts_some_baked_in_tags() {
         Set<String> expectedBakedInTags = Set.of("Something", "baked", "in");
         ExtendedLogRecord logRecord = new ExtendedLogRecord(Level.INFO, "msg");
         logRecord.referencingBakedInTags(expectedBakedInTags);
 
         assertEquals(expectedBakedInTags, logRecord.getBakedInTags());
+    }
+
+    @Test
+    void test_accepts_some_classes_which_should_ignore() {
+        Set<Class<? extends StreamHandler>> classesWhichShouldIgnore = Set.of(ConsoleController.class, FileHandler.class);
+        ExtendedLogRecord logRecord = new ExtendedLogRecord(Level.INFO, "msg");
+        logRecord.withControllersWhichShouldIgnore(classesWhichShouldIgnore);
+
+        assertEquals(classesWhichShouldIgnore, logRecord.getControllersWhichShouldDisregardThisMessage());
     }
 
     @Test
