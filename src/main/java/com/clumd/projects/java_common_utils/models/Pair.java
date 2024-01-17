@@ -41,6 +41,22 @@ public class Pair<L extends Serializable, R extends Serializable> implements Ser
         right = updatedSecond;
     }
 
+    public L getKey() {
+        return left;
+    }
+
+    public void setKey(final L updatedKey) {
+        left = updatedKey;
+    }
+
+    public R getValue() {
+        return right;
+    }
+
+    public void setValue(final R updatedValue) {
+        right = updatedValue;
+    }
+
     @Override
     public String toString() {
         return "< " + left.toString() + " : " + right.toString() + " >";

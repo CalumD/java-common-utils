@@ -50,4 +50,26 @@ class ImmutablePairTest extends PairTest {
             assertEquals("Field setting not supported on ImmutablePair.", e.getMessage());
         }
     }
+
+    @Test
+    void testSetKeyThrowsException() {
+        try {
+            ImmutablePair.of("l", "r")
+                    .setKey("updated");
+            fail("Previous method call should have thrown an exception.");
+        } catch (UnsupportedOperationException e) {
+            assertEquals("Field setting not supported on ImmutablePair.", e.getMessage());
+        }
+    }
+
+    @Test
+    void testSetValueThrowsException() {
+        try {
+            ImmutablePair.of("l", "r")
+                    .setValue("updated");
+            fail("Previous method call should have thrown an exception.");
+        } catch (UnsupportedOperationException e) {
+            assertEquals("Field setting not supported on ImmutablePair.", e.getMessage());
+        }
+    }
 }

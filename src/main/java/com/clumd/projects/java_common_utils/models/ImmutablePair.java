@@ -40,4 +40,14 @@ public class ImmutablePair<L extends Serializable, R extends Serializable> exten
     public void setSecond(final R updatedSecond) {
         throw new UnsupportedOperationException(SETTER_EXCEPTION_MESSAGE);
     }
+
+    @Override
+    public void setKey(final L updatedKey) {
+        throw new UnsupportedOperationException(SETTER_EXCEPTION_MESSAGE);
+    }
+
+    @Override
+    public void setValue(final R updatedValue) {
+        throw new UnsupportedOperationException(SETTER_EXCEPTION_MESSAGE);
+    }
 }

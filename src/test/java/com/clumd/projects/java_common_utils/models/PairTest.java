@@ -34,6 +34,18 @@ class PairTest {
     }
 
     @Test
+    void getKey() {
+        Pair<String, Integer> pair = new Pair<>("something", 1);
+        assertEquals("something", pair.getKey());
+    }
+
+    @Test
+    void getValue() {
+        Pair<Integer, Long> pair = new Pair<>(5, 528L);
+        assertEquals(528L, pair.getValue(), 0);
+    }
+
+    @Test
     void setLeft() {
         Pair<String, String> left = Pair.of("not updated", "stay same");
         left.setLeft("updated");
@@ -63,6 +75,22 @@ class PairTest {
         left.setSecond("updated");
         assertEquals("stay same", left.getFirst());
         assertEquals("updated", left.getSecond());
+    }
+
+    @Test
+    void setKey() {
+        Pair<String, String> left = Pair.of("not updated", "stay same");
+        left.setKey("updated");
+        assertEquals("updated", left.getKey());
+        assertEquals("stay same", left.getValue());
+    }
+
+    @Test
+    void setValue() {
+        Pair<String, String> left = Pair.of("stay same", "not updated");
+        left.setValue("updated");
+        assertEquals("stay same", left.getKey());
+        assertEquals("updated", left.getValue());
     }
 
     @Test
