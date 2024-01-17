@@ -2,6 +2,7 @@ package com.clumd.projects.java_common_utils.logging.common;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -63,10 +64,13 @@ class CustomLevelTest {
             System.out.println("CONFIG " + CONFIG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("DATA " + DATA.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("VERBOSE " + VERBOSE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("FINE " + FINE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("MINOR " + MINOR.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("DEBUG " + DEBUG.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("FINER " + FINER.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("TESTING " + TESTING.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
             System.out.println("TRACE " + TRACE.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
+            System.out.println("FINEST " + FINEST.getLevelFormat() + "HELLO WORLD" + COLOUR_RESET);
         });
     }
 
@@ -153,35 +157,46 @@ class CustomLevelTest {
         assertTrue(INFO.weakEquals(Level.INFO));
         assertTrue(CONFIG.weakEquals(Level.CONFIG));
         assertTrue(MINOR.weakEquals(Level.FINE));
+        assertTrue(FINE.weakEquals(Level.FINE));
         assertTrue(DEBUG.weakEquals(Level.FINER));
+        assertTrue(FINER.weakEquals(Level.FINER));
         assertTrue(TRACE.weakEquals(Level.FINEST));
+        assertTrue(FINEST.weakEquals(Level.FINEST));
         assertTrue(OFF.weakEquals(Level.OFF));
     }
 
     @Test
     void test_parse_custom_level_uses_custom_version() {
-        CustomLevel cl = CustomLevel.parse("InFo");
+        Optional<CustomLevel> cl = CustomLevel.checkForCustomLevel("InFo");
 
         assertNotNull(cl);
-        assertNotNull(cl.getLevelFormat());
-        assertFalse(cl.getLevelFormat().isBlank());
+        assertTrue(cl.isPresent());
+        assertNotNull(cl.get().getLevelFormat());
+        assertFalse(cl.get().getLevelFormat().isBlank());
     }
 
     @Test
     void test_parse_custom_level_non_default_level() {
-        CustomLevel cl = CustomLevel.parse("DaTa");
+        Optional<CustomLevel> cl = CustomLevel.checkForCustomLevel("DaTa");
 
         assertNotNull(cl);
-        assertNotNull(cl.getLevelFormat());
-        assertFalse(cl.getLevelFormat().isBlank());
+        assertTrue(cl.isPresent());
+        assertNotNull(cl.get().getLevelFormat());
+        assertFalse(cl.get().getLevelFormat().isBlank());
     }
 
     @Test
-    void test_parse_non_custom_level_but_still_jul_level() {
-        CustomLevel cl = CustomLevel.parse("fiNeSt");
+    void test_convert_jul_level() {
+        assertTrue(CustomLevel.convertJulEquivalent(Level.SEVERE).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.WARNING).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.INFO).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.CONFIG).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.FINE).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.FINER).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.FINEST).isPresent());
 
-        assertNotNull(cl);
-        assertEquals(COLOUR_RESET, cl.getLevelFormat());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.ALL).isPresent());
+        assertTrue(CustomLevel.convertJulEquivalent(Level.OFF).isPresent());
     }
 
     @Test
@@ -207,12 +222,46 @@ class CustomLevelTest {
         assertNotNull(CustomLevel.of(levelName, 700, Format.BRIGHT_BLUE));
 
         try {
-            CustomLevel cl = CustomLevel.parse(levelName);
+            Optional<CustomLevel> cl = CustomLevel.checkForCustomLevel(levelName);
             assertNotNull(cl);
-            assertNotNull(cl.getLevelFormat());
-            assertFalse(cl.getLevelFormat().isBlank());
+            assertTrue(cl.isPresent());
+            assertNotNull(cl.get().getLevelFormat());
+            assertFalse(cl.get().getLevelFormat().isBlank());
         } catch (IllegalArgumentException e) {
             fail("Parsing the custom level should have succeeded the second time", e);
         }
+    }
+
+    @Test
+    void test_simple_parse_can_return() {
+        assertEquals(INFO, CustomLevel.parse("info"));
+    }
+
+    @Test
+    void test_conflict_to_try_to_redefine_level() {
+        try {
+            CustomLevel.of("INFO", 999999);
+            fail("Expected previous line to throw.");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("A CustomLevel already exists with that name, but with a different priority or format."));
+        }
+    }
+
+    @Test
+    void test_check_for_custom_level_but_empty() {
+        assertFalse(CustomLevel.checkForCustomLevel("").isPresent());
+    }
+
+    @Test
+    void test_check_for_log_level_by_number() {
+        Optional<CustomLevel> maybeLevel =  CustomLevel.checkForCustomLevel("900");
+        assertTrue(maybeLevel.isPresent());
+        assertEquals(WARNING, maybeLevel.get());
+    }
+
+    @Test
+    void test_check_for_log_level_by_unknown_number() {
+        Optional<CustomLevel> maybeLevel =  CustomLevel.checkForCustomLevel("91238491");
+        assertFalse(maybeLevel.isPresent());
     }
 }

@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.clumd.projects.java_common_utils.logging.common.Format.*;
 
+@Getter
 public class CustomLevel extends Level implements LogLevel, Serializable {
 
     private static final Map<String, CustomLevel> ALL_LEVELS = new HashMap<>(); // This will be populated by each static CustomLevel.of() call in the following lines.
@@ -39,16 +41,16 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
     public static final CustomLevel DATA = CustomLevel.of("DATA", 700, PURPLE);
     public static final CustomLevel CONFIG = CustomLevel.of("CONFIG", 700, PURPLE);
     public static final CustomLevel VERBOSE = CustomLevel.of("VERBOSE", 500, BLUE);
+    public static final CustomLevel FINE = CustomLevel.of("FINE", 500, BLUE);
     public static final CustomLevel MINOR = CustomLevel.of("MINOR", 500, BLUE);
     public static final CustomLevel DEBUG = CustomLevel.of("DEBUG", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
+    public static final CustomLevel FINER = CustomLevel.of("FINER", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
     public static final CustomLevel TESTING = CustomLevel.of("TESTING", 400, createFormat(List.of(BOLD, CYAN, OUTLINE)));
     public static final CustomLevel TRACE = CustomLevel.of("TRACE", 300, WHITE);
+    public static final CustomLevel FINEST = CustomLevel.of("FINEST", 300, WHITE);
 
-    @Getter
     private final String levelName;
-    @Getter
     private final int priority;
-    @Getter
     private final String levelFormat;
 
     protected CustomLevel(@NonNull String level, int priority) {
@@ -69,60 +71,72 @@ public class CustomLevel extends Level implements LogLevel, Serializable {
         this(level, priority, format.getFormatString());
     }
 
-    public static CustomLevel of(@NonNull String level, final int priority) {
+    public static Optional<CustomLevel> convertJulEquivalent(@NonNull final Level level) {
+        String levelName = level.getName().toUpperCase();
+        if (ALL_LEVELS.containsKey(levelName)) {
+            return Optional.of(ALL_LEVELS.get(levelName));
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<CustomLevel> checkForCustomLevel(@NonNull String level) {
+        if (level.isBlank()) {
+            return Optional.empty();
+        }
+
         level = level.toUpperCase();
         if (ALL_LEVELS.containsKey(level)) {
-            return ALL_LEVELS.get(level);
-        } else {
-            CustomLevel newLevel = CustomLevel.parse(level, priority, RESET.getFormatString());
-            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
-            return newLevel;
+            return Optional.of(ALL_LEVELS.get(level));
         }
+
+        try {
+            int potentialPriority = Integer.parseInt(level);
+            for (CustomLevel customLevel : ALL_LEVELS.values()) {
+                if (customLevel.getPriority() == potentialPriority) {
+                    return Optional.of(customLevel);
+                }
+            }
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+
+        return Optional.empty();
+    }
+
+    public static CustomLevel of(@NonNull String level, final int priority) {
+        return CustomLevel.parse(level, priority, RESET.getFormatString());
     }
 
     public static CustomLevel of(@NonNull String level, final int priority, @NonNull final String levelFormat) {
-        level = level.toUpperCase();
-        if (ALL_LEVELS.containsKey(level)) {
-            return ALL_LEVELS.get(level);
-        } else {
-            CustomLevel newLevel = CustomLevel.parse(level, priority, levelFormat);
-            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
-            return newLevel;
-        }
+        return CustomLevel.parse(level, priority, levelFormat);
     }
 
     public static CustomLevel of(@NonNull String level, final int priority, @NonNull final LogLevelFormat format) {
-        level = level.toUpperCase();
-        if (ALL_LEVELS.containsKey(level)) {
-            return ALL_LEVELS.get(level);
-        } else {
-            CustomLevel newLevel = CustomLevel.parse(level, priority, format.toString());
-            ALL_LEVELS.put(newLevel.getLevelName(), newLevel);
-            return newLevel;
-        }
+        return CustomLevel.parse(level, priority, format.getFormatString());
     }
 
-    public static CustomLevel parse(@NonNull final String levelNameToParse) {
+    public static CustomLevel parse(String name) throws IllegalArgumentException {
+        Optional<CustomLevel> maybeLevel = checkForCustomLevel(name);
+        if(maybeLevel.isPresent()) {
+            return maybeLevel.get();
+        }
+        throw new IllegalArgumentException("bad level: " + name + ". Could not find a matching valid CustomLevel.");
+    }
+
+    private static CustomLevel parse(String levelNameToParse, final int priority, final String formatString) {
+        levelNameToParse = levelNameToParse.toUpperCase();
+
         // Check if we already have this level
-        CustomLevel ret = ALL_LEVELS.get(levelNameToParse.toUpperCase());
-        if (ret == null) {
-            // Check if there is already a base instance for this log level
-            Level boringLevel = Level.parse(levelNameToParse.toUpperCase());
-            // there is, so convert it to our customs, if there isn't, we will throw out to caller
-            ret = new CustomLevel(boringLevel.getName(), boringLevel.intValue());
-            ALL_LEVELS.put(ret.getLevelName(), ret);
-        }
-        return ret;
-    }
+        CustomLevel ret = ALL_LEVELS.get(levelNameToParse);
 
-    private static CustomLevel parse(@NonNull final String levelNameToParse, final int priority, @NonNull final String formatString) {
-        try {
-            return CustomLevel.parse(levelNameToParse);
-        } catch (IllegalArgumentException e) {
-            CustomLevel ret = new CustomLevel(levelNameToParse, priority, formatString);
+        if (ret == null) {
+            ret = new CustomLevel(levelNameToParse, priority, formatString);
             ALL_LEVELS.put(ret.getLevelName(), ret);
-            return ret;
+        } else if (ret.getPriority() != priority || !ret.getLevelFormat().equals(formatString)) {
+            throw new IllegalArgumentException("A CustomLevel already exists with that name, but with a different priority or format.");
         }
+
+        return ret;
     }
 
     @Override
