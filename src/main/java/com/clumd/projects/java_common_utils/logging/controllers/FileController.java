@@ -17,6 +17,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 import static com.clumd.projects.java_common_utils.logging.LogRoot.ANON_THREAD;
 
@@ -54,6 +55,18 @@ public class FileController extends FileHandler implements CustomLogHandler {
         this.traceID = specificRunID;
         this.systemID = systemID;
         this.overriddenThreadNames = overriddenThreadNames;
+    }
+
+    @Override
+    public boolean isLoggable(LogRecord logRecord) {
+        if (logRecord instanceof ExtendedLogRecord elr && elr.getControllersWhichShouldDisregardThisMessage() != null) {
+            for (Class<? extends StreamHandler> controllerWhichShouldDisregard : elr.getControllersWhichShouldDisregardThisMessage()) {
+                if (controllerWhichShouldDisregard.isAssignableFrom(this.getClass())) {
+                    return false;
+                }
+            }
+        }
+        return super.isLoggable(logRecord);
     }
 
     /**

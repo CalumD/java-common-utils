@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DenseConsoleControllerTest {
@@ -174,5 +175,28 @@ class DenseConsoleControllerTest {
 
         assertTrue(formattedString.startsWith("["));
         assertTrue(formattedString.contains(", WARNING, [baked], [tag1]" + CustomLevel.COLOUR_RESET + "] msg\n"));
+    }
+
+    @Test
+    void test_regular_log_messages_are_loggable() {
+        assertTrue(controller.isLoggable(new LogRecord(Level.WARNING, "jul warn")));
+        assertTrue(controller.isLoggable(new LogRecord(CustomLevel.WARNING, "custom warn 1")));
+        assertTrue(controller.isLoggable(new ExtendedLogRecord(CustomLevel.WARNING, "custom warn 2")));
+    }
+
+    @Test
+    void test_log_messages_ignored_but_by_other_class() {
+        assertTrue(controller.isLoggable(
+                new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
+                        .withControllersWhichShouldIgnore(Set.of(ConsoleController.class))
+        ));
+    }
+
+    @Test
+    void test_specific_log_message_should_be_ignored() {
+        assertFalse(controller.isLoggable(
+                new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
+                        .withControllersWhichShouldIgnore(Set.of(DenseConsoleController.class))
+        ));
     }
 }

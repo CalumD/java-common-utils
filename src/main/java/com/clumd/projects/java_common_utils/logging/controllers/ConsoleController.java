@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 import static com.clumd.projects.java_common_utils.logging.LogRoot.ANON_THREAD;
 import static com.clumd.projects.java_common_utils.logging.LogRoot.TAB;
@@ -40,6 +41,18 @@ public class ConsoleController extends ConsoleHandler implements CustomLogHandle
         this.traceID = specificRunID;
         this.systemID = systemID;
         this.overriddenThreadNames = overriddenThreadNames;
+    }
+
+    @Override
+    public boolean isLoggable(LogRecord logRecord) {
+        if (logRecord instanceof ExtendedLogRecord elr && elr.getControllersWhichShouldDisregardThisMessage() != null) {
+            for (Class<? extends StreamHandler> controllerWhichShouldDisregard : elr.getControllersWhichShouldDisregardThisMessage()) {
+                if (controllerWhichShouldDisregard.isAssignableFrom(this.getClass())) {
+                    return false;
+                }
+            }
+        }
+        return super.isLoggable(logRecord);
     }
 
     private final class ConsoleFormat extends Formatter {

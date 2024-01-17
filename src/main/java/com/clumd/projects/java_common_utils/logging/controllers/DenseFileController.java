@@ -14,6 +14,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 public class DenseFileController extends FileHandler implements CustomLogHandler {
 
@@ -44,6 +45,18 @@ public class DenseFileController extends FileHandler implements CustomLogHandler
     @Override
     public void acceptLogRootRefs(@NonNull UUID specificRunID, @NonNull String systemID, @NonNull Map<Long, String> overriddenThreadNames) {
         // Unused params as this console logger is for basic facts only
+    }
+
+    @Override
+    public boolean isLoggable(LogRecord logRecord) {
+        if (logRecord instanceof ExtendedLogRecord elr && elr.getControllersWhichShouldDisregardThisMessage() != null) {
+            for (Class<? extends StreamHandler> controllerWhichShouldDisregard : elr.getControllersWhichShouldDisregardThisMessage()) {
+                if (controllerWhichShouldDisregard.isAssignableFrom(this.getClass())) {
+                    return false;
+                }
+            }
+        }
+        return super.isLoggable(logRecord);
     }
 
     /**

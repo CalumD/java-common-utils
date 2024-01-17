@@ -25,13 +25,6 @@ class ConsoleControllerTest {
     private String systemId;
     private Map<Long, String> overriddenThreadNames;
 
-    private static class CustomLogFormattedObject implements LoggableData {
-        @Override
-        public String getFormattedLogData() {
-            return "text 12 with \n symbols {\" \": true} ";
-        }
-    }
-
     @BeforeEach
     void setup() {
         controller = new ConsoleController(true);
@@ -105,7 +98,7 @@ class ConsoleControllerTest {
                 new RuntimeException("2nd reason",
                         new IOException("3rd IO",
                                 new NullPointerException("4th NPE!")))
-                );
+        );
         Object[] logParams = new Object[]{
                 1337,
                 BasicJsonBuilder
@@ -160,7 +153,7 @@ class ConsoleControllerTest {
                 text 12 with\s
                  symbols {" ": true}\s
                 }
-                
+                                
                 """));
     }
 
@@ -212,5 +205,35 @@ class ConsoleControllerTest {
         assertTrue(formattedString.contains("][tag1, tag2]\n") || formattedString.contains("][tag2, tag1]\n"));
         assertTrue(formattedString.contains("\n[baked, in][") || formattedString.contains("\n[in, baked]["));
         assertTrue(formattedString.endsWith("\nMessage<" + CustomLevel.WARNING + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+    }
+
+    @Test
+    void test_regular_log_messages_are_loggable() {
+        assertTrue(controller.isLoggable(new LogRecord(Level.WARNING, "jul warn")));
+        assertTrue(controller.isLoggable(new LogRecord(CustomLevel.WARNING, "custom warn 1")));
+        assertTrue(controller.isLoggable(new ExtendedLogRecord(CustomLevel.WARNING, "custom warn 2")));
+    }
+
+    @Test
+    void test_log_messages_ignored_but_by_other_class() {
+        assertTrue(controller.isLoggable(
+                new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
+                        .withControllersWhichShouldIgnore(Set.of(DenseConsoleController.class))
+        ));
+    }
+
+    @Test
+    void test_specific_log_message_should_be_ignored() {
+        assertFalse(controller.isLoggable(
+                new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
+                        .withControllersWhichShouldIgnore(Set.of(ConsoleController.class))
+        ));
+    }
+
+    private static class CustomLogFormattedObject implements LoggableData {
+        @Override
+        public String getFormattedLogData() {
+            return "text 12 with \n symbols {\" \": true} ";
+        }
     }
 }
