@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 
 /**
  * This class is a very basic extension of the built-in JUL {@link Logger}, but with an expansive selection of 'log'
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 public class ExtendedLogger extends Logger {
 
     private final Set<String> bakedInTags;
+    private Set<Class<? extends StreamHandler>> controllersIgnoringThisLogger;
 
     /**
      * Protected method to construct a logger for a named subsystem.
@@ -31,7 +33,7 @@ public class ExtendedLogger extends Logger {
      * @throws MissingResourceException if the resourceBundleName is non-null and no corresponding resource can be
      *                                  found.
      */
-    protected ExtendedLogger(String name) {
+    protected ExtendedLogger(final String name) {
         super(name, null);
         this.bakedInTags = null;
     }
@@ -46,12 +48,34 @@ public class ExtendedLogger extends Logger {
      *                    anonymous Loggers.
      * @param bakedInTags A collection of tags which should be applied to every single log message that this Logger will generate. This is mostly
      *                    for uses such as distributed computing trace IDs or things such as concrete / unchanging environment variables.
-     * @throws MissingResourceException if the resourceBundleName is non-null and no corresponding resource can be
-     *                                  found.
      */
-    protected ExtendedLogger(String name, Set<String> bakedInTags) {
+    protected ExtendedLogger(final String name, final Set<String> bakedInTags) {
         super(name, null);
         this.bakedInTags = bakedInTags;
+    }
+
+    /**
+     * Protected method to construct a logger for a named subsystem.
+     * <p>
+     * The logger will be initially configured with a null Level and with useParentHandlers set to true.
+     *
+     * @param controllersIgnoringThisLogger A collection of
+     *                                      {@link com.clumd.projects.java_common_utils.logging.controllers Log Controllers}
+     *                                      (Which must extend a {@link StreamHandler}), which in an ideal implementation
+     *                                      will IGNORE all log messages from this logger. This is because by default, all
+     *                                      log messages will be published to ALL handlers across our JUL implementation.
+     *                                      If you had particular logs (idk, say something silly like passwords) which
+     *                                      you WANT to log to 'temporary' console-out, but never to a permanent file-out
+     *                                      Log Handler, then you could pass FileController classes into this method, and a
+     *                                      well-respecting java-common-utils compatible log controller <i>should</i> ignore
+     *                                      messages this Logger will pass through.
+     * @return This logger, after having applied these properties. This is to allow for nice method chaining when
+     * constructing this logger.
+     * Such as LogRoot.createLogger(name, bakedTags).withControllersWhichShouldIgnore(Set.of(FileController.class));
+     */
+    public ExtendedLogger withControllersWhichShouldIgnore(final Set<Class<? extends StreamHandler>> controllersIgnoringThisLogger) {
+        this.controllersIgnoringThisLogger = controllersIgnoringThisLogger;
+        return this;
     }
 
     @Override
@@ -60,7 +84,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -69,7 +95,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -78,7 +106,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -89,7 +119,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -98,7 +130,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -107,7 +141,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         doLog(lr);
     }
 
@@ -118,7 +154,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -128,7 +166,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -138,7 +178,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -148,7 +190,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -158,7 +202,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -168,7 +214,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
     }
@@ -180,7 +228,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -190,7 +240,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -200,7 +252,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -210,7 +264,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -220,7 +276,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -230,7 +288,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setParameters(params);
         doLog(lr);
     }
@@ -242,7 +302,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -252,7 +314,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -262,7 +326,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -272,7 +338,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -282,7 +350,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -292,7 +362,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         doLog(lr);
     }
@@ -303,7 +375,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -314,7 +388,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -325,7 +401,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -336,7 +414,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -347,7 +427,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -358,7 +440,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(new Object[]{param1});
         doLog(lr);
@@ -370,7 +454,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
@@ -381,7 +467,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
@@ -392,7 +480,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msg, tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
@@ -403,7 +493,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get()).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get())
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
@@ -414,7 +506,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tag)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
@@ -425,7 +519,9 @@ public class ExtendedLogger extends Logger {
             return;
         }
 
-        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags).referencingBakedInTags(bakedInTags);
+        ExtendedLogRecord lr = new ExtendedLogRecord(level, msgSupplier.get(), tags)
+                .referencingBakedInTags(bakedInTags)
+                .withControllersWhichShouldIgnore(controllersIgnoringThisLogger);
         lr.setThrown(thrown);
         lr.setParameters(params);
         doLog(lr);
