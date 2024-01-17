@@ -345,7 +345,7 @@ public final class LogRoot {
      *
      * @param prefix           The name of the prefix for this Logger instance.
      * @param loggerIdentifier The String name of the class you would like the Logger of.
-     * @param bakedInTagsA     collection of tags which should be applied to every single log message that the Logger returned by this method  will
+     * @param bakedInTags      Collection of tags which should be applied to every single log message that the Logger returned by this method  will
      *                         generate.
      * @return The instantiated ExtendedLogger
      */
