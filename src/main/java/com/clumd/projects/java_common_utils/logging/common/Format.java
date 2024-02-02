@@ -81,14 +81,15 @@ public enum Format implements LogLevelFormat {
         String formatString;
 
         for (Format f : formatModifiers) {
-            modifiers.append(';');
             formatString = f.getFormatString();
             formatString = formatString.substring(
                     formatString.indexOf('[') + 1,
                     formatString.length() - 1
             );
             modifiers.append(formatString);
+            modifiers.append(';');
         }
+        modifiers.deleteCharAt(modifiers.length() - 1);
 
         return modifiers.append('m').toString();
     }

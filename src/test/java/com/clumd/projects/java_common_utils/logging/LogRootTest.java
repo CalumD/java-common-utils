@@ -491,8 +491,8 @@ class LogRootTest {
 
         LogRoot.setApplicationGlobalLevel(CustomLevel.INFO);
 
-        otherNamespace.log(Level.SEVERE, "other higher");
-        otherNamespace.log(Level.FINE, "other lower");
+        otherNamespace.log(Level.SEVERE, "other higher - this shouldn't be colour formatted");
+        otherNamespace.log(Level.FINE, "other lower - this shouldn't be colour formatted");
         localAppNameSpace.log(CustomLevel.SEVERE, "local higher");
         localAppNameSpace.log(CustomLevel.DATA, "local lower");
 
@@ -500,9 +500,9 @@ class LogRootTest {
         assertEquals(3, capturedLogs.size(), 0);
 
         assertEquals("some.other.namespace", capturedLogs.get(0).getLoggerName());
-        assertEquals("other higher", capturedLogs.get(0).getMessage());
+        assertEquals("other higher - this shouldn't be colour formatted", capturedLogs.get(0).getMessage());
         assertEquals("some.other.namespace", capturedLogs.get(1).getLoggerName());
-        assertEquals("other lower", capturedLogs.get(1).getMessage());
+        assertEquals("other lower - this shouldn't be colour formatted", capturedLogs.get(1).getMessage());
         assertEquals(LOGGING_ROOT + ".LogRootTest", capturedLogs.get(2).getLoggerName());
         assertEquals("local higher", capturedLogs.get(2).getMessage());
     }
