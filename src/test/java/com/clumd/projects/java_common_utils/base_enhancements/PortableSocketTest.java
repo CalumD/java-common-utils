@@ -389,6 +389,6 @@ class PortableSocketTest {
             return;
         }
 
-        assertTrue(PortableSocket.portableIsReachable("www.example.com", 0));
+        assertTrue(PortableSocket.portableIsReachable("www.example.com", 443));
     }
 }
