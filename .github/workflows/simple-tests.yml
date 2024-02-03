@@ -1,6 +1,8 @@
 name: Simple JUnit Tests
 
 on:
+  workflow_dispatch:
+    branches: [ main, master ]
   push:
     branches:
       - '*'
