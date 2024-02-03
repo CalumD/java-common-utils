@@ -1,7 +1,7 @@
 # java-common-utils
 
 [![Build](https://github.com/CalumD/java-common-utils/actions/workflows/simple-tests.yml/badge.svg)](https://github.com/CalumD/java-common-utils/actions/workflows/simple-tests.yml)
-[![JDK used](https://img.shields.io/badge/JDK--Used-19.0.1+10-green)](https://www.azul.com/downloads/?version=java-19-sts&package=jdk)
+[![JDK used](https://img.shields.io/badge/JDK--Used-21.28+85-green)](https://www.azul.com/downloads/?version=java-21-sts&package=jdk)
 [![Junit](https://img.shields.io/badge/JUnit-v5-green)](https://junit.org/junit5/docs/current/user-guide/)
 [![GitHub release](https://img.shields.io/github/v/release/CalumD/java-common-utils)](https://github.com/CalumD/java-common-utils/releases)
 [![Maven release](https://maven-badges.herokuapp.com/maven-central/com.clumd.projects/java-common-utils/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.clumd.projects/java-common-utils)
@@ -15,7 +15,7 @@ Best used with a simple Maven import
 <dependency>
     <groupId>com.clumd.projects</groupId>
     <artifactId>java-common-utils</artifactId>
-    <version>2.5.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
