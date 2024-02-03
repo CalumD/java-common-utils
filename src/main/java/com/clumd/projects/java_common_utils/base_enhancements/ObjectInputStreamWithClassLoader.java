@@ -22,12 +22,6 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
      *
      * @param in                          The inputStream as normal
      * @param customLoader                The Custom Class loader to try first for all objects received over this stream.
-     * @param requiredStreamHeaderContent An optional collection of parameters which this InputStream wrapper expects to read on stream
-     *                                    initialisation. When no variadic arguments are provided, the default {@link ObjectInputStream} objects
-     *                                    will be required. When a `{@code (Object[]) null}` is provided as the first AND ONLY argument, NO objects
-     *                                    will be required to be present in the InputStream to successfully initialise. When multiple arguments are
-     *                                    provided, each argument in sequence will be required to be read from the InputStream to successfully
-     *                                    initialise.
      * @throws IOException Thrown as per super's specification
      */
     public ObjectInputStreamWithClassLoader(@NonNull InputStream in, @NonNull URLClassLoader customLoader) throws IOException {
