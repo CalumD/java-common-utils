@@ -272,7 +272,7 @@ public final class LogRoot {
     }
 
     @SuppressWarnings("java:S106") // in the middle of creating a log name, so probably best to user System.err.
-    private static String buildLogName(final String prefix, @NonNull final String loggerIdentifier) {
+    static String buildLogName(final String prefix, @NonNull final String loggerIdentifier) {
         if (LogRoot.loggingRootId == null) {
             System.err.println("Warning, Logging Root ID is not set, have you called the \"LogRoot.init\" method yet? Going to create a really crude default...");
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
