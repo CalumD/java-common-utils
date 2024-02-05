@@ -24,12 +24,12 @@ public class ExtendedLoggerFactory implements ILoggerFactory {
 
         // Create a logger under com.clumd version & keep track of it
         ExtendedSlf4jLogger newInstance = new ExtendedSlf4jLogger(LogRoot.buildLogName(null, name));
-        ExtendedSlf4jLogger reference = loggerMap.putIfAbsent(name, newInstance);
+        loggerMap.put(name, newInstance);
 
         // Integrate this new logger into the com.clumd management
         LogManager.getLogManager().addLogger(newInstance);
         LogRoot.updateThreadIdName(Thread.currentThread().threadId(), Thread.currentThread().getName());
 
-        return reference;
+        return newInstance;
     }
 }
