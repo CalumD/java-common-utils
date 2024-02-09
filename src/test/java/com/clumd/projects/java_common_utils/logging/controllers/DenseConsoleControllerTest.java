@@ -11,10 +11,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DenseConsoleControllerTest {
@@ -25,6 +27,13 @@ class DenseConsoleControllerTest {
         @Override
         public String getFormattedLogData() {
             return "text 12 with \n symbols {\" \": true} ";
+        }
+    }
+
+    private static class NotALevel extends Level {
+
+        protected NotALevel() {
+            super("not a level", 10);
         }
     }
 
@@ -39,24 +48,35 @@ class DenseConsoleControllerTest {
         String message = "blah";
         String formattedString = controller
                 .getFormatter()
+                .format(new LogRecord(new NotALevel(), message));
+
+        assertTrue(formattedString.startsWith("["));
+        assertTrue(formattedString.contains(", not a level] blah\n"));
+    }
+
+    @Test
+    void test_jul_level_converted_to_custom_message_format() {
+        String message = "blah";
+        String formattedString = controller
+                .getFormatter()
                 .format(new LogRecord(Level.INFO, message));
 
         assertTrue(formattedString.startsWith("["));
-        assertTrue(formattedString.contains(", INFO] blah\n"));
+        assertTrue(formattedString.contains(", INFO" + CustomLevel.COLOUR_RESET + "] blah"));
 
         formattedString = controller
                 .getFormatter()
                 .format(new LogRecord(Level.FINEST, message));
 
         assertTrue(formattedString.startsWith("["));
-        assertTrue(formattedString.contains(", FINEST] blah\n"));
+        assertTrue(formattedString.contains(", FINEST" + CustomLevel.COLOUR_RESET + "] blah"));
 
         formattedString = controller
                 .getFormatter()
                 .format(new LogRecord(Level.SEVERE, message));
 
         assertTrue(formattedString.startsWith("["));
-        assertTrue(formattedString.contains(", SEVERE] blah\n"));
+        assertTrue(formattedString.contains(", SEVERE" + CustomLevel.COLOUR_RESET + "] blah"));
     }
 
     @Test
@@ -198,5 +218,19 @@ class DenseConsoleControllerTest {
                 new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
                         .withControllersWhichShouldIgnore(Set.of(DenseConsoleController.class))
         ));
+    }
+
+    @Test
+    void test_cannot_override_already_set_formatter() {
+        Formatter initiallySetFormatter = controller.getFormatter();
+        Formatter imposterFormatter = new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return null;
+            }
+        };
+
+        controller.setFormatter(imposterFormatter);
+        assertSame(initiallySetFormatter, controller.getFormatter());
     }
 }

@@ -11,6 +11,7 @@ import lombok.NonNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
@@ -23,7 +24,7 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
 
     public DenseConsoleController() {
         super();
-        this.setFormatter(new ConsoleFormat());
+        super.setFormatter(new ConsoleFormat());
         this.setLevel(CustomLevel.ALL);
     }
 
@@ -44,6 +45,14 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
         return super.isLoggable(logRecord);
     }
 
+    @Override
+    public void setFormatter(Formatter newFormatter) throws SecurityException {
+        // EXPLICIT DENY OTHER THINGS SETTING OUR FORMATTER - GOSH DARN IT SPRING / EMBEDDED TOMCAT
+        if (getFormatter() != null) {
+            System.err.println("WARNING: Attempt to reset " + DenseConsoleController.class.getName() + " formatter.");
+        }
+    }
+
     private final class ConsoleFormat extends Formatter {
 
         @Override
@@ -51,7 +60,10 @@ public class DenseConsoleController extends ConsoleHandler implements CustomLogH
             if (logRecord.getLevel() instanceof LogLevel logLevel) {
                 return formatWithColour(logRecord, logLevel);
             } else {
-                return formatWithoutColour(logRecord);
+                Optional<CustomLevel> maybeCustomLevel = CustomLevel.convertJulEquivalent(logRecord.getLevel());
+                return maybeCustomLevel.isPresent()
+                        ? formatWithColour(logRecord, maybeCustomLevel.get())
+                        : formatWithoutColour(logRecord);
             }
         }
 

@@ -38,7 +38,7 @@ public class DenseFileController extends FileHandler implements CustomLogHandler
             boolean appendMode
     ) throws IOException, SecurityException {
         super(pathToLogFile, singleFileLogSize, logFileRotations, appendMode);
-        this.setFormatter(new FileFormat());
+        super.setFormatter(new FileFormat());
         this.setLevel(Level.ALL);
     }
 
@@ -57,6 +57,14 @@ public class DenseFileController extends FileHandler implements CustomLogHandler
             }
         }
         return super.isLoggable(logRecord);
+    }
+
+    @Override
+    public void setFormatter(Formatter newFormatter) throws SecurityException {
+        // EXPLICIT DENY OTHER THINGS SETTING OUR FORMATTER - GOSH DARN IT SPRING / EMBEDDED TOMCAT
+        if (getFormatter() != null) {
+            System.err.println("WARNING: Attempt to reset " + DenseFileController.class.getName() + " formatter.");
+        }
     }
 
     /**

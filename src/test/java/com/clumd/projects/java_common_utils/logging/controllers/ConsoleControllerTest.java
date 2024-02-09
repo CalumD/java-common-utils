@@ -12,10 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConsoleControllerTest {
@@ -24,6 +26,13 @@ class ConsoleControllerTest {
     private UUID runID;
     private String systemId;
     private Map<Long, String> overriddenThreadNames;
+
+    private static class NotALevel extends Level {
+
+        protected NotALevel() {
+            super("not a level", 10);
+        }
+    }
 
     @BeforeEach
     void setup() {
@@ -39,27 +48,41 @@ class ConsoleControllerTest {
         String message = "blah";
         String formattedString = controller
                 .getFormatter()
-                .format(new LogRecord(Level.INFO, message));
+                .format(new LogRecord(new NotALevel(), message));
 
         assertTrue(formattedString.startsWith(runID + "    " + systemId + "    "));
-        assertTrue(formattedString.endsWith("Message<" + Level.INFO + ">:  " + message + "\n\n"));
+        assertTrue(formattedString.endsWith("Message<not a level>:  " + message + "\n\n"));
         assertTrue(formattedString.contains("(1):Anon/Unknown Thread"));
+    }
+
+
+    @Test
+    void test_jul_level_converted_to_custom_message_format() {
+        String message = "blah";
+        overriddenThreadNames.put(1L, "some name");
+        String formattedString = controller
+                .getFormatter()
+                .format(new LogRecord(Level.INFO, message));
+
+        assertTrue(formattedString.startsWith(CustomLevel.INFO.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertTrue(formattedString.endsWith("Message<" + CustomLevel.INFO + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+        assertTrue(formattedString.contains("(1):some name"));
 
         formattedString = controller
                 .getFormatter()
                 .format(new LogRecord(Level.FINEST, message));
 
-        assertTrue(formattedString.startsWith(runID + "    " + systemId + "    "));
-        assertTrue(formattedString.endsWith("Message<" + Level.FINEST + ">:  " + message + "\n\n"));
-        assertTrue(formattedString.contains("(1):Anon/Unknown Thread"));
+        assertTrue(formattedString.startsWith(CustomLevel.FINEST.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertTrue(formattedString.endsWith("Message<" + CustomLevel.FINEST + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+        assertTrue(formattedString.contains("(1):some name"));
 
         formattedString = controller
                 .getFormatter()
                 .format(new LogRecord(Level.SEVERE, message));
 
-        assertTrue(formattedString.startsWith(runID + "    " + systemId + "    "));
-        assertTrue(formattedString.endsWith("Message<" + Level.SEVERE + ">:  " + message + "\n\n"));
-        assertTrue(formattedString.contains("(1):Anon/Unknown Thread"));
+        assertTrue(formattedString.startsWith(CustomLevel.SEVERE.getLevelFormat() + runID + "    " + systemId + "    "));
+        assertTrue(formattedString.endsWith("Message<" + CustomLevel.SEVERE + ">:  " + CustomLevel.COLOUR_RESET + message + "\n\n"));
+        assertTrue(formattedString.contains("(1):some name"));
     }
 
     @Test
@@ -228,6 +251,20 @@ class ConsoleControllerTest {
                 new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
                         .withControllersWhichShouldIgnore(Set.of(ConsoleController.class))
         ));
+    }
+
+    @Test
+    void test_cannot_override_already_set_formatter() {
+        Formatter initiallySetFormatter = controller.getFormatter();
+        Formatter imposterFormatter = new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return null;
+            }
+        };
+
+        controller.setFormatter(imposterFormatter);
+        assertSame(initiallySetFormatter, controller.getFormatter());
     }
 
     private static class CustomLogFormattedObject implements LoggableData {
