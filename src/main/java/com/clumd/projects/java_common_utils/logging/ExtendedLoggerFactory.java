@@ -11,10 +11,10 @@ import java.util.logging.LogManager;
  */
 public class ExtendedLoggerFactory implements ILoggerFactory {
 
-    private final ConcurrentMap<String, ExtendedSlf4jLogger> loggerMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, ExtendedSlf4jLogger> loggerMap = new ConcurrentHashMap<>();
 
     @Override
-    public ExtendedSlf4jLogger getLogger(String name) {
+    public synchronized ExtendedSlf4jLogger getLogger(String name) {
 
         ExtendedSlf4jLogger existingLogger = loggerMap.get(name);
 

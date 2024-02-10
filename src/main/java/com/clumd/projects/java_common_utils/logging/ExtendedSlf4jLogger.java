@@ -2,6 +2,7 @@ package com.clumd.projects.java_common_utils.logging;
 
 import com.clumd.projects.java_common_utils.logging.common.CustomLevel;
 import org.slf4j.Marker;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,17 +28,17 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
 
     @Override
     public void trace(String format, Object arg) {
-        log(CustomLevel.TRACE, () -> String.format(format, arg));
+        log(CustomLevel.TRACE, () -> MessageFormatter.format(format, arg).getMessage());
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
-        log(CustomLevel.TRACE, () -> String.format(format, arg1, arg2));
+        log(CustomLevel.TRACE, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
     @Override
     public void trace(String format, Object... arguments) {
-        log(CustomLevel.TRACE, () -> String.format(format, arguments));
+        log(CustomLevel.TRACE, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
 
     @Override
@@ -68,9 +69,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.TRACE, markers, () -> String.format(format, arg));
+            log(CustomLevel.TRACE, markers, () -> MessageFormatter.format(format, arg).getMessage());
         } else {
-            log(CustomLevel.TRACE, () -> String.format(format, arg));
+            log(CustomLevel.TRACE, () -> MessageFormatter.format(format, arg).getMessage());
         }
     }
 
@@ -80,9 +81,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.TRACE, markers, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.TRACE, markers, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         } else {
-            log(CustomLevel.TRACE, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.TRACE, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         }
     }
 
@@ -92,9 +93,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.TRACE, markers, () -> String.format(format, argArray));
+            log(CustomLevel.TRACE, markers, () -> MessageFormatter.arrayFormat(format, argArray).getMessage());
         } else {
-            log(CustomLevel.TRACE, () -> String.format(format, argArray));
+            log(CustomLevel.TRACE, () -> MessageFormatter.arrayFormat(format, argArray).getMessage());
         }
     }
 
@@ -122,17 +123,17 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
 
     @Override
     public void debug(String format, Object arg) {
-        log(CustomLevel.DEBUG, () -> String.format(format, arg));
+        log(CustomLevel.DEBUG, () -> MessageFormatter.format(format, arg).getMessage());
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
-        log(CustomLevel.DEBUG, () -> String.format(format, arg1, arg2));
+        log(CustomLevel.DEBUG, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        log(CustomLevel.DEBUG, () -> String.format(format, arguments));
+        log(CustomLevel.DEBUG, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
 
     @Override
@@ -163,9 +164,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.DEBUG, markers, () -> String.format(format, arg));
+            log(CustomLevel.DEBUG, markers, () -> MessageFormatter.format(format, arg).getMessage());
         } else {
-            log(CustomLevel.DEBUG, () -> String.format(format, arg));
+            log(CustomLevel.DEBUG, () -> MessageFormatter.format(format, arg).getMessage());
         }
     }
 
@@ -175,9 +176,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.DEBUG, markers, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.DEBUG, markers, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         } else {
-            log(CustomLevel.DEBUG, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.DEBUG, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         }
     }
 
@@ -187,9 +188,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.DEBUG, markers, () -> String.format(format, arguments));
+            log(CustomLevel.DEBUG, markers, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         } else {
-            log(CustomLevel.DEBUG, () -> String.format(format, arguments));
+            log(CustomLevel.DEBUG, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         }
     }
 
@@ -212,17 +213,17 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
 
     @Override
     public void info(String format, Object arg) {
-        log(CustomLevel.INFO, () -> String.format(format, arg));
+        log(CustomLevel.INFO, () -> MessageFormatter.format(format, arg).getMessage());
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
-        log(CustomLevel.INFO, () -> String.format(format, arg1, arg2));
+        log(CustomLevel.INFO, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        log(CustomLevel.INFO, () -> String.format(format, arguments));
+        log(CustomLevel.INFO, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
 
     @Override
@@ -253,9 +254,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.INFO, markers, () -> String.format(format, arg));
+            log(CustomLevel.INFO, markers, () -> MessageFormatter.format(format, arg).getMessage());
         } else {
-            log(CustomLevel.INFO, () -> String.format(format, arg));
+            log(CustomLevel.INFO, () -> MessageFormatter.format(format, arg).getMessage());
         }
     }
 
@@ -265,9 +266,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.INFO, markers, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.INFO, markers, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         } else {
-            log(CustomLevel.INFO, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.INFO, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         }
     }
 
@@ -277,9 +278,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.INFO, markers, () -> String.format(format, arguments));
+            log(CustomLevel.INFO, markers, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         } else {
-            log(CustomLevel.INFO, () -> String.format(format, arguments));
+            log(CustomLevel.INFO, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         }
     }
 
@@ -307,17 +308,17 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
 
     @Override
     public void warn(String format, Object arg) {
-        log(CustomLevel.WARNING, () -> String.format(format, arg));
+        log(CustomLevel.WARNING, () -> MessageFormatter.format(format, arg).getMessage());
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        log(CustomLevel.WARNING, () -> String.format(format, arg1, arg2));
+        log(CustomLevel.WARNING, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        log(CustomLevel.WARNING, () -> String.format(format, arguments));
+        log(CustomLevel.WARNING, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
 
     @Override
@@ -348,9 +349,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.WARNING, markers, () -> String.format(format, arg));
+            log(CustomLevel.WARNING, markers, () -> MessageFormatter.format(format, arg).getMessage());
         } else {
-            log(CustomLevel.WARNING, () -> String.format(format, arg));
+            log(CustomLevel.WARNING, () -> MessageFormatter.format(format, arg).getMessage());
         }
     }
 
@@ -360,9 +361,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.WARNING, markers, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.WARNING, markers, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         } else {
-            log(CustomLevel.WARNING, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.WARNING, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         }
     }
 
@@ -372,9 +373,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.WARNING, markers, () -> String.format(format, arguments));
+            log(CustomLevel.WARNING, markers, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         } else {
-            log(CustomLevel.WARNING, () -> String.format(format, arguments));
+            log(CustomLevel.WARNING, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         }
     }
 
@@ -402,17 +403,17 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
 
     @Override
     public void error(String format, Object arg) {
-        log(CustomLevel.ERROR, () -> String.format(format, arg));
+        log(CustomLevel.ERROR, () -> MessageFormatter.format(format, arg).getMessage());
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
-        log(CustomLevel.ERROR, () -> String.format(format, arg1, arg2));
+        log(CustomLevel.ERROR, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
     @Override
     public void error(String format, Object... arguments) {
-        log(CustomLevel.ERROR, () -> String.format(format, arguments));
+        log(CustomLevel.ERROR, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
 
     @Override
@@ -443,9 +444,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.ERROR, markers, () -> String.format(format, arg));
+            log(CustomLevel.ERROR, markers, () -> MessageFormatter.format(format, arg).getMessage());
         } else {
-            log(CustomLevel.ERROR, () -> String.format(format, arg));
+            log(CustomLevel.ERROR, () -> MessageFormatter.format(format, arg).getMessage());
         }
     }
 
@@ -455,9 +456,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.ERROR, markers, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.ERROR, markers, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         } else {
-            log(CustomLevel.ERROR, () -> String.format(format, arg1, arg2));
+            log(CustomLevel.ERROR, () -> MessageFormatter.format(format, arg1, arg2).getMessage());
         }
     }
 
@@ -467,9 +468,9 @@ public class ExtendedSlf4jLogger extends ExtendedLogger implements org.slf4j.Log
             Set<String> markers = new HashSet<>();
             markers.add(marker.getName());
             marker.iterator().forEachRemaining(m -> markers.add(m.getName()));
-            log(CustomLevel.ERROR, markers, () -> String.format(format, arguments));
+            log(CustomLevel.ERROR, markers, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         } else {
-            log(CustomLevel.ERROR, () -> String.format(format, arguments));
+            log(CustomLevel.ERROR, () -> MessageFormatter.arrayFormat(format, arguments).getMessage());
         }
     }
 
