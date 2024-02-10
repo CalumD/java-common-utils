@@ -18,14 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FileControllerTest {
 
@@ -257,5 +254,19 @@ class FileControllerTest {
                 new ExtendedLogRecord(CustomLevel.WARNING, "custom warn")
                         .withControllersWhichShouldIgnore(Set.of(FileController.class))
         ));
+    }
+
+    @Test
+    void test_cannot_override_already_set_formatter() {
+        Formatter initiallySetFormatter = controller.getFormatter();
+        Formatter imposterFormatter = new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return null;
+            }
+        };
+
+        controller.setFormatter(imposterFormatter);
+        assertSame(initiallySetFormatter, controller.getFormatter());
     }
 }
