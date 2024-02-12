@@ -1,6 +1,5 @@
 package com.clumd.projects.java_common_utils.base_enhancements;
 
-import com.clumd.projects.java_common_utils.logging.LogRoot;
 import lombok.NonNull;
 
 import java.util.Objects;
@@ -59,9 +58,6 @@ public class NamedThreadFactory implements ThreadFactory {
                 )
         );
         nextThreadOverriddenName = null;
-
-        // Alert the LogRoot of this thread, and it's name.
-        LogRoot.updateThreadIdName(thread.threadId(), thread.getName());
 
         // replication of super's logic.
         if (thread.isDaemon()) {
