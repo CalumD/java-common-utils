@@ -72,6 +72,23 @@ public class NamedThreadFactory implements ThreadFactory {
     }
 
     /**
+     * This is a convenience method to create a new thread from a lambda, with a given name, using a single method - rather than having to
+     * explicitly call the override and clear next thread name methods.
+     *
+     * @param newThreadName The name the associated thread should be given.
+     * @param runnable The actual work to carry out under the given name.
+     * @return A new named thread ready to be executed.
+     */
+    public Thread newThread(@NonNull final String newThreadName, @NonNull final Runnable runnable) {
+        overrideNextThreadName(newThreadName);
+        try {
+            return newThread(runnable);
+        } finally {
+            clearOverriddenName();
+        }
+    }
+
+    /**
      * Used in the event that you want to cancel a thread name overriding.
      */
     public void clearOverriddenName() {
