@@ -65,6 +65,33 @@ class NamedThreadFactoryTest {
     }
 
     @Test
+    void testSettingOneOffNameUsingConvenienceMethod() {
+        Thread before = namedThreadFactory.newThread(() -> {
+        });
+        Thread during = namedThreadFactory.newThread("Is now overridden", () -> {
+        });
+        Thread after = namedThreadFactory.newThread(() -> {
+        });
+
+        assertEquals(POOL_NAME + ":" + PREFIX + "-1", before.getName());
+        assertEquals("Is now overridden", during.getName());
+        assertEquals(POOL_NAME + ":" + PREFIX + "-2", after.getName());
+    }
+
+    @Test
+    void testSettingOneOffNameUsingStatic() {
+        Thread before = namedThreadFactory.newThread(() -> {
+        });
+        Thread during = NamedThreadFactory.create("Is now overridden", () -> {});
+        Thread after = namedThreadFactory.newThread(() -> {
+        });
+
+        assertEquals(POOL_NAME + ":" + PREFIX + "-1", before.getName());
+        assertEquals("Is now overridden", during.getName());
+        assertEquals(POOL_NAME + ":" + PREFIX + "-2", after.getName());
+    }
+
+    @Test
     void testThreadPriorityAlwaysDefaults() {
         final int originalPriority = Thread.currentThread().getPriority();
         Thread.currentThread().setPriority(10);

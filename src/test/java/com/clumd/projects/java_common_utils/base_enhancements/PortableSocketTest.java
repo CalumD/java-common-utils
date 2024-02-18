@@ -391,4 +391,40 @@ class PortableSocketTest {
 
         assertTrue(PortableSocket.portableIsReachable("www.example.com", 443));
     }
+
+    @Test
+    void test_isClosed_isFalse_thenTrue() throws IOException, InterruptedException {
+        AsyncTestThread serverThread = new AsyncTestThread(() -> {
+            try (
+                    ServerSocket testServerSocket = new ServerSocket(NetworkingTestUtils.FIRST_SERVER_PORT, 0, InetAddress.getLoopbackAddress());
+                    Socket serverSocket = testServerSocket.accept();
+
+                    PortableSocket pss = new PortableSocket(serverSocket, 1, "scooby doob o tron", null, false, 7357);
+            ) {
+                assertNotNull(pss.getOutputStream());
+                assertNotNull(pss.getInputStream());
+
+                assertFalse(pss.isClosed());
+                pss.getOutputStream().flush();
+            } catch (Exception e) {
+                fail(e);
+            }
+        });
+        serverThread.start();
+
+        Socket client = new Socket(InetAddress.getLoopbackAddress(), NetworkingTestUtils.FIRST_SERVER_PORT);
+        PortableSocket cs1 = new PortableSocket(client, 1, "scooby doob o tron", null, false, 7357);
+
+        ObjectOutputStream clientOutputStream = cs1.getOutputStream();
+        assertNotNull(clientOutputStream);
+        ObjectInputStream clientInputStream = cs1.getInputStream();
+        assertNotNull(clientInputStream);
+
+        assertFalse(cs1.isClosed());
+        cs1.close();
+
+        serverThread.finalise();
+
+        assertTrue(cs1.isClosed());
+    }
 }

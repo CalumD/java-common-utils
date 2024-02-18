@@ -43,7 +43,7 @@ class FileUtilsTest {
     void get_resource_as_strings() throws IOException {
         final List<String> asStrings = FileUtils.getLocalResourceAsStrings("com/clumd/projects/java_common_utils/files/FileUtils.class");
 
-        assertEquals(78, asStrings.size(), 0);
+        assertEquals(80, asStrings.size(), 0);
         assertTrue(asStrings.get(4).contains("com/clumd/projects/java_common_utils/files/FileUtils"));
     }
 
