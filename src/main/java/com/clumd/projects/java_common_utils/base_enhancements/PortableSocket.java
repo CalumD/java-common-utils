@@ -294,6 +294,18 @@ public class PortableSocket implements AutoCloseable {
         return inputStream;
     }
 
+    /**
+     * Simple pass-through method to the underlying {@link Socket#isClosed()}.
+     *
+     * @return Whether the socket this PortableSocket is built on, reports itself as closed.
+     */
+    public boolean isClosed() {
+        if (this.socket == null) {
+            return true;
+        }
+        return this.socket.isClosed();
+    }
+
     @Override
     public void close() {
         try {
