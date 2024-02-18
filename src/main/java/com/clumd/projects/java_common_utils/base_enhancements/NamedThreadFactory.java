@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NamedThreadFactory implements ThreadFactory {
 
+    private static final NamedThreadFactory instanceForFactory = new NamedThreadFactory("pool");
     private final String namePrefix;
     private final AtomicInteger threadNumber = new AtomicInteger(1);
     private String nextThreadOverriddenName = null;
@@ -33,6 +34,18 @@ public class NamedThreadFactory implements ThreadFactory {
      */
     public NamedThreadFactory(String poolName, String prefix) {
         this.namePrefix = poolName + ":" + prefix + "-";
+    }
+
+    /**
+     * A static version of {@link NamedThreadFactory#newThread(String, Runnable)}, to save creating a new instance if you only want one custom
+     * named thread.
+     *
+     * @param newThreadName The name the associated thread should be given.
+     * @param runnable      The actual work to carry out under the given name.
+     * @return A new named thread ready to be executed.
+     */
+    public static Thread create(@NonNull final String newThreadName, @NonNull final Runnable runnable) {
+        return instanceForFactory.newThread(newThreadName, runnable);
     }
 
     /**
@@ -76,7 +89,7 @@ public class NamedThreadFactory implements ThreadFactory {
      * explicitly call the override and clear next thread name methods.
      *
      * @param newThreadName The name the associated thread should be given.
-     * @param runnable The actual work to carry out under the given name.
+     * @param runnable      The actual work to carry out under the given name.
      * @return A new named thread ready to be executed.
      */
     public Thread newThread(@NonNull final String newThreadName, @NonNull final Runnable runnable) {
