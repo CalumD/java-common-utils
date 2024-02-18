@@ -53,8 +53,8 @@ public class JavaArgParser implements CLIArgParser {
         sanitise();
 
         // Now, populate a map of all the options
-        Map<Character, Argument<?>> shortArgMap = new HashMap<>(possibleArguments.size());
-        Map<String, Argument<?>> longArgMap = new HashMap<>(possibleArguments.size());
+        Map<Character, Argument<?>> shortArgMap = HashMap.newHashMap(possibleArguments.size());
+        Map<String, Argument<?>> longArgMap = HashMap.newHashMap(possibleArguments.size());
 
         possibleArguments.forEach(arg -> {
             arg.getShortOptions().forEach(shortArg -> shortArgMap.put(shortArg, arg));
@@ -380,8 +380,8 @@ public class JavaArgParser implements CLIArgParser {
                 "NAME: " + NEWLINE + INDENT + appName + SPACE_LINE +
                 "COMMAND: " + NEWLINE + INDENT + appSyntax + SPACE_LINE +
                 "SYNOPSIS: " + NEWLINE + INDENT + appSynopsis + SPACE_LINE +
-                (mandatoryOpts.length() > 0 ? ("MANDATORY OPTIONS: " + NEWLINE + mandatoryOpts) : "") +
-                (optionalOpts.length() > 0 ? ("OPTIONS: " + NEWLINE + optionalOpts) : "") +
+                (!mandatoryOpts.isEmpty() ? ("MANDATORY OPTIONS: " + NEWLINE + mandatoryOpts) : "") +
+                (!optionalOpts.isEmpty() ? ("OPTIONS: " + NEWLINE + optionalOpts) : "") +
                 "AUTHOR: " + NEWLINE + INDENT + appAuthor + SPACE_LINE +
                 "REPORTING BUGS: " + NEWLINE + INDENT + appBugs + SPACE_LINE;
     }

@@ -1,14 +1,6 @@
 package com.clumd.projects.java_common_utils.files;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +16,7 @@ public class FileUtils {
     }
 
     /**
-     * This method takes a file path, and concats all the content into a single string.
+     * This method takes a file path, and concatenates all the content into a single string.
      *
      * @param file The file path for the file to turn into a string
      * @return The file as a single string.

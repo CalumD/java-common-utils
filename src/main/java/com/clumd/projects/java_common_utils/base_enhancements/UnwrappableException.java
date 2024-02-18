@@ -9,38 +9,38 @@ public abstract class UnwrappableException extends Exception implements Unwrappa
 
     protected Collection<Object> metadata;
 
-    public UnwrappableException(final String reason) {
+    protected UnwrappableException(final String reason) {
         super(reason);
     }
 
-    public UnwrappableException(final String reason, Throwable cause) {
+    protected UnwrappableException(final String reason, Throwable cause) {
         super(reason, cause);
     }
 
-    public UnwrappableException(final Supplier<String> reason) {
+    protected UnwrappableException(final Supplier<String> reason) {
         super(reason.get());
     }
 
-    public UnwrappableException(final Supplier<String> reason, Throwable cause) {
+    protected UnwrappableException(final Supplier<String> reason, Throwable cause) {
         super(reason.get(), cause);
     }
 
-    public UnwrappableException(final String reason, Object... metadata) {
+    protected UnwrappableException(final String reason, Object... metadata) {
         super(reason);
         this.metadata = List.of(metadata);
     }
 
-    public UnwrappableException(final String reason, Throwable cause, Object... metadata) {
+    protected UnwrappableException(final String reason, Throwable cause, Object... metadata) {
         super(reason, cause);
         this.metadata = List.of(metadata);
     }
 
-    public UnwrappableException(final Supplier<String> reason, Object... metadata) {
+    protected UnwrappableException(final Supplier<String> reason, Object... metadata) {
         super(reason.get());
         this.metadata = List.of(metadata);
     }
 
-    public UnwrappableException(final Supplier<String> reason, Throwable cause, Object... metadata) {
+    protected UnwrappableException(final Supplier<String> reason, Throwable cause, Object... metadata) {
         super(reason.get(), cause);
         this.metadata = List.of(metadata);
     }
