@@ -13,39 +13,57 @@ public abstract class UnwrappableException extends Exception implements Unwrappa
         super(reason);
     }
 
-    protected UnwrappableException(final String reason, Throwable cause) {
+    protected UnwrappableException(final Iterable<String> reasons) {
+        this(String.join(",\n", reasons));
+    }
+
+    protected UnwrappableException(final String reason, final Throwable cause) {
         super(reason, cause);
+    }
+
+    protected UnwrappableException(final Iterable<String> reasons, final Throwable cause) {
+        this(String.join(",\n", reasons), cause);
     }
 
     protected UnwrappableException(final Supplier<String> reason) {
         super(reason.get());
     }
 
-    protected UnwrappableException(final Supplier<String> reason, Throwable cause) {
+    protected UnwrappableException(final Supplier<String> reason, final Throwable cause) {
         super(reason.get(), cause);
     }
 
-    protected UnwrappableException(final String reason, Object... metadata) {
+    protected UnwrappableException(final String reason, final Object... metadata) {
         super(reason);
         this.metadata = List.of(metadata);
     }
 
-    protected UnwrappableException(final String reason, Throwable cause, Object... metadata) {
+    protected UnwrappableException(final Iterable<String> reasons, final Object... metadata) {
+        this(String.join(",\n", reasons));
+        this.metadata = List.of(metadata);
+    }
+
+    protected UnwrappableException(final String reason, final Throwable cause, final Object... metadata) {
         super(reason, cause);
         this.metadata = List.of(metadata);
     }
 
-    protected UnwrappableException(final Supplier<String> reason, Object... metadata) {
+    protected UnwrappableException(final Iterable<String> reasons, final Throwable cause, final Object... metadata) {
+        this(String.join(",\n", reasons), cause);
+        this.metadata = List.of(metadata);
+    }
+
+    protected UnwrappableException(final Supplier<String> reason, final Object... metadata) {
         super(reason.get());
         this.metadata = List.of(metadata);
     }
 
-    protected UnwrappableException(final Supplier<String> reason, Throwable cause, Object... metadata) {
+    protected UnwrappableException(final Supplier<String> reason, final Throwable cause, final Object... metadata) {
         super(reason.get(), cause);
         this.metadata = List.of(metadata);
     }
 
-    public static List<String> unwrapReasonsIntoList(final Throwable rootCause, boolean includeTrace) {
+    public static List<String> unwrapReasonsIntoList(final Throwable rootCause, final boolean includeTrace) {
         List<String> reasons = new ArrayList<>();
 
         Throwable throwable = rootCause;
@@ -76,7 +94,7 @@ public abstract class UnwrappableException extends Exception implements Unwrappa
     }
 
     @Override
-    public List<String> unwrapReasonsIntoList(boolean includeTrace) {
+    public List<String> unwrapReasonsIntoList(final boolean includeTrace) {
         return unwrapReasonsIntoList(this, includeTrace);
     }
 }

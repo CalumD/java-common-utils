@@ -7,9 +7,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UnwrappableThrowableTest {
+class UnwrappableThrowableTest {
 
     protected static class WrappedCheckedImpl extends UnwrappableException {
 
@@ -17,8 +19,16 @@ public class UnwrappableThrowableTest {
             super(reason);
         }
 
+        public WrappedCheckedImpl(Iterable<String> reasons) {
+            super(reasons);
+        }
+
         public WrappedCheckedImpl(String reason, Throwable cause) {
             super(reason, cause);
+        }
+
+        public WrappedCheckedImpl(Iterable<String> reasons, Throwable cause) {
+            super(reasons, cause);
         }
 
         public WrappedCheckedImpl(Supplier<String> reason) {
@@ -33,8 +43,16 @@ public class UnwrappableThrowableTest {
             super(reason, metadata);
         }
 
+        public WrappedCheckedImpl(Iterable<String> reasons, Object... metadata) {
+            super(reasons, metadata);
+        }
+
         public WrappedCheckedImpl(String reason, Throwable cause, Object... metadata) {
             super(reason, cause, metadata);
+        }
+
+        public WrappedCheckedImpl(Iterable<String> reasons, Throwable cause, Object... metadata) {
+            super(reasons, cause, metadata);
         }
 
         public WrappedCheckedImpl(Supplier<String> reason, Object... metadata) {
@@ -56,8 +74,16 @@ public class UnwrappableThrowableTest {
             super(reason);
         }
 
+        public WrappedRuntimeImpl(Iterable<String> reasons) {
+            super(reasons);
+        }
+
         public WrappedRuntimeImpl(String reason, Throwable cause) {
             super(reason, cause);
+        }
+
+        public WrappedRuntimeImpl(Iterable<String> reasons, Throwable cause) {
+            super(reasons, cause);
         }
 
         public WrappedRuntimeImpl(Supplier<String> reason) {
@@ -72,8 +98,16 @@ public class UnwrappableThrowableTest {
             super(reason, metadata);
         }
 
+        public WrappedRuntimeImpl(Iterable<String> reasons, Object... metadata) {
+            super(reasons, metadata);
+        }
+
         public WrappedRuntimeImpl(String reason, Throwable cause, Object... metadata) {
             super(reason, cause, metadata);
+        }
+
+        public WrappedRuntimeImpl(Iterable<String> reasons, Throwable cause, Object... metadata) {
+            super(reasons, cause, metadata);
         }
 
         public WrappedRuntimeImpl(Supplier<String> reason, Object... metadata) {

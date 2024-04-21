@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
 
@@ -44,7 +46,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
     @Test
     void test_reasonAndMetadata() {
         WrappedRuntimeImpl v1 = new WrappedRuntimeImpl("some reason 1", 123L);
-        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl("some reason 2", new Object[] {1, 2, 3});
+        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl("some reason 2", new Object[]{1, 2, 3});
         WrappedRuntimeImpl v3 = new WrappedRuntimeImpl("some reason 3", List.of("1", "2", "3"));
         WrappedRuntimeImpl v4 = new WrappedRuntimeImpl("some reason 4", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
@@ -52,7 +54,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
         assertNull(v1.getCause());
         assertEquals(1, v1.getMetadata().size(), 0);
         assertTrue(v1.getMetadata().stream().findFirst().isPresent());
-        assertEquals(123L, (long)v1.getMetadata().stream().findFirst().get(), 0);
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
 
         assertEquals("some reason 2", v2.getMessage());
         assertNull(v2.getCause());
@@ -85,7 +87,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
     @Test
     void test_reasonThrowableAndMetadata() {
         WrappedRuntimeImpl v1 = new WrappedRuntimeImpl("some reason 1", new WrappedRuntimeImpl("nested reason to check"), 123L);
-        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl("some reason 2", new WrappedRuntimeImpl("nested reason to check"), new Object[] {1, 2, 3});
+        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl("some reason 2", new WrappedRuntimeImpl("nested reason to check"), new Object[]{1, 2, 3});
         WrappedRuntimeImpl v3 = new WrappedRuntimeImpl("some reason 3", new WrappedRuntimeImpl("nested reason to check"), List.of("1", "2", "3"));
         WrappedRuntimeImpl v4 = new WrappedRuntimeImpl("some reason 4", new WrappedRuntimeImpl("nested reason to check"), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
@@ -93,7 +95,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
         assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), v1.getCause().getMessage());
         assertEquals(1, v1.getMetadata().size(), 0);
         assertTrue(v1.getMetadata().stream().findFirst().isPresent());
-        assertEquals(123L, (long)v1.getMetadata().stream().findFirst().get(), 0);
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
 
         assertEquals("some reason 2", v2.getMessage());
         assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), v2.getCause().getMessage());
@@ -126,7 +128,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
     @Test
     void test_reasonSupplierAndMetadata() {
         WrappedRuntimeImpl v1 = new WrappedRuntimeImpl(() -> "some supplied reason 1", 123L);
-        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl(() -> "some supplied reason 2", new Object[] {1, 2, 3});
+        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl(() -> "some supplied reason 2", new Object[]{1, 2, 3});
         WrappedRuntimeImpl v3 = new WrappedRuntimeImpl(() -> "some supplied reason 3", List.of("1", "2", "3"));
         WrappedRuntimeImpl v4 = new WrappedRuntimeImpl(() -> "some supplied reason 4", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
@@ -134,7 +136,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
         assertNull(v1.getCause());
         assertEquals(1, v1.getMetadata().size(), 0);
         assertTrue(v1.getMetadata().stream().findFirst().isPresent());
-        assertEquals(123L, (long)v1.getMetadata().stream().findFirst().get(), 0);
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
 
         assertEquals("some supplied reason 2", v2.getMessage());
         assertNull(v2.getCause());
@@ -167,7 +169,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
     @Test
     void test_reasonSupplierThrowableAndMetadata() {
         WrappedRuntimeImpl v1 = new WrappedRuntimeImpl(() -> "some supplied reason 1", new WrappedRuntimeImpl("nested reason to check"), 123L);
-        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl(() -> "some supplied reason 2", new WrappedRuntimeImpl("nested reason to check"), new Object[] {1, 2, 3});
+        WrappedRuntimeImpl v2 = new WrappedRuntimeImpl(() -> "some supplied reason 2", new WrappedRuntimeImpl("nested reason to check"), new Object[]{1, 2, 3});
         WrappedRuntimeImpl v3 = new WrappedRuntimeImpl(() -> "some supplied reason 3", new WrappedRuntimeImpl("nested reason to check"), List.of("1", "2", "3"));
         WrappedRuntimeImpl v4 = new WrappedRuntimeImpl(() -> "some supplied reason 4", new WrappedRuntimeImpl("nested reason to check"), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
@@ -175,7 +177,7 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
         assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), v1.getCause().getMessage());
         assertEquals(1, v1.getMetadata().size(), 0);
         assertTrue(v1.getMetadata().stream().findFirst().isPresent());
-        assertEquals(123L, (long)v1.getMetadata().stream().findFirst().get(), 0);
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
 
         assertEquals("some supplied reason 2", v2.getMessage());
         assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), v2.getCause().getMessage());
@@ -203,5 +205,43 @@ class UnwrappableRuntimeExceptionTest extends UnwrappableThrowableTest {
         assertTrue(new ArrayList<>(v4.getMetadata()).contains(8));
         assertTrue(new ArrayList<>(v4.getMetadata()).contains(9));
         assertTrue(new ArrayList<>(v4.getMetadata()).contains(10));
+    }
+
+    @Test
+    void test_multipleReasons() {
+        WrappedRuntimeImpl exception = new WrappedRuntimeImpl(List.of("first reason", "second reason"));
+        assertEquals("first reason,\nsecond reason", exception.getMessage());
+        assertNull(exception.getCause());
+        assertNull(exception.getMetadata());
+    }
+
+    @Test
+    void test_multipleReasonsAndThrowable() {
+        WrappedRuntimeImpl exception = new WrappedRuntimeImpl(List.of("first reason", "second reason"), new WrappedRuntimeImpl("nested reason to check"));
+        assertEquals("first reason,\nsecond reason", exception.getMessage());
+        assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), exception.getCause().getMessage());
+        assertNull(exception.getMetadata());
+    }
+
+    @Test
+    void test_multipleReasonAndMetadata() {
+        WrappedRuntimeImpl v1 = new WrappedRuntimeImpl(List.of("first reason", "second reason"), 123L);
+
+        assertEquals("first reason,\nsecond reason", v1.getMessage());
+        assertNull(v1.getCause());
+        assertEquals(1, v1.getMetadata().size(), 0);
+        assertTrue(v1.getMetadata().stream().findFirst().isPresent());
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
+    }
+
+    @Test
+    void test_multipleReasonThrowableAndMetadata() {
+        WrappedRuntimeImpl v1 = new WrappedRuntimeImpl(List.of("first reason", "second reason"), new WrappedRuntimeImpl("nested reason to check"), 123L);
+
+        assertEquals("first reason,\nsecond reason", v1.getMessage());
+        assertEquals(new WrappedRuntimeImpl("nested reason to check").getMessage(), v1.getCause().getMessage());
+        assertEquals(1, v1.getMetadata().size(), 0);
+        assertTrue(v1.getMetadata().stream().findFirst().isPresent());
+        assertEquals(123L, (long) v1.getMetadata().stream().findFirst().get(), 0);
     }
 }
